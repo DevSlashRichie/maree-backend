@@ -8,7 +8,7 @@ on:
 
 jobs:
   conventional-commits:
-    runs-on: ubuntu-latest
+    runs-on: codeberg-tiny
 
     steps:
       - name: Checkout
