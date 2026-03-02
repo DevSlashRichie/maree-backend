@@ -1,4 +1,5 @@
 import { pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { uuidv7 } from "uuidv7";
 
 export const rolesTable = pgTable("role", {
@@ -7,11 +8,19 @@ export const rolesTable = pgTable("role", {
     createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const rolesRelations = relations(rolesTable, ({ many }) => ({
+    rolePolicies: many(rolePoliciesTable),
+}));
+
 export const policyTable = pgTable("policy", {
     id: uuid().primaryKey().$defaultFn(() => uuidv7()),
     name: text().notNull().unique(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+export const policyRelations = relations(policyTable, ({ many }) => ({
+    rolePolicies: many(rolePoliciesTable),
+}));
 
 export const rolePoliciesTable = pgTable("role_policy", {
     roleId: uuid("role_id").notNull().references(() => rolesTable.id),
@@ -22,12 +31,15 @@ export const rolePoliciesTable = pgTable("role_policy", {
     })
 ]);
 
-export const user = pgTable("user", {
-    id: uuid().primaryKey().$defaultFn(() => uuidv7()),
-    firstName: text(),
-    lastName: text(),
-    phone: text().notNull().unique(),
-    email: text().notNull().unique(),
-    roleId: uuid().references(() => rolesTable.id),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-})
+export const rolePoliciesRelations = relations(rolePoliciesTable, ({ one }) => ({
+    role: one(rolesTable, {
+        fields: [rolePoliciesTable.roleId],
+        references: [rolesTable.id],
+    }),
+    policy: one(policyTable, {
+        fields: [rolePoliciesTable.policyId],
+        references: [policyTable.id],
+    }),
+}));
+
+
