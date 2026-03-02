@@ -1,11 +1,20 @@
-import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { uuidv7 } from "uuidv7";
 
-export const usersTable = pgTable("users", {
+export const rolesTable = pgTable("roles", {
     id: uuid().primaryKey().$defaultFn(() => uuidv7()),
     name: text().notNull(),
-    email: text().notNull().unique(),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
 
 });
+
+
+
+export const rolePoliciesTable = pgTable("role_policies", {
+    roleId: uuid("role_id").notNull().references(() => rolesTable.id),
+    policyId: uuid("policy_id")
+}, (table) => [
+    primaryKey({
+        columns: [table.roleId, table.policyId]
+    })
+]);
