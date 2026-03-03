@@ -2,6 +2,9 @@ import { Hono } from "hono";
 import z from "zod";
 
 import { serve } from "bun";
+import { userRouter } from "./routes/user";
+import { productRoutes } from "./routes/product";
+import { orderRouter } from "./routes/order";
 
 export const envHttpConf = z.object({
     HOST: z.ipv4(),
@@ -16,6 +19,10 @@ export function createHttpServer(
     options: z.infer<typeof envHttpConf>,
 ) {
     const app = new Hono();
+
+    app.route("/users", userRouter);
+    app.route("/products", productRoutes);
+    app.route("/orders", orderRouter);
 
     serve({
         fetch: app.fetch,
