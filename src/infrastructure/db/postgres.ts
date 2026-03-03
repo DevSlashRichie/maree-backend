@@ -30,6 +30,7 @@ DB.query.userTable.findFirst({
 export type DbExecutor = typeof DB;
 export type TxExecutor = Parameters<typeof DB.transaction>[0] extends (
   tx: infer T,
+  // biome-ignore lint/suspicious/noExplicitAny: needed for conditional type inference
 ) => any
   ? T
   : never;
