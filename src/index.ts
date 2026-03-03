@@ -1,7 +1,7 @@
 import { createHttpServer, envHttpConf } from "./http";
 import "dotenv/config";
 import { logger } from "@/lib/logger";
-import { envDatabaseSchema } from "./repository/postgres";
+import { envDatabaseSchema } from "./infrastructure/db/postgres";
 
 async function main() {
   const parsed = await envDatabaseSchema.safeParseAsync(process.env);
