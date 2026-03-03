@@ -1,6 +1,5 @@
 import {
   bigint,
-  integer,
   pgTable,
   text,
   timestamp,

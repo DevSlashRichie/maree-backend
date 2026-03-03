@@ -19,5 +19,18 @@ export const DB = drizzle({
     database: process.env.DB_DATABASE!,
   },
   casing: "snake_case",
-  schema,
+  schema: schema,
 });
+
+DB.query.userTable.findFirst({
+  where: (table, { eq }) => eq(table.id, ""),
+});
+
+export type DbExecutor = typeof DB;
+export type TxExecutor = Parameters<typeof DB.transaction>[0] extends (
+  tx: infer T,
+) => any
+  ? T
+  : never;
+
+export type Executor = DbExecutor | TxExecutor;

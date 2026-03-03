@@ -8,7 +8,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { uuidv7 } from "uuidv7";
 import { ordersTable } from "./order";
-import { usersTable } from "./user";
+import { userTable } from "./user";
 
 export const reviewsTable = pgTable("review", {
   id: uuid()
@@ -19,7 +19,7 @@ export const reviewsTable = pgTable("review", {
     .references(() => ordersTable.id),
   userId: uuid()
     .notNull()
-    .references(() => usersTable.id),
+    .references(() => userTable.id),
   satisfactionRate: integer(),
   notes: text(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
