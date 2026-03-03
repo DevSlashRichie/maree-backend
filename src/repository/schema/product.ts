@@ -6,5 +6,5 @@ export const productVariantsTable = pgTable("product_variant", {
     name: text().notNull(),
     price: bigint({ mode: "bigint" }).notNull(),
     image: text(),
-    productId: uuid().notNull().references(() => products.id),
+    productId: uuid().notNull().references(() => productsTable.id),
 });
