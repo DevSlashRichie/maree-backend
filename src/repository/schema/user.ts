@@ -13,3 +13,9 @@ export const userTable = pgTable("user", {
     createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const userPasswordTable = pgTable("user_password", {
+    userId: uuid("user_id").notNull().primaryKey().references(() => userTable.id),
+    password: text().notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
