@@ -1,12 +1,14 @@
 import {
   integer,
   pgTable,
+  primaryKey,
   text,
   time,
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
 import { uuidv7 } from "uuidv7";
+import { userTable } from "./user.ts";
 
 export const branchsTable = pgTable("branch", {
   id: uuid()
@@ -30,3 +32,20 @@ export const schedulesTable = pgTable("schedule", {
   timezone: text().notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+export const staffTable = pgTable(
+  "staff",
+  {
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branchsTable.id),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => userTable.id),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.branchId, table.userId],
+    }),
+  ],
+);
