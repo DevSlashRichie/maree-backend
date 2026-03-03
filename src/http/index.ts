@@ -3,7 +3,7 @@ import z from "zod";
 
 import { serve } from "bun";
 import { userRouter } from "./routes/user";
-import { productRoutes } from "./routes/product";
+import { productRouter } from "./routes/product";
 import { orderRouter } from "./routes/order";
 
 export const envHttpConf = z.object({
@@ -21,7 +21,7 @@ export function createHttpServer(
     const app = new Hono();
 
     app.route("/users", userRouter);
-    app.route("/products", productRoutes);
+    app.route("/products", productRouter);
     app.route("/orders", orderRouter);
 
     serve({
