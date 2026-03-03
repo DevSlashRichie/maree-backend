@@ -16,7 +16,7 @@ export const discountsTable = pgTable("discount", {
   name: text().notNull(),
   type: text().notNull(),
   value: bigint({ mode: "bigint" }).notNull(),
-  appliesTo: text().notNull(),
+  appliesTo: text().notNull().array(),
   state: text().notNull(),
   startDate: timestamp("started_at", { withTimezone: true })
     .notNull()
