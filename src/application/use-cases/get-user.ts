@@ -1,12 +1,14 @@
-import { eq } from "drizzle-orm";
 import type { User } from "@/domain/entities/user";
 import { DB } from "@/infrastructure/db/postgres";
-import { userTable } from "@/infrastructure/db/schema";
+import { UserRepo } from "@/domain/repositories/user-repo";
+import type { Option } from "oxide.ts";
 
-export async function getUserUseCase(userId: string): Promise<User | null> {
-  const user = await DB.query.userTable.findFirst({
-    where: eq(userTable.id, userId),
+export async function getUserUseCase(userId: string): Promise<Option<User>> {
+  const user = await DB.transaction(async (txn) => {
+    const userRepo = new UserRepo(txn);
+
+    return userRepo.findById(userId);
   });
 
-  return user ?? null;
+  return user;
 }

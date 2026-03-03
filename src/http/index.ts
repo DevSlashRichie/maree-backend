@@ -5,6 +5,7 @@ import { loggerMiddleware } from "./middleware/logger";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
 import { userRouter } from "./routes/user";
+import { authenticationRouter } from "./routes/authentication";
 
 export const envHttpConf = z.object({
   HOST: z.ipv4(),
@@ -23,6 +24,7 @@ export function createHttpServer(options: z.infer<typeof envHttpConf>) {
   app.route("/users", userRouter);
   app.route("/products", productRouter);
   app.route("/orders", orderRouter);
+  app.route("/auth", authenticationRouter);
 
   serve({
     fetch: app.fetch,
