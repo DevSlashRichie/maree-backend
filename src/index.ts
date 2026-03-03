@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { envDatabaseSchema } from "./repository/postgres";
+import { DB, envDatabaseSchema } from "./repository/postgres";
 import { createHttpServer, envHttpConf } from "./http";
 
 async function main() {
@@ -9,10 +9,6 @@ async function main() {
         console.error("❌ Invalid environment variables:", parsed.error.flatten().fieldErrors);
         throw new Error("Invalid environment variables");
     }
-
-    const database = createDatabase(parsed.data);
-
-    console.log("✅ Database connection initialized");
 
     const parsedHttpConf = await envHttpConf.safeParseAsync(process.env);
 
@@ -25,7 +21,7 @@ async function main() {
         parsedHttpConf.data,
     );
 
-    console.log("✅ Http server initialized on: ",);
+    console.log("Server ready!");
 }
 
 await main();
