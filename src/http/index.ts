@@ -1,6 +1,7 @@
 import { serve } from "bun";
 import { Hono } from "hono";
 import z from "zod";
+import { loggerMiddleware } from "./middleware/logger";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
 import { userRouter } from "./routes/user";
@@ -16,6 +17,8 @@ export const envHttpConf = z.object({
 // PATCH localhost/order/<id> - m,odificar una orden
 export function createHttpServer(options: z.infer<typeof envHttpConf>) {
   const app = new Hono();
+
+  app.use("*", loggerMiddleware);
 
   app.route("/users", userRouter);
   app.route("/products", productRouter);
