@@ -29,7 +29,9 @@ export const ordersTable = pgTable("order", {
   status: text().notNull(),
   note: text(),
   orderNumber: text().notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const orderItemsTable = pgTable("order_items", {
@@ -45,5 +47,7 @@ export const orderItemsTable = pgTable("order_items", {
   quantity: integer().notNull(),
   pricingSnapshot: bigint({ mode: "bigint" }).notNull(),
   notes: text(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });

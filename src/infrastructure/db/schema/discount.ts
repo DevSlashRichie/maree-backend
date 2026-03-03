@@ -18,9 +18,13 @@ export const discountsTable = pgTable("discount", {
   value: bigint({ mode: "bigint" }).notNull(),
   appliesTo: text().notNull(),
   state: text().notNull(),
-  startDate: timestamp("started_at").notNull().defaultNow(),
-  endDate: timestamp("ended_at").notNull().defaultNow(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  startDate: timestamp("started_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  endDate: timestamp("ended_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const discountBranchesTable = pgTable(

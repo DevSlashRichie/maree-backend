@@ -16,7 +16,9 @@ export const branchsTable = pgTable("branch", {
     .$defaultFn(() => uuidv7()),
   name: text().notNull(),
   state: text().notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const schedulesTable = pgTable("schedule", {
@@ -30,7 +32,9 @@ export const schedulesTable = pgTable("schedule", {
   toTime: time().notNull(),
   weekday: integer().notNull(),
   timezone: text().notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const staffTable = pgTable(
@@ -42,6 +46,9 @@ export const staffTable = pgTable(
     userId: uuid("user_id")
       .notNull()
       .references(() => userTable.id),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     primaryKey({

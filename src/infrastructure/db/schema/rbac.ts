@@ -13,7 +13,9 @@ export const rolesTable = pgTable("role", {
     .primaryKey()
     .$defaultFn(() => uuidv7()),
   name: text().notNull().unique(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const rolesRelations = relations(rolesTable, ({ many }) => ({
@@ -25,7 +27,9 @@ export const policyTable = pgTable("policy", {
     .primaryKey()
     .$defaultFn(() => uuidv7()),
   name: text().notNull().unique(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const policyRelations = relations(policyTable, ({ many }) => ({

@@ -14,7 +14,9 @@ export const userTable = pgTable("user", {
   roleId: uuid("role_id")
     .notNull()
     .references(() => rolesTable.id),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const userPasswordTable = pgTable("user_password", {
@@ -23,7 +25,9 @@ export const userPasswordTable = pgTable("user_password", {
     .primaryKey()
     .references(() => userTable.id),
   password: text().notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const userRelations = relations(userTable, ({ one }) => ({

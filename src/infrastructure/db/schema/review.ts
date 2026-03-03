@@ -19,5 +19,7 @@ export const reviewsTable = pgTable("review", {
     .references(() => branchsTable.id),
   satisfactionRate: integer(),
   notes: text(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });

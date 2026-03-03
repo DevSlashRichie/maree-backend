@@ -10,7 +10,9 @@ export const categoryTable = pgTable("category", {
   name: text().notNull(),
   description: text(),
   parentId: uuid("parent_id").references((): AnyPgColumn => categoryTable.id),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const productTable = pgTable("product", {
@@ -22,7 +24,9 @@ export const productTable = pgTable("product", {
   categoryId: uuid()
     .notNull()
     .references(() => categoryTable.id),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const productVariantsTable = pgTable("product_variant", {
