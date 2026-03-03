@@ -1,0 +1,31 @@
+{
+  "$schema": "https://www.schemastore.org/package.json",
+  "name": "maree-backend",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/pg": "^8.18.0",
+    "drizzle-kit": "^0.31.9",
+    "tsx": "^4.21.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^1.2.2",
+    "@hono/zod-validator": "^0.7.6",
+    "dotenv": "^17.3.1",
+    "drizzle-orm": "^0.45.1",
+    "hono": "^4.12.3",
+    "pg": "^8.19.0",
+    "uuidv7": "^1.1.0",
+    "zod": "^4.3.6"
+  },
+  "scripts": {
+    "drizzle:migrate": "drizzle-kit push",
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts"
+  }
+}
