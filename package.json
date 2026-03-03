@@ -8,7 +8,9 @@
     "@types/bun": "latest",
     "@types/pg": "^8.18.0",
     "drizzle-kit": "^0.31.9",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "husky": "^9.1.7",
+    "@biomejs/biome": "^2.4.2"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -26,6 +28,9 @@
   "scripts": {
     "drizzle:migrate": "drizzle-kit push",
     "dev": "bun run --watch src/index.ts",
-    "start": "bun run src/index.ts"
+    "start": "bun run src/index.ts",
+    "check": "bunx biome check",
+    "check:write": "bunx biome check --write",
+    "prepare": "husky"
   }
 }
