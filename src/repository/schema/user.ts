@@ -3,7 +3,7 @@ import { uuidv7 } from "uuidv7";
 
 import { rolesTable } from "./rbac";
 
-export const userTable = pgTable("user", {
+export const usersTable = pgTable("user", {
     id: uuid().primaryKey().$defaultFn(() => uuidv7()),
     firstName: text("first_name").notNull(),
     lastName: text("last_name").notNull(),

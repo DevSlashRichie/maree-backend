@@ -21,6 +21,12 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
 
+    // Paths
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
