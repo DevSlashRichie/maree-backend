@@ -1,13 +1,13 @@
 import { Hono } from "hono";
 
-export const productRoutes = new Hono();
+export const productRouter = new Hono();
 
-productRoutes.get("/", (ctx) => {
-
-  return ctx.json({});
-})
-
-productRoutes.post("/", (ctx) => {
+productRouter.get("/", (ctx) => {
 
   return ctx.json({});
-})
+});
+
+productRouter.post("/", (ctx) => {
+
+  return ctx.json({});
+});
