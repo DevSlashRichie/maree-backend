@@ -6,6 +6,8 @@ import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
 import { userRouter } from "./routes/user";
 import { authenticationRouter } from "./routes/authentication";
+import { createStateMiddleware, type State } from "./state";
+import { authzMiddleware } from "./middleware/authz";
 
 export const envHttpConf = z.object({
   HOST: z.ipv4(),
@@ -17,9 +19,17 @@ export const envHttpConf = z.object({
 // GET localhost/order/<id> - obtener una orden
 // PATCH localhost/order/<id> - m,odificar una orden
 export function createHttpServer(options: z.infer<typeof envHttpConf>) {
-  const app = new Hono();
+  const app = new Hono<State>();
+
+  app.use(
+    "*",
+    createStateMiddleware({
+      authzSecret: "secret",
+    }),
+  );
 
   app.use("*", loggerMiddleware);
+  app.use("*", authzMiddleware);
 
   app.route("/users", userRouter);
   app.route("/products", productRouter);

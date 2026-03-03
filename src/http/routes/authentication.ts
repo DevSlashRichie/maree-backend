@@ -1,16 +1,11 @@
 import { Hono } from "hono";
 import { getUserUseCase } from "@/application/use-cases/get-user";
+import type { State } from "../state";
 
-export const authenticationRouter = new Hono();
+export const authenticationRouter = new Hono<State>();
 
-authenticationRouter.get("/me", async (ctx) => {
-  // get middleware to get the user, for now well mock it.
-
-  // this will fail for now
-  // @ts-ignore - for mock
-  const actor = ctx.get("actor") as unknown as {
-    id: string;
-  };
+authenticationRouter.get("/@me", async (ctx) => {
+  const actor = ctx.get("actor");
 
   const user = await getUserUseCase(actor.id);
 

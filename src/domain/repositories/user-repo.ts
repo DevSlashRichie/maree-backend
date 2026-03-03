@@ -11,4 +11,15 @@ export class UserRepo {
 
         return Option.from(user);
     }
+
+    async findByIdWithRole(id: string) {
+        const userAndRole = await this.conn.query.userTable.findFirst({
+            where: (table, { eq }) => eq(table.id, id),
+            with: {
+                roles: true,
+            },
+        });
+
+        return Option.from(userAndRole);
+    }
 }

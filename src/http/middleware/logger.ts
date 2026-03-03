@@ -1,13 +1,8 @@
 import type { MiddlewareHandler } from "hono";
 import { logger } from "../../lib/logger";
+import type { State } from "../state";
 
-type LoggerVariables = {
-  logger: typeof logger;
-};
-
-export const loggerMiddleware: MiddlewareHandler<{
-  Variables: LoggerVariables;
-}> = async (c, next) => {
+export const loggerMiddleware: MiddlewareHandler<State> = async (c, next) => {
   const start = Date.now();
 
   logger.info(`${c.req.method} ${c.req.path}`);
