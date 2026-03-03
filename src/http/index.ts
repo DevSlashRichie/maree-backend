@@ -1,4 +1,5 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { Scalar } from "@scalar/hono-api-reference";
 import { serve } from "bun";
 import z from "zod";
 import { loggerMiddleware } from "./middleware/logger";
@@ -7,7 +8,6 @@ import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
 import { userRouter } from "./routes/user";
 import { createStateMiddleware, type State } from "./state";
-import { apiReference, Scalar } from "@scalar/hono-api-reference";
 
 export const envHttpConf = z.object({
   HOST: z.ipv4(),
