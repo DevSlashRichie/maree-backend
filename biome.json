@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "includes": ["**", "!src/routeTree.gen.ts", "!docs"]
+    "includes": ["**", "!src/routeTree.gen.ts", "!docs", "!drizzle.config.ts"]
   },
   "formatter": {
     "enabled": true,
@@ -27,6 +27,6 @@
         "noExplicitAny": "warn"
       }
     },
-    "includes": ["**", "!dist", "!docs"]
+    "includes": ["**", "!dist", "!docs", "!drizzle.config.ts"]
   }
 }

@@ -1,6 +1,6 @@
+import type { MiddlewareHandler } from "hono";
 import type { Actor } from "@/domain/entities/actor";
 import type { logger } from "@/lib/logger";
-import type { MiddlewareHandler } from "hono";
 
 type Variables = {
   actor: Actor;

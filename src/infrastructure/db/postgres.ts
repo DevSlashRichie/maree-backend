@@ -1,4 +1,5 @@
 import { drizzle } from "drizzle-orm/node-postgres";
+import { Option } from "oxide.ts";
 import { z } from "zod";
 import * as schema from "./schema";
 
@@ -12,11 +13,11 @@ export const envDatabaseSchema = z.object({
 
 export const DB = drizzle({
   connection: {
-    host: process.env.DB_HOST!,
+    host: Option.from(process.env.DB_HOST).unwrap(),
     port: Number(process.env.DB_PORT),
-    password: process.env.DB_PASSWORD!,
-    user: process.env.DB_USERNAME!,
-    database: process.env.DB_DATABASE!,
+    password: Option.from(process.env.DB_PASSWORD).unwrap(),
+    user: Option.from(process.env.DB_USERNAME).unwrap(),
+    database: Option.from(process.env.DB_DATABASE).unwrap(),
   },
   casing: "snake_case",
   schema: schema,

@@ -1,7 +1,7 @@
-import type { User } from "@/domain/entities/user";
-import { DB } from "@/infrastructure/db/postgres";
-import { UserRepo } from "@/domain/repositories/user-repo";
 import type { Option } from "oxide.ts";
+import type { User } from "@/domain/entities/user";
+import { UserRepo } from "@/domain/repositories/user-repo";
+import { DB } from "@/infrastructure/db/postgres";
 
 export async function getUserUseCase(userId: string): Promise<Option<User>> {
   const user = await DB.transaction(async (txn) => {

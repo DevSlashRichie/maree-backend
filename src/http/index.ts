@@ -1,13 +1,13 @@
 import { serve } from "bun";
 import { Hono } from "hono";
 import z from "zod";
+import { authzMiddleware } from "./middleware/authz";
 import { loggerMiddleware } from "./middleware/logger";
+import { authenticationRouter } from "./routes/authentication";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
 import { userRouter } from "./routes/user";
-import { authenticationRouter } from "./routes/authentication";
 import { createStateMiddleware, type State } from "./state";
-import { authzMiddleware } from "./middleware/authz";
 
 export const envHttpConf = z.object({
   HOST: z.ipv4(),

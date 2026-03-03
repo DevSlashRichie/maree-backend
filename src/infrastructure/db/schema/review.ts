@@ -1,11 +1,4 @@
-import {
-  bigint,
-  integer,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { uuidv7 } from "uuidv7";
 import { ordersTable } from "./order";
 import { userTable } from "./user";
