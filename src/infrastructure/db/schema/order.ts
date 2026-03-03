@@ -10,7 +10,7 @@ import { uuidv7 } from "uuidv7";
 import { branchsTable } from "./branch.ts";
 import { discountsTable } from "./discount.ts";
 import { productVariantsTable } from "./product.ts";
-import { usersTable } from "./user.ts";
+import { userTable } from "./user.ts";
 
 export const ordersTable = pgTable("order", {
   id: uuid()
@@ -18,7 +18,7 @@ export const ordersTable = pgTable("order", {
     .$defaultFn(() => uuidv7()),
   userId: uuid()
     .notNull()
-    .references(() => usersTable.id),
+    .references(() => userTable.id),
   branchId: uuid()
     .notNull()
     .references(() => branchsTable.id),

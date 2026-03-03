@@ -1,13 +1,13 @@
+import { OpenAPIHono } from "@hono/zod-openapi";
 import { serve } from "bun";
-import { Hono } from "hono";
 import z from "zod";
-import { authzMiddleware } from "./middleware/authz";
 import { loggerMiddleware } from "./middleware/logger";
 import { authenticationRouter } from "./routes/authentication";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
 import { userRouter } from "./routes/user";
 import { createStateMiddleware, type State } from "./state";
+import { apiReference, Scalar } from "@scalar/hono-api-reference";
 
 export const envHttpConf = z.object({
   HOST: z.ipv4(),
@@ -19,7 +19,7 @@ export const envHttpConf = z.object({
 // GET localhost/order/<id> - obtener una orden
 // PATCH localhost/order/<id> - m,odificar una orden
 export function createHttpServer(options: z.infer<typeof envHttpConf>) {
-  const app = new Hono<State>();
+  const app = new OpenAPIHono<State>();
 
   app.use(
     "*",
@@ -29,12 +29,26 @@ export function createHttpServer(options: z.infer<typeof envHttpConf>) {
   );
 
   app.use("*", loggerMiddleware);
-  app.use("*", authzMiddleware);
+  //app.use("*", authzMiddleware);
 
   app.route("/users", userRouter);
   app.route("/products", productRouter);
   app.route("/orders", orderRouter);
   app.route("/auth", authenticationRouter);
+
+  app.doc("/docs/openapi.json", {
+    openapi: "3.0.0",
+    info: {
+      version: "1.0.0",
+      title: "Maree Backend API",
+    },
+  });
+  app.get(
+    "/docs/scalar",
+    Scalar({
+      url: "/docs/openapi.json",
+    }),
+  );
 
   serve({
     fetch: app.fetch,
