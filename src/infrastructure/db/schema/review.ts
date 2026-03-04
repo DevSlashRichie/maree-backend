@@ -8,16 +8,16 @@ export const reviewsTable = pgTable("review", {
   id: uuid()
     .primaryKey()
     .$defaultFn(() => uuidv7()),
-  orderId: uuid()
+  orderId: uuid("order_id")
     .notNull()
     .references(() => ordersTable.id),
-  userId: uuid()
+  userId: uuid("user_id")
     .notNull()
     .references(() => userTable.id),
   branchId: uuid("branch_id")
     .notNull()
     .references(() => branchsTable.id),
-  satisfactionRate: integer(),
+  satisfactionRate: integer("satisfaction_rate").notNull(),
   notes: text(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

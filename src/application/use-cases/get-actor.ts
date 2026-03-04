@@ -12,7 +12,7 @@ export async function getActorUseCase(userId: string): Promise<Option<Actor>> {
       ({
         id: actor.id,
         firstName: actor.firstName,
-        role: actor.roles?.name,
+        role: actor.rolesTable?.name,
       }) as Actor,
   );
 }

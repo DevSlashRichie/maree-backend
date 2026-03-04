@@ -25,11 +25,11 @@ export const schedulesTable = pgTable("schedule", {
   id: uuid()
     .primaryKey()
     .$defaultFn(() => uuidv7()),
-  branchId: uuid()
+  branchId: uuid("branch_id")
     .notNull()
     .references(() => branchsTable.id),
-  fromTime: time().notNull(),
-  toTime: time().notNull(),
+  fromTime: time("from_time").notNull(),
+  toTime: time("to_time").notNull(),
   weekday: integer().notNull(),
   timezone: text().notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
@@ -55,4 +55,4 @@ export const staffTable = pgTable(
       columns: [table.branchId, table.userId],
     }),
   ],
-);
+)

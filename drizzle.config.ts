@@ -7,6 +7,9 @@ export default defineConfig({
   dialect: "postgresql",
   verbose: true,
   casing: "snake_case",
+  introspect: {
+    casing: "preserve"
+  },
   dbCredentials: {
     host: process.env.DB_HOST!,
     port: Number(process.env.DB_PORT!),

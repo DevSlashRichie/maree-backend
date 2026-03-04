@@ -6,7 +6,9 @@ export class UserRepo {
 
   async findById(id: string) {
     const user = await this.conn.query.userTable.findFirst({
-      where: (table, { eq }) => eq(table.id, id),
+      where: {
+        id,
+      }
     });
 
     return Option.from(user);
@@ -14,10 +16,12 @@ export class UserRepo {
 
   async findByIdWithRole(id: string) {
     const userAndRole = await this.conn.query.userTable.findFirst({
-      where: (table, { eq }) => eq(table.id, id),
-      with: {
-        roles: true,
+      where: {
+        id,
       },
+      with: {
+        rolesTable: true,
+      }
     });
 
     return Option.from(userAndRole);
@@ -25,10 +29,14 @@ export class UserRepo {
 
   async findByIdentity(identity: string) {
     const user = await this.conn.query.userTable.findFirst({
-      where: (table, { eq, or }) => or(
-        eq(table.email, identity),
-        eq(table.phone, identity),
-      )
+      where: {
+        OR: [{
+          email: identity,
+        }, {
+          phone: identity
+        }]
+      }
+
     });
 
     return Option.from(user);
@@ -36,9 +44,15 @@ export class UserRepo {
 
   async findByIdWithPassword(id: string) {
     const userAndPassword = await this.conn.query.userTable.findFirst({
-      where: (table, { eq }) => eq(table.id, id),
+      where: {
+        id,
+      },
       with: {
-        passwords: true,
+        userPasswordTable: {
+          columns: {
+            password: true
+          }
+        }
       },
     });
 

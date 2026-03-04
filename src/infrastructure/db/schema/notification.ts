@@ -23,7 +23,7 @@ export const notificationTriggerTable = pgTable("notification_table", {
     .primaryKey()
     .$defaultFn(() => uuidv7()),
   name: text().notNull(),
-  eventKey: text().notNull(),
+  eventKey: text("event_key").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

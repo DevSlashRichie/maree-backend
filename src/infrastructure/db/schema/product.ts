@@ -21,7 +21,7 @@ export const productTable = pgTable("product", {
     .$defaultFn(() => uuidv7()),
   name: text().notNull(),
   status: text().notNull(),
-  categoryId: uuid()
+  categoryId: uuid("category_id")
     .notNull()
     .references(() => categoryTable.id),
   createdAt: timestamp("created_at", { withTimezone: true })
@@ -39,7 +39,7 @@ export const productVariantsTable = pgTable("product_variant", {
   branchId: uuid("branch_id")
     .notNull()
     .references(() => branchsTable.id),
-  productId: uuid()
+  productId: uuid("product_id")
     .notNull()
     .references(() => productTable.id),
 });

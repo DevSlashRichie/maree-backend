@@ -3,6 +3,7 @@ import { reset, seed } from "drizzle-seed";
 import { Option } from "oxide.ts";
 import { z } from "zod";
 import * as schema from "./schema";
+import { relations } from "./relations";
 
 export const envDatabaseSchema = z.object({
   DB_HOST: z.string().min(1),
@@ -21,11 +22,8 @@ export const DB = drizzle({
     database: Option.from(process.env.DB_DATABASE).unwrap(),
   },
   casing: "snake_case",
-  schema: schema,
-});
-
-DB.query.userTable.findFirst({
-  where: (table, { eq }) => eq(table.id, ""),
+  schema,
+  relations,
 });
 
 export type DbExecutor = typeof DB;
@@ -76,7 +74,7 @@ export async function seedIfRequired() {
         columns: {
           timezone: funcs.valuesFromArray({ values: ["America/Mexico_city"] }),
           weekday: funcs.int({ minValue: 0, maxValue: 6 }),
-        }
+        },
       },
       userTable: {
         count: 5,
@@ -93,10 +91,12 @@ export async function seedIfRequired() {
               weight: 1,
             },
           ],
-          userRoleTable: [{
-            weight: 1,
-            count: 1
-          }]
+          userRoleTable: [
+            {
+              weight: 1,
+              count: 1,
+            },
+          ],
         },
       },
       rolesTable: {

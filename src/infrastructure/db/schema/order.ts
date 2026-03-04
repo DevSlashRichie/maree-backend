@@ -16,19 +16,19 @@ export const ordersTable = pgTable("order", {
   id: uuid()
     .primaryKey()
     .$defaultFn(() => uuidv7()),
-  userId: uuid()
+  userId: uuid("user_id")
     .notNull()
     .references(() => userTable.id),
-  branchId: uuid()
+  branchId: uuid("branch_id")
     .notNull()
     .references(() => branchsTable.id),
-  discountId: uuid()
+  discountId: uuid("discount_id")
     .notNull()
     .references(() => discountsTable.id),
   total: bigint({ mode: "bigint" }).notNull(),
   status: text().notNull(),
   note: text(),
-  orderNumber: text().notNull(),
+  orderNumber: text("order_number").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -38,14 +38,14 @@ export const orderItemsTable = pgTable("order_items", {
   id: uuid()
     .primaryKey()
     .$defaultFn(() => uuidv7()),
-  orderId: uuid()
+  orderId: uuid("order_id")
     .notNull()
     .references(() => ordersTable.id),
-  variantId: uuid()
+  variantId: uuid("variant_id")
     .notNull()
     .references(() => productVariantsTable.id),
   quantity: integer().notNull(),
-  pricingSnapshot: bigint({ mode: "bigint" }).notNull(),
+  pricingSnapshot: bigint("pricing_snapshot", { mode: "bigint" }).notNull(),
   notes: text(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
