@@ -4,7 +4,8 @@ import { ErrorSchema } from "@/domain/entities/error";
 import { UserSchema } from "@/domain/entities/user";
 import type { State } from "../state";
 import { LoginSchema, TokenSchema } from "@/domain/dtos/authentication";
-import { loginUserUserCase } from "@/application/use-cases/login-user";
+import { loginUserUseCase } from "@/application/use-cases/login-user";
+import { logger } from "@/lib/logger";
 
 export const authenticationRouter = new OpenAPIHono<State>();
 
@@ -53,18 +54,23 @@ authenticationRouter.openapi(
   }),
   async (ctx) => {
     const body = await ctx.req.json();
-    const user = await loginUserUserCase(body, ctx.get("state").authzSecret);
+    const result = await loginUserUseCase(body, ctx.get("state").authzSecret);
 
-    if (user.isErr()) {
-      const err = user.unwrapErr();
-      if (err.type === "invalid_credentials") {
-        return ctx.json({ message: err.message }, 400);
-      }
+    if (result.isErr()) {
+      const err = result.unwrapErr();
 
-      return ctx.json({ message: "forbidden" }, 403);
+      logger.warn("Failed login: (%s) %s", err.code, err.message);
+
+      return ctx.json(
+        {
+          code: "forbidden",
+          message: "forbidden",
+        },
+        403,
+      );
     }
 
-    return ctx.json(user.unwrap(), 200);
+    return ctx.json({ token: result.unwrap().token }, 200);
   },
 );
 

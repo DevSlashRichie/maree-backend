@@ -1,8 +1,8 @@
 import { integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { uuidv7 } from "uuidv7";
 import { branchsTable } from "./branch.ts";
 import { ordersTable } from "./order";
 import { userTable } from "./user";
+import { randomUUIDv7 as uuidv7 } from "bun";
 
 export const reviewsTable = pgTable("review", {
   id: uuid()

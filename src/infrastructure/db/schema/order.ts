@@ -6,7 +6,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { uuidv7 } from "uuidv7";
+import { randomUUIDv7 as uuidv7 } from "bun";
 import { branchsTable } from "./branch.ts";
 import { discountsTable } from "./discount.ts";
 import { productVariantsTable } from "./product.ts";

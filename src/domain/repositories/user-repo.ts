@@ -1,4 +1,3 @@
-import { Option } from "oxide.ts";
 import type { Executor } from "@/infrastructure/db/postgres";
 
 export class UserRepo {
@@ -8,10 +7,10 @@ export class UserRepo {
     const user = await this.conn.query.userTable.findFirst({
       where: {
         id,
-      }
+      },
     });
 
-    return Option.from(user);
+    return user;
   }
 
   async findByIdWithRole(id: string) {
@@ -21,25 +20,27 @@ export class UserRepo {
       },
       with: {
         rolesTable: true,
-      }
+      },
     });
 
-    return Option.from(userAndRole);
+    return userAndRole;
   }
 
   async findByIdentity(identity: string) {
     const user = await this.conn.query.userTable.findFirst({
       where: {
-        OR: [{
-          email: identity,
-        }, {
-          phone: identity
-        }]
-      }
-
+        OR: [
+          {
+            email: identity,
+          },
+          {
+            phone: identity,
+          },
+        ],
+      },
     });
 
-    return Option.from(user);
+    return user;
   }
 
   async findByIdWithPassword(id: string) {
@@ -50,12 +51,12 @@ export class UserRepo {
       with: {
         userPasswordTable: {
           columns: {
-            password: true
-          }
-        }
+            password: true,
+          },
+        },
       },
     });
 
-    return Option.from(userAndPassword);
+    return userAndPassword;
   }
 }

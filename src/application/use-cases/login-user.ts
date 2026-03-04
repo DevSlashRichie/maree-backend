@@ -1,68 +1,59 @@
-import type { LoginSchema, TokenSchema } from "@/domain/dtos/authentication";
 import type { z } from "zod";
-import type { UseCaseError } from "../error";
-import { Err, Ok, Result } from "oxide.ts";
+import type { LoginSchema, TokenSchema } from "@/domain/dtos/authentication";
+import { encrypt } from "paseto-ts/v4";
+import {
+  InvalidCredentialsError,
+  LoginError,
+  NotImplementedLoginMethodError,
+  RepositoryError,
+} from "@/domain/entities/authentication";
 import { UserRepo } from "@/domain/repositories/user-repo";
 import { DB } from "@/infrastructure/db/postgres";
-import { encrypt } from "paseto-ts/v4";
-import { logger } from "@/lib/logger";
+import { Err, Ok, type Result } from "oxide.ts";
 
-export type LoginUserUseCaseError = UseCaseError<
-  "invalid_credentials" | "not_implemented" | "repo"
->;
-
-const InvalidCredentialsError = {
-  type: "invalid_credentials",
-  message: "when using login method via phone you should use ",
-} as LoginUserUseCaseError;
-
-const NotImplementedError = {
-  type: "not_implemented",
-  message: "not_implemented",
-} as LoginUserUseCaseError;
-
-const RepositoryError = (source: string) =>
-  ({
-    type: "repo",
-    message: "an error ocurred with the repo: " + source,
-  }) as LoginUserUseCaseError;
-
-export async function loginUserUserCase(
+export async function loginUserUseCase(
   data: z.infer<typeof LoginSchema>,
   encryptKey: string,
-): Promise<Result<z.infer<typeof TokenSchema>, LoginUserUseCaseError>> {
-  if (data.method.type === "phone") {
-    return Err(NotImplementedError);
+): Promise<Result<z.infer<typeof TokenSchema>, LoginError>> {
+  try {
+    const userRepo = new UserRepo(DB);
+
+    if (data.method.type === "phone") {
+      throw new NotImplementedLoginMethodError();
+    }
+
+    const user = await userRepo.findByIdentity(data.identity.value);
+
+    if (!user) {
+      throw new InvalidCredentialsError();
+    }
+
+    const userWithPassword = await userRepo.findByIdWithPassword(user.id);
+
+    const passwordHash = userWithPassword?.userPasswordTable?.password;
+
+    if (!passwordHash) {
+      throw new InvalidCredentialsError();
+    }
+
+    const isValid = await Bun.password.verify(data.method.value, passwordHash);
+
+    if (!isValid) {
+      throw new InvalidCredentialsError();
+    }
+
+    const token = encrypt(encryptKey, { userId: user.id });
+
+    return Ok({ token });
+  } catch (error) {
+    if (error instanceof LoginError) {
+      return Err(error);
+    }
+
+    return Err(
+      new RepositoryError(
+        error instanceof Error ? error.message : "unknown error",
+      ),
+    );
   }
-
-  // we infer is password flow
-
-  const userRepo = new UserRepo(DB);
-
-  const userId = (
-    await Result.safe(userRepo.findByIdentity(data.identity.value))
-  )
-    .mapErr((err) => RepositoryError(err.message))
-    .andThen((s) => {
-      return s.okOr(InvalidCredentialsError);
-    })
-    .map((user) => user.id);
-
-  if (userId.isErr()) {
-    return userId;
-  }
-
-  const userWithPassword = (
-    await Result.safe(userRepo.findByIdWithPassword(userId.unwrap()))
-  )
-    .mapErr((err) => RepositoryError(err.message))
-    .andThen((value) => value.okOr(InvalidCredentialsError));
-
-  logger.info("userWithPassword: %o", userWithPassword.unwrap());
-
-  // verify the password with bcrypt2
-
-  const token = encrypt(encryptKey, { userId });
-
-  return Ok({ token });
 }

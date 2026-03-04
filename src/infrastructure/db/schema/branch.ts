@@ -7,7 +7,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { uuidv7 } from "uuidv7";
+import { randomUUIDv7 as uuidv7 } from "bun";
 import { userTable } from "./user.ts";
 
 export const branchsTable = pgTable("branch", {
@@ -55,4 +55,4 @@ export const staffTable = pgTable(
       columns: [table.branchId, table.userId],
     }),
   ],
-)
+);
