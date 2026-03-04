@@ -22,4 +22,26 @@ export class UserRepo {
 
     return Option.from(userAndRole);
   }
+
+  async findByIdentity(identity: string) {
+    const user = await this.conn.query.userTable.findFirst({
+      where: (table, { eq, or }) => or(
+        eq(table.email, identity),
+        eq(table.phone, identity),
+      )
+    });
+
+    return Option.from(user);
+  }
+
+  async findByIdWithPassword(id: string) {
+    const userAndPassword = await this.conn.query.userTable.findFirst({
+      where: (table, { eq }) => eq(table.id, id),
+      with: {
+        passwords: true,
+      },
+    });
+
+    return Option.from(userAndPassword);
+  }
 }

@@ -7,6 +7,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { uuidv7 } from "uuidv7";
 import { userTable } from "./user";
+import { relations } from "drizzle-orm";
 
 export const rolesTable = pgTable("role", {
   id: uuid()
@@ -18,6 +19,11 @@ export const rolesTable = pgTable("role", {
     .defaultNow(),
 });
 
+export const rolesRelations = relations(rolesTable, ({ many }) => ({
+  rolePolicies: many(rolePoliciesTable),
+}));
+
+
 export const policyTable = pgTable("policy", {
   id: uuid()
     .primaryKey()
@@ -27,6 +33,10 @@ export const policyTable = pgTable("policy", {
     .notNull()
     .defaultNow(),
 });
+
+export const policyRelations = relations(policyTable, ({ many }) => ({
+  rolePolicies: many(rolePoliciesTable),
+}));
 
 export const rolePoliciesTable = pgTable(
   "role_policy",
@@ -62,3 +72,15 @@ export const userRoleTable = pgTable(
     }),
   ],
 );
+
+export const rolePoliciesRelations = relations(rolePoliciesTable, ({ one }) => ({
+  role: one(rolesTable, {
+    fields: [rolePoliciesTable.roleId],
+    references: [rolesTable.id],
+  }),
+  policy: one(policyTable, {
+    fields: [rolePoliciesTable.policyId],
+    references: [policyTable.id],
+  }),
+}));
+

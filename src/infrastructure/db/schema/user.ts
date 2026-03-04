@@ -1,5 +1,7 @@
+import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { uuidv7 } from "uuidv7";
+import { rolesTable } from "./rbac";
 
 export const userTable = pgTable("user", {
   id: uuid()
@@ -24,3 +26,12 @@ export const userPasswordTable = pgTable("user_password", {
     .notNull()
     .defaultNow(),
 });
+
+export const userRelations = relations(userTable, ({ one }) => ({
+  roles: one(rolesTable),
+  passwords: one(userPasswordTable, {
+    fields: [userTable.id],
+    references: [userPasswordTable.userId]
+  }),
+}));
+
