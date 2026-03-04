@@ -1,6 +1,6 @@
+import { randomUUIDv7 as uuidv7 } from "bun";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import { bigint, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { randomUUIDv7 as uuidv7 } from "bun";
 import { branchsTable } from "./branch.ts";
 
 export const categoryTable = pgTable("category", {

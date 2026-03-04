@@ -1,8 +1,8 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import type { State } from "../state";
+import { getUserUseCase } from "@/application/use-cases/get-user";
 import { ErrorSchema } from "@/domain/entities/error";
 import { UserSchema } from "@/domain/entities/user";
-import { getUserUseCase } from "@/application/use-cases/get-user";
+import type { State } from "../state";
 
 export const userRouter = new OpenAPIHono<State>();
 

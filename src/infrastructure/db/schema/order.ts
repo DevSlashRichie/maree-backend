@@ -1,3 +1,4 @@
+import { randomUUIDv7 as uuidv7 } from "bun";
 import {
   bigint,
   integer,
@@ -6,7 +7,6 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { randomUUIDv7 as uuidv7 } from "bun";
 import { branchsTable } from "./branch.ts";
 import { discountsTable } from "./discount.ts";
 import { productVariantsTable } from "./product.ts";

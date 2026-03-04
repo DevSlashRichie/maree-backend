@@ -2,8 +2,8 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { reset, seed } from "drizzle-seed";
 import { Option } from "oxide.ts";
 import { z } from "zod";
-import * as schema from "./schema";
 import { relations } from "./relations";
+import * as schema from "./schema";
 
 export const envDatabaseSchema = z.object({
   DB_HOST: z.string().min(1),

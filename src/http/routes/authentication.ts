@@ -1,9 +1,9 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { ErrorSchema } from "@/domain/entities/error";
-import type { State } from "../state";
-import { LoginSchema, TokenSchema } from "@/domain/dtos/authentication";
 import { loginUserUseCase } from "@/application/use-cases/login-user";
+import { LoginSchema, TokenSchema } from "@/domain/dtos/authentication";
+import { ErrorSchema } from "@/domain/entities/error";
 import { logger } from "@/lib/logger";
+import type { State } from "../state";
 
 export const authenticationRouter = new OpenAPIHono<State>();
 
@@ -71,4 +71,3 @@ authenticationRouter.openapi(
     return ctx.json({ token: result.unwrap().token }, 200);
   },
 );
-

@@ -1,6 +1,7 @@
+import { Err, Ok, type Result } from "oxide.ts";
+import { encrypt } from "paseto-ts/v4";
 import type { z } from "zod";
 import type { LoginSchema, TokenSchema } from "@/domain/dtos/authentication";
-import { encrypt } from "paseto-ts/v4";
 import {
   InvalidCredentialsError,
   LoginError,
@@ -9,7 +10,6 @@ import {
 } from "@/domain/entities/authentication";
 import { UserRepo } from "@/domain/repositories/user-repo";
 import { DB } from "@/infrastructure/db/postgres";
-import { Err, Ok, type Result } from "oxide.ts";
 
 export async function loginUserUseCase(
   data: z.infer<typeof LoginSchema>,
