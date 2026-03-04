@@ -1,7 +1,14 @@
+import type { InferInsertModel } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
+import { userTable } from "@/infrastructure/db/schema";
+
+export type CreateUser = Omit<
+  InferInsertModel<typeof userTable>,
+  "id" | "createdAt"
+>;
 
 export class UserRepo {
-  constructor(private readonly conn: Executor) { }
+  constructor(private readonly conn: Executor) {}
 
   async findById(id: string) {
     const user = await this.conn.query.userTable.findFirst({
@@ -58,5 +65,21 @@ export class UserRepo {
     });
 
     return userAndPassword;
+  }
+
+  async saveUser(data: CreateUser) {
+    const [user] = await this.conn
+      .insert(userTable)
+      .values(data)
+      .onConflictDoUpdate({
+        target: userTable.email,
+        set: {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.phone,
+        },
+      })
+      .returning();
+    return user;
   }
 }

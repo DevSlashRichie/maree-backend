@@ -102,10 +102,14 @@ authenticationRouter.openapi(
     const actor = ctx.get("actor");
     const user = await getUserUseCase(actor.id);
 
-    if (user.isNone()) {
-      return ctx.json({ message: "user not found" }, 404);
+    // TODO: move this error creation into the application layer.
+    if (!user) {
+      return ctx.json(
+        { message: "user not found", code: "user_not_found" },
+        404,
+      );
     }
 
-    return ctx.json(user.unwrap(), 200);
+    return ctx.json(user, 200);
   },
 );
