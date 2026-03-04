@@ -74,7 +74,7 @@ authenticationRouter.openapi(
       secure: true,
       sameSite: "Lax",
       path: "/",
-      maxAge: 60 * 60 * 24, // 1 day
+      maxAge: 43830, // month
     });
 
     return ctx.json({ token: "ok" }, 200);
