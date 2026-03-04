@@ -1,20 +1,16 @@
 import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { uuidv7 } from "uuidv7";
 
-import { rolesTable } from "./rbac";
-
-export const usersTable = pgTable("user", {
+export const userTable = pgTable("user", {
   id: uuid()
     .primaryKey()
-    .$defaultFn(() => uuidv7()),
+    .$defaultFn(() => Bun.randomUUIDv7()),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   phone: text().notNull().unique(),
-  email: text().notNull().unique(),
-  roleId: uuid("role_id")
+  email: text().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
-    .references(() => rolesTable.id),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+    .defaultNow(),
 });
 
 export const userPasswordTable = pgTable("user_password", {
@@ -23,5 +19,7 @@ export const userPasswordTable = pgTable("user_password", {
     .primaryKey()
     .references(() => userTable.id),
   password: text().notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });

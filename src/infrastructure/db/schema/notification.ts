@@ -15,7 +15,7 @@ export const notificationTemplateTable = pgTable("notification_template", {
   name: text().notNull(),
   subject: text().notNull(),
   body: text().notNull(),
-  createdAt: timestamp("created_at").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
 });
 
 export const notificationTriggerTable = pgTable("notification_table", {
@@ -23,8 +23,10 @@ export const notificationTriggerTable = pgTable("notification_table", {
     .primaryKey()
     .$defaultFn(() => uuidv7()),
   name: text().notNull(),
-  eventKey: text().notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  eventKey: text("event_key").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const notificationTemplateTriggerTable = pgTable(
@@ -36,7 +38,9 @@ export const notificationTemplateTriggerTable = pgTable(
     triggerId: uuid("trigger_id")
       .notNull()
       .references(() => notificationTriggerTable.id),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     primaryKey({
@@ -58,5 +62,7 @@ export const notificationTable = pgTable("notification", {
   userId: uuid("user_id")
     .notNull()
     .references(() => userTable.id),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });

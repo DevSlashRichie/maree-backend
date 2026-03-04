@@ -1,3 +1,4 @@
+import { randomUUIDv7 as uuidv7 } from "bun";
 import {
   bigint,
   integer,
@@ -6,44 +7,47 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { uuidv7 } from "uuidv7";
 import { branchsTable } from "./branch.ts";
 import { discountsTable } from "./discount.ts";
 import { productVariantsTable } from "./product.ts";
-import { usersTable } from "./user.ts";
+import { userTable } from "./user.ts";
 
 export const ordersTable = pgTable("order", {
   id: uuid()
     .primaryKey()
     .$defaultFn(() => uuidv7()),
-  userId: uuid()
+  userId: uuid("user_id")
     .notNull()
-    .references(() => usersTable.id),
-  branchId: uuid()
+    .references(() => userTable.id),
+  branchId: uuid("branch_id")
     .notNull()
     .references(() => branchsTable.id),
-  discountId: uuid()
+  discountId: uuid("discount_id")
     .notNull()
     .references(() => discountsTable.id),
   total: bigint({ mode: "bigint" }).notNull(),
   status: text().notNull(),
   note: text(),
-  orderNumber: text().notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  orderNumber: text("order_number").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const orderItemsTable = pgTable("order_items", {
   id: uuid()
     .primaryKey()
     .$defaultFn(() => uuidv7()),
-  orderId: uuid()
+  orderId: uuid("order_id")
     .notNull()
     .references(() => ordersTable.id),
-  variantId: uuid()
+  variantId: uuid("variant_id")
     .notNull()
     .references(() => productVariantsTable.id),
   quantity: integer().notNull(),
-  pricingSnapshot: bigint({ mode: "bigint" }).notNull(),
+  pricingSnapshot: bigint("pricing_snapshot", { mode: "bigint" }).notNull(),
   notes: text(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });

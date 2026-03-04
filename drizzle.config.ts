@@ -2,11 +2,14 @@ import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
-  out: "./migrations",
-  schema: "./src/repository/schema",
+  out: "./drizzle/migrations",
+  schema: "./src/infrastructure/db/schema/",
   dialect: "postgresql",
   verbose: true,
   casing: "snake_case",
+  introspect: {
+    casing: "preserve"
+  },
   dbCredentials: {
     host: process.env.DB_HOST!,
     port: Number(process.env.DB_PORT!),
