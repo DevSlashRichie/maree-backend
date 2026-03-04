@@ -1,10 +1,16 @@
 import type { InferInsertModel } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
-import { userTable } from "@/infrastructure/db/schema";
 
-export type CreateUser = Omit<
+import { userPasswordTable, userTable } from "@/infrastructure/db/schema";
+
+type SaveUserType = Omit<
   InferInsertModel<typeof userTable>,
   "id" | "createdAt"
+>;
+
+type SavePasswordType = Omit<
+  InferInsertModel<typeof userPasswordTable>,
+  "created_at"
 >;
 
 export class UserRepo {
@@ -67,7 +73,24 @@ export class UserRepo {
     return userAndPassword;
   }
 
-  async saveUser(data: CreateUser) {
+  async existsUser(phone: string, email?: string) {
+    const user = await this.conn.query.userTable.findFirst({
+      where: {
+        OR: [
+          {
+            email,
+          },
+          {
+            phone,
+          },
+        ],
+      },
+    });
+
+    return !!user;
+  }
+
+  async saveUser(data: SaveUserType) {
     const [user] = await this.conn
       .insert(userTable)
       .values(data)
@@ -80,6 +103,16 @@ export class UserRepo {
         },
       })
       .returning();
-    return user;
+
+    // biome-ignore lint/style/noNonNullAssertion: since we're creating a new user, it should always exist
+    return user!;
+  }
+
+  async savePassword(data: SavePasswordType) {
+    const [userPassword] = await this.conn
+      .insert(userPasswordTable)
+      .values(data)
+      .returning();
+    return userPassword;
   }
 }
