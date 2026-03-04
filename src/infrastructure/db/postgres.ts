@@ -2,6 +2,8 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Option } from "oxide.ts";
 import { z } from "zod";
 import * as schema from "./schema";
+import { seed } from "drizzle-seed";
+import { count } from "drizzle-orm";
 
 export const envDatabaseSchema = z.object({
   DB_HOST: z.string().min(1),
@@ -36,3 +38,43 @@ export type TxExecutor = Parameters<typeof DB.transaction>[0] extends (
   : never;
 
 export type Executor = DbExecutor | TxExecutor;
+
+export async function seedIfRequired() {
+  if (process.env.SEED === "true") {
+    await seed(DB, schema, {
+      count: 1,
+    }).refine((funcs) => ({
+      branchsTable: {
+        count: 2,
+        columns: {
+          state: funcs.valuesFromArray({
+            values: ["open", "closed"],
+          }),
+        },
+        with: {
+          schedulesTable: [
+            {
+              weight: 1,
+              count: 1,
+            },
+          ],
+          staffTable: [
+            {
+              weight: 1,
+              count: 2,
+            },
+          ],
+        },
+      },
+      userTable: {
+        count: 5,
+        columns: {
+          email: funcs.email(),
+          firstName: funcs.firstName(),
+          lastName: funcs.lastName(),
+          phone: funcs.phoneNumber(),
+        },
+      },
+    }));
+  }
+}

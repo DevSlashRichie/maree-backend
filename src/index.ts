@@ -1,7 +1,10 @@
 import { createHttpServer, envHttpConf } from "./http";
 import "dotenv/config";
 import { logger } from "@/lib/logger";
-import { envDatabaseSchema } from "./infrastructure/db/postgres";
+import {
+  envDatabaseSchema,
+  seedIfRequired,
+} from "./infrastructure/db/postgres";
 
 async function main() {
   const parsed = await envDatabaseSchema.safeParseAsync(process.env);
@@ -24,6 +27,7 @@ async function main() {
     throw new Error("Invalid environment variables");
   }
 
+  await seedIfRequired();
   createHttpServer(parsedHttpConf.data);
 
   logger.info("Server ready!");

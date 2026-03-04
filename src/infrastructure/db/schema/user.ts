@@ -1,7 +1,5 @@
-import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { uuidv7 } from "uuidv7";
-import { rolesTable } from "./rbac";
 
 export const userTable = pgTable("user", {
   id: uuid()
@@ -11,9 +9,6 @@ export const userTable = pgTable("user", {
   lastName: text("last_name").notNull(),
   phone: text().notNull().unique(),
   email: text().notNull().unique(),
-  roleId: uuid("role_id")
-    .notNull()
-    .references(() => rolesTable.id),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -29,7 +24,3 @@ export const userPasswordTable = pgTable("user_password", {
     .notNull()
     .defaultNow(),
 });
-
-export const userRelations = relations(userTable, ({ one }) => ({
-  roles: one(rolesTable),
-}));
