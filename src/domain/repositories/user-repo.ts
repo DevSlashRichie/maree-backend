@@ -1,5 +1,6 @@
 import type { InferInsertModel } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
+
 import { userPasswordTable, userTable } from "@/infrastructure/db/schema";
 
 type SaveUserType = Omit<

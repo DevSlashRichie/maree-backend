@@ -22,7 +22,7 @@ export async function loginUserUseCase(
       throw new NotImplementedLoginMethodError();
     }
 
-    const user = await userRepo.findByIdentity(data.identity.value);
+    const user = await userRepo.findByIdentity(data.identity);
 
     if (!user) {
       throw new InvalidCredentialsError();
