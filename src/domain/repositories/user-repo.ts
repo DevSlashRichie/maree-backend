@@ -1,5 +1,4 @@
 import type { InferInsertModel } from "drizzle-orm";
-import type { Err } from "oxide.ts";
 import type { Executor } from "@/infrastructure/db/postgres";
 import { userPasswordTable, userTable } from "@/infrastructure/db/schema";
 
@@ -104,6 +103,7 @@ export class UserRepo {
       })
       .returning();
 
+    // biome-ignore lint/style/noNonNullAssertion: since we're creating a new user, it should always exist
     return user!;
   }
 
