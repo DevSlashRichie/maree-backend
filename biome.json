@@ -6,7 +6,8 @@
       "!src/routeTree.gen.ts",
       "!docs",
       "!drizzle.config.ts",
-      "!drizzle/seed.ts"
+      "!drizzle/seed.ts",
+      "!infra/dev/*"
     ]
   },
   "formatter": {
@@ -38,7 +39,8 @@
       "!dist",
       "!docs",
       "!drizzle.config.ts",
-      "!drizzle/seed.ts"
+      "!drizzle/seed.ts",
+      "!infra/dev/*"
     ]
   }
 }
