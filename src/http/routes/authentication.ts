@@ -1,10 +1,10 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { setCookie } from "hono/cookie";
 import { loginUserUseCase } from "@/application/use-cases/login-user";
 import { LoginSchema, TokenSchema } from "@/domain/dtos/authentication";
 import { ErrorSchema } from "@/domain/entities/error";
 import { logger } from "@/lib/logger";
 import type { State } from "../state";
-import { setCookie } from "hono/cookie";
 
 export const authenticationRouter = new OpenAPIHono<State>();
 
