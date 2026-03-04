@@ -1,4 +1,5 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { setCookie } from "hono/cookie";
 import { loginUserUseCase } from "@/application/use-cases/login-user";
 import { registerUserUseCase } from "@/application/use-cases/register-user.ts";
 import { LoginSchema, TokenSchema } from "@/domain/dtos/authentication";
@@ -132,7 +133,10 @@ authenticationRouter.openapi(
   }),
   async (ctx) => {
     const body = await ctx.req.json();
-    const result = await registerUserUseCase(body);
+    const result = await registerUserUseCase(
+      body,
+      ctx.get("state").authzSecret,
+    );
 
     if (result.isErr()) {
       const err = result.unwrapErr();
@@ -168,6 +172,13 @@ authenticationRouter.openapi(
       );
     }
 
-    return ctx.json(result.unwrap(), 201);
+    setCookie(ctx, "tok", result.unwrap().token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "Lax",
+      path: "/",
+      maxAge: 43830, // 1 day
+    });
+    return ctx.json(result.unwrap().user, 201);
   },
 );
