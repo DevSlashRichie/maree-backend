@@ -4,6 +4,7 @@ import { LoginSchema, TokenSchema } from "@/domain/dtos/authentication";
 import { ErrorSchema } from "@/domain/entities/error";
 import { logger } from "@/lib/logger";
 import type { State } from "../state";
+import { setCookie } from "hono/cookie";
 
 export const authenticationRouter = new OpenAPIHono<State>();
 
@@ -68,6 +69,14 @@ authenticationRouter.openapi(
       );
     }
 
-    return ctx.json({ token: result.unwrap().token }, 200);
+    setCookie(ctx, "tok", result.unwrap().token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "Lax",
+      path: "/",
+      maxAge: 60 * 60 * 24, // 1 day
+    });
+
+    return ctx.json({ token: "ok" }, 200);
   },
 );
