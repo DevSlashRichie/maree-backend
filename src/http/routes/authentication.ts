@@ -1,7 +1,14 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { loginUserUseCase } from "@/application/use-cases/login-user";
+import { registerUserUseCase } from "@/application/use-cases/register-user.ts";
 import { LoginSchema, TokenSchema } from "@/domain/dtos/authentication";
+import { RegisterUserDto } from "@/domain/dtos/register-user.ts";
 import { ErrorSchema } from "@/domain/entities/error";
+import {
+  PasswordIsRequired,
+  UserAlreadyExistsError,
+  UserSchema,
+} from "@/domain/entities/user.ts";
 import { logger } from "@/lib/logger";
 import type { State } from "../state";
 
@@ -69,5 +76,98 @@ authenticationRouter.openapi(
     }
 
     return ctx.json({ token: result.unwrap().token }, 200);
+  },
+);
+
+authenticationRouter.openapi(
+  createRoute({
+    tags: ["Auth"],
+    method: "post",
+    path: "/register",
+    request: {
+      body: {
+        required: true,
+        description: "user details",
+        content: {
+          "application/json": {
+            schema: RegisterUserDto,
+          },
+        },
+      },
+    },
+    responses: {
+      201: {
+        description: "user schema",
+        content: {
+          "application/json": {
+            schema: UserSchema,
+          },
+        },
+      },
+      400: {
+        description: "password is required",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      409: {
+        description: "user already exists",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "unexpected error",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const body = await ctx.req.json();
+    const result = await registerUserUseCase(body);
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+
+      if (err instanceof UserAlreadyExistsError) {
+        return ctx.json(
+          {
+            code: err.name,
+            message: "Email or phone is already used",
+          },
+          409,
+        );
+      }
+
+      if (err instanceof PasswordIsRequired) {
+        return ctx.json(
+          {
+            code: err.name,
+            message: "Password is required",
+          },
+          400,
+        );
+      }
+
+      logger.error("Error: %s", err);
+
+      return ctx.json(
+        {
+          code: "unexpected",
+          message: "unexpected",
+        },
+        500,
+      );
+    }
+
+    return ctx.json(result.unwrap(), 201);
   },
 );

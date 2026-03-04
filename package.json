@@ -33,7 +33,7 @@
     "zod": "^4.3.6"
   },
   "scripts": {
-    "drizzle:migrate": "drizzle-kit push",
+    "drizzle:migrate": "bunx --bun drizzle-kit push",
     "dev": "bun run --watch src/index.ts",
     "start": "bun run src/index.ts",
     "check": "bunx biome check",
