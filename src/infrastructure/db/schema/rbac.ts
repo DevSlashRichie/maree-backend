@@ -6,6 +6,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { uuidv7 } from "uuidv7";
+import { userTable } from "./user";
 
 export const rolesTable = pgTable("role", {
   id: uuid()
@@ -27,7 +28,6 @@ export const policyTable = pgTable("policy", {
     .defaultNow(),
 });
 
-
 export const rolePoliciesTable = pgTable(
   "role_policy",
   {
@@ -45,3 +45,20 @@ export const rolePoliciesTable = pgTable(
   ],
 );
 
+export const userRoleTable = pgTable(
+  "user_role",
+  {
+    roleId: uuid()
+      .notNull()
+      .references(() => rolesTable.id),
+    userId: uuid()
+      .notNull()
+      .references(() => userTable.id),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.roleId, table.userId],
+    }),
+  ],
+);
