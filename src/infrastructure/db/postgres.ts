@@ -140,7 +140,23 @@ export async function seedIfRequired() {
         count: 5,
         columns: {
           name: funcs.valuesFromArray({
-            values: ["burgers", "pizzas", "drinks", "desserts", "sides"],
+            values: [
+              "burgers",
+              "pizzas",
+              "drinks",
+              "desserts",
+              "sides",
+              "salads",
+              "sandwiches",
+              "tacos",
+              "seafood",
+              "steaks",
+              "pasta",
+              "breakfast",
+              "vegan",
+              "kids",
+              "appetizers",
+            ],
           }),
           description: funcs.loremIpsum({ sentencesCount: 1 }),
         },
@@ -179,7 +195,7 @@ export async function seedIfRequired() {
         count: 35,
         columns: {
           name: funcs.valuesFromArray({
-            values: ["Small", "Medium", "Large", "Regular"],
+            values: ["Small", "Medium", "Large"],
           }),
           price: funcs.int({ minValue: 5000, maxValue: 20000 }),
           image: funcs.string({}),
