@@ -5,6 +5,7 @@ import {
   envDatabaseSchema,
   seedIfRequired,
 } from "./infrastructure/db/postgres";
+import { envKapsoSchema } from "./infrastructure/wa/kapso";
 
 async function main() {
   const parsed = await envDatabaseSchema.safeParseAsync(process.env);
@@ -27,10 +28,20 @@ async function main() {
     throw new Error("Invalid environment variables");
   }
 
+  const parsedKapsoConf = await envKapsoSchema.safeParseAsync(process.env);
+
+  if (!parsedKapsoConf.success) {
+    logger.error(
+      "Invalid environment variables: %o",
+      parsedKapsoConf.error.flatten().fieldErrors,
+    );
+    throw new Error("Invalid environment variables");
+  }
+
   await seedIfRequired();
   createHttpServer(parsedHttpConf.data);
 
-  logger.info("Server ready!");
+  logger.info("Server ready on port: %s", parsedHttpConf.data.PORT);
 }
 
 await main();

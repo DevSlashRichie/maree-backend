@@ -7,6 +7,7 @@
       "dependencies": {
         "@hono/zod-openapi": "^1.2.2",
         "@hono/zod-validator": "^0.7.6",
+        "@kapso/whatsapp-cloud-api": "^0.1.1",
         "@scalar/hono-api-reference": "^0.9.48",
         "dotenv": "^17.3.1",
         "drizzle-orm": "^1.0.0-beta.15-859cf75",
@@ -150,6 +151,8 @@
     "@js-joda/core": ["@js-joda/core@5.7.0", "", {}, "sha512-WBu4ULVVxySLLzK1Ppq+OdfP+adRS4ntmDQT915rzDJ++i95gc2jZkM5B6LWEAwN3lGXpfie3yPABozdD3K3Vg=="],
 
     "@js-temporal/polyfill": ["@js-temporal/polyfill@0.5.1", "", { "dependencies": { "jsbi": "^4.3.0" } }, "sha512-hloP58zRVCRSpgDxmqCWJNlizAlUgJFqG2ypq79DCvyv9tHjRYMDOcPFjzfl/A1/YxDvRCZz8wvZvmapQnKwFQ=="],
+
+    "@kapso/whatsapp-cloud-api": ["@kapso/whatsapp-cloud-api@0.1.1", "", { "dependencies": { "zod": "^4.1.11" } }, "sha512-TnT8Mq08twUHgermibkdpnjEdOVPr/fuXaOz5RUEnAh8QKdCYDeqTmPJO54GZ8AOxTIGPH4N+Q+YN++Gt+gDBg=="],
 
     "@pinojs/redact": ["@pinojs/redact@0.4.0", "", {}, "sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg=="],
 

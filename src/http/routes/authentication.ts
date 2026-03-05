@@ -60,7 +60,13 @@ authenticationRouter.openapi(
   }),
   async (ctx) => {
     const body = await ctx.req.json();
-    const result = await loginUserUseCase(body, ctx.get("state").authzSecret);
+    const state = ctx.get("state");
+
+    const result = await loginUserUseCase(
+      body,
+      state.authzSecret,
+      state.fromNumber,
+    );
 
     if (result.isErr()) {
       const err = result.unwrapErr();

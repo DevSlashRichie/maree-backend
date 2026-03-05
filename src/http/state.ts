@@ -8,6 +8,7 @@ type Variables = {
 
   state: {
     authzSecret: string;
+    fromNumber: string;
   };
 };
 

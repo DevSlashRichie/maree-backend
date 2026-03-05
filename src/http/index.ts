@@ -25,6 +25,7 @@ export function createHttpServer(options: z.infer<typeof envHttpConf>) {
     "*",
     createStateMiddleware({
       authzSecret: "k4.local.rX9ovODAej0AQGyjW7VV+x/BHRddnURygK11d1ZMUA8=",
+      fromNumber: "+52xxxxx",
     }),
   );
 
