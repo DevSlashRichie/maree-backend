@@ -115,8 +115,18 @@ resource "azurerm_container_app" "main" {
       }
 
       env {
+        name = "DB_USERNAME"
+        secret_name = "db-username"
+      }
+
+      env {
         name  = "NODE_ENV"
         value = "production"
+      }
+
+      env {
+        name = "HOST"
+        value = "0.0.0.0"
       }
 
       env {
