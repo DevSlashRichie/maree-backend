@@ -8,6 +8,8 @@ resource "azurerm_postgresql_flexible_server" "main" {
   administrator_login    = var.database_username
   administrator_password = random_password.database.result
 
+  zone = "1"
+
   authentication {
     password_auth_enabled         = true
     active_directory_auth_enabled = false

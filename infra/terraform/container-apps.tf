@@ -66,6 +66,11 @@ resource "azurerm_container_app" "main" {
     value = var.twilio_account_sid
   }
 
+  secret {
+    name  = "container-registry-password"
+    value = azurerm_container_registry.main.admin_password
+  }
+
   registry {
     server               = azurerm_container_registry.main.login_server
     username             = var.container_registry_username != "" ? var.container_registry_username : azurerm_container_registry.main.admin_username
