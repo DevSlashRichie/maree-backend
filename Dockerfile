@@ -2,14 +2,14 @@ FROM oven/bun:1.1-debian AS base
 WORKDIR /app
 
 FROM base AS install
-COPY package.json bun.lockb* ./
-RUN bun install --frozen-lockfile
+COPY package.json bun.lock ./
+RUN bun install
 
 FROM base AS production
 WORKDIR /app
 
 COPY --from=install /app/node_modules node_modules
-COPY package.json .env* ./
+COPY package.json .env* tsconfig.json ./
 COPY src src
 
 ENV NODE_ENV=production
