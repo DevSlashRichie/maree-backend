@@ -4,11 +4,11 @@ import { serve } from "bun";
 import z from "zod";
 import { loggerMiddleware } from "./middleware/logger";
 import { authenticationRouter } from "./routes/authentication";
+import { branchRouter } from "./routes/branch";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
 import { userRouter } from "./routes/user";
 import { createStateMiddleware, type State } from "./state";
-import { branchRouter } from "./routes/branch";
 
 export const envHttpConf = z.object({
   HOST: z.ipv4(),
@@ -35,7 +35,7 @@ export function createHttpServer(options: z.infer<typeof envHttpConf>) {
   app.route("/users", userRouter);
   app.route("/products", productRouter);
   app.route("/orders", orderRouter);
-  app.route("/branch", branchRouter);
+  app.route("/branches", branchRouter);
   app.route("/auth", authenticationRouter);
 
   app.doc("/docs/openapi.json", {
