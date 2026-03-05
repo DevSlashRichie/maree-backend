@@ -7,10 +7,10 @@ import {
   LoginError,
   RepositoryError,
 } from "@/domain/entities/authentication";
-import { UserRepo } from "@/domain/repositories/user-repo";
-import { DB } from "@/infrastructure/db/postgres";
 import type { User } from "@/domain/entities/user";
 import { WAClientPort } from "@/domain/ports/wa-client";
+import { UserRepo } from "@/domain/repositories/user-repo";
+import { DB } from "@/infrastructure/db/postgres";
 import { WAClient } from "@/infrastructure/wa/kapso";
 
 const CREATED_CODES: Record<string, number> = {};
