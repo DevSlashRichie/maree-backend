@@ -1,10 +1,13 @@
-import { createHttpServer, envHttpConf } from "./http";
+import { createHttpServer, EnvHttpConf } from "./http";
 import "dotenv/config";
 import { logger } from "@/lib/logger";
+import { StateEnvSchema } from "./http/state";
 import {
   envDatabaseSchema,
   seedIfRequired,
 } from "./infrastructure/db/postgres";
+import { envKapsoSchema } from "./infrastructure/wa/kapso";
+import { envTwilioSchema } from "./infrastructure/wa/twilio";
 
 async function main() {
   const parsed = await envDatabaseSchema.safeParseAsync(process.env);
@@ -17,7 +20,7 @@ async function main() {
     throw new Error("Invalid environment variables");
   }
 
-  const parsedHttpConf = await envHttpConf.safeParseAsync(process.env);
+  const parsedHttpConf = await EnvHttpConf.safeParseAsync(process.env);
 
   if (!parsedHttpConf.success) {
     logger.error(
@@ -27,10 +30,40 @@ async function main() {
     throw new Error("Invalid environment variables");
   }
 
-  await seedIfRequired();
-  createHttpServer(parsedHttpConf.data);
+  const parsedKapsoConf = await envKapsoSchema.safeParseAsync(process.env);
 
-  logger.info("Server ready!");
+  if (!parsedKapsoConf.success) {
+    logger.error(
+      "Invalid environment variables: %o",
+      parsedKapsoConf.error.flatten().fieldErrors,
+    );
+    throw new Error("Invalid environment variables");
+  }
+
+  const parsedTwilioConf = await envTwilioSchema.safeParseAsync(process.env);
+
+  if (!parsedTwilioConf.success) {
+    logger.error(
+      "Invalid environment variables: %o",
+      parsedTwilioConf.error.flatten().fieldErrors,
+    );
+    throw new Error("Invalid environment variables");
+  }
+
+  const parsedStateConf = await StateEnvSchema.safeParseAsync(process.env);
+
+  if (!parsedStateConf.success) {
+    logger.error(
+      "Invalid environment variables: %o",
+      parsedStateConf.error.flatten().fieldErrors,
+    );
+    throw new Error("Invalid environment variables");
+  }
+
+  await seedIfRequired();
+  createHttpServer(parsedHttpConf.data, parsedStateConf.data);
+
+  logger.info("Server ready on port: %s", parsedHttpConf.data.PORT);
 }
 
 await main();

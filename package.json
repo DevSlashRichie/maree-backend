@@ -19,7 +19,9 @@
   "dependencies": {
     "@hono/zod-openapi": "^1.2.2",
     "@hono/zod-validator": "^0.7.6",
+    "@kapso/whatsapp-cloud-api": "^0.1.1",
     "@scalar/hono-api-reference": "^0.9.48",
+    "@types/twilio": "^3.19.3",
     "dotenv": "^17.3.1",
     "drizzle-orm": "^1.0.0-beta.15-859cf75",
     "drizzle-seed": "^1.0.0-beta.15-859cf75",
@@ -29,6 +31,7 @@
     "paseto-ts": "^2.0.5",
     "pg": "^8.19.0",
     "pino": "^10.3.1",
+    "twilio": "^5.12.2",
     "uuidv7": "^1.1.0",
     "zod": "^4.3.6"
   },

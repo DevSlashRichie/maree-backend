@@ -60,7 +60,13 @@ authenticationRouter.openapi(
   }),
   async (ctx) => {
     const body = await ctx.req.json();
-    const result = await loginUserUseCase(body, ctx.get("state").authzSecret);
+    const state = ctx.get("state");
+
+    const result = await loginUserUseCase(
+      body,
+      state.AUTHZ_SECRET,
+      state.FROM_NUMBER,
+    );
 
     if (result.isErr()) {
       const err = result.unwrapErr();
@@ -76,7 +82,7 @@ authenticationRouter.openapi(
       );
     }
 
-    return ctx.json({ token: result.unwrap().token }, 200);
+    return ctx.json(result.unwrap(), 200);
   },
 );
 
@@ -135,7 +141,7 @@ authenticationRouter.openapi(
     const body = await ctx.req.json();
     const result = await registerUserUseCase(
       body,
-      ctx.get("state").authzSecret,
+      ctx.get("state").AUTHZ_SECRET,
     );
 
     if (result.isErr()) {
