@@ -2,7 +2,6 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { Scalar } from "@scalar/hono-api-reference";
 import { serve } from "bun";
 import z from "zod";
-import { logger } from "../lib/logger";
 import { loggerMiddleware } from "./middleware/logger";
 import { authenticationRouter } from "./routes/authentication";
 import { orderRouter } from "./routes/order";

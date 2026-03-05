@@ -1,6 +1,6 @@
-import type { WhatsAppPort } from "@/domain/ports/whatsapp";
 import { WhatsAppClient } from "@kapso/whatsapp-cloud-api";
 import { z } from "zod";
+import type { WhatsAppPort } from "@/domain/ports/whatsapp";
 
 export const envKapsoSchema = z.object({
   KAPSO_API_KEY: z.string().min(1),
@@ -12,9 +12,7 @@ const KapsoClient = new WhatsAppClient({
 });
 
 export class WAKapsoClient implements WhatsAppPort {
-  constructor(
-    private readonly fromNumber: string,
-  ) {}
+  constructor(private readonly fromNumber: string) {}
 
   async sendTextMessage(phone: string, body: string): Promise<void> {
     KapsoClient.messages.sendText({

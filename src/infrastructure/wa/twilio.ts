@@ -1,6 +1,6 @@
-import type { WhatsAppPort } from "@/domain/ports/whatsapp";
 import Twilio from "twilio";
 import { z } from "zod";
+import type { WhatsAppPort } from "@/domain/ports/whatsapp";
 
 export const envTwilioSchema = z.object({
   TWILIO_ACCOUNT_SID: z.string().min(1),
@@ -19,7 +19,7 @@ export const createTwilioClient = () => {
 const TwilioClient = createTwilioClient();
 
 export class WATwilioClient implements WhatsAppPort {
-  constructor(private readonly fromNumber: string) { }
+  constructor(private readonly fromNumber: string) {}
 
   async sendTextMessage(phone: string, body: string): Promise<void> {
     TwilioClient.messages.create({

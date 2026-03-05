@@ -6,7 +6,7 @@ export class WAKapsoPort implements WhatsAppPort {
   constructor(
     private readonly client: WhatsAppClient,
     private readonly fromNumber: string,
-  ) { }
+  ) {}
 
   async sendTextMessage(phone: string, body: string) {
     logger.debug("Sending a message to %s from %s", phone, this.fromNumber);
