@@ -16,12 +16,11 @@ export const LoginSchema = z.object({
   ]),
 });
 
-export const TokenSchema = z
-  .object({
+export const TokenSchema = z.union([
+  z.object({
     token: z.string().min(1),
-  })
-  .or(
-    z.object({
-      success: z.literal(true),
-    }),
-  );
+  }),
+  z.object({
+    success: z.literal(true),
+  }),
+]);

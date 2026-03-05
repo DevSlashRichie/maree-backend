@@ -64,8 +64,8 @@ authenticationRouter.openapi(
 
     const result = await loginUserUseCase(
       body,
-      state.authzSecret,
-      state.fromNumber,
+      state.AUTHZ_SECRET,
+      state.FROM_NUMBER,
     );
 
     if (result.isErr()) {
@@ -82,7 +82,7 @@ authenticationRouter.openapi(
       );
     }
 
-    return ctx.json({ token: result.unwrap().token }, 200);
+    return ctx.json(result.unwrap(), 200);
   },
 );
 
@@ -141,7 +141,7 @@ authenticationRouter.openapi(
     const body = await ctx.req.json();
     const result = await registerUserUseCase(
       body,
-      ctx.get("state").authzSecret,
+      ctx.get("state").AUTHZ_SECRET,
     );
 
     if (result.isErr()) {

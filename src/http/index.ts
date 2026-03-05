@@ -2,14 +2,19 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { Scalar } from "@scalar/hono-api-reference";
 import { serve } from "bun";
 import z from "zod";
+import { logger } from "../lib/logger";
 import { loggerMiddleware } from "./middleware/logger";
 import { authenticationRouter } from "./routes/authentication";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
 import { userRouter } from "./routes/user";
-import { createStateMiddleware, type State } from "./state";
+import {
+  createStateMiddleware,
+  type State,
+  type StateEnvSchema,
+} from "./state";
 
-export const envHttpConf = z.object({
+export const EnvHttpConf = z.object({
   HOST: z.ipv4(),
   PORT: z.coerce.number().gt(0),
 });
@@ -18,18 +23,19 @@ export const envHttpConf = z.object({
 // GET localhost/order/ - obtener muchas orders
 // GET localhost/order/<id> - obtener una orden
 // PATCH localhost/order/<id> - m,odificar una orden
-export function createHttpServer(options: z.infer<typeof envHttpConf>) {
+export function createHttpServer(
+  options: z.infer<typeof EnvHttpConf>,
+  stateConf: z.infer<typeof StateEnvSchema>,
+) {
   const app = new OpenAPIHono<State>();
 
-  app.use(
-    "*",
-    createStateMiddleware({
-      authzSecret: "k4.local.rX9ovODAej0AQGyjW7VV+x/BHRddnURygK11d1ZMUA8=",
-      fromNumber: "+52xxxxx",
-    }),
-  );
-
+  app.use("*", createStateMiddleware(stateConf));
   app.use("*", loggerMiddleware);
+
+  app.onError((err, c) => {
+    c.set("error", err);
+    return c.json({ message: "unexpected error" }, 500);
+  });
   //app.use("*", authzMiddleware);
 
   app.route("/users", userRouter);

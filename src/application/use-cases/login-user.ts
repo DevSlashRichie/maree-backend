@@ -8,10 +8,10 @@ import {
   RepositoryError,
 } from "@/domain/entities/authentication";
 import type { User } from "@/domain/entities/user";
-import { WAClientPort } from "@/domain/ports/wa-client";
 import { UserRepo } from "@/domain/repositories/user-repo";
 import { DB } from "@/infrastructure/db/postgres";
-import { WAClient } from "@/infrastructure/wa/kapso";
+import { WATwilioClient } from "@/infrastructure/wa/twilio";
+import { logger } from "@/lib/logger";
 
 const CREATED_CODES: Record<string, number> = {};
 
@@ -31,12 +31,14 @@ function randomInt(min: number, max: number): number {
 }
 
 async function phoneMethod(user: User, phone: string, fromPhone: string) {
-  const waClient = new WAClientPort(WAClient, fromPhone);
+  const waClient = new WATwilioClient(fromPhone);
 
-  const code = randomInt(0, 9);
+  const code = randomInt(100000, 999999);
+  logger.debug("code: %s", code);
   await waClient.sendTextMessage(
     phone,
-    `Tu código de verificación es: ${code}`,
+    //`Tu código de verificación es: ${code}`,
+    `${code}`,
   );
 
   CREATED_CODES[user.id] = code;
