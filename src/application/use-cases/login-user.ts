@@ -1,10 +1,10 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import { encrypt } from "paseto-ts/v4";
 import type { z } from "zod";
-import type { LoginSchema, TokenSchema } from "@/domain/dtos/authentication";
+import type { LoginSchema, TokenSchema } from "@/application/dtos/authentication";
 import {
   InvalidCredentialsError,
-  LoginError,
+  UserError,
   RepositoryError,
 } from "@/domain/entities/authentication";
 import type { User } from "@/domain/entities/user";
@@ -74,7 +74,7 @@ export async function loginUserUseCase(
   data: z.infer<typeof LoginSchema>,
   encryptKey: string,
   fromNumber: string,
-): Promise<Result<z.infer<typeof TokenSchema>, LoginError>> {
+): Promise<Result<z.infer<typeof TokenSchema>, UserError>> {
   try {
     const userRepo = new UserRepo(DB);
 
@@ -97,7 +97,7 @@ export async function loginUserUseCase(
 
     return Ok({ token });
   } catch (error) {
-    if (error instanceof LoginError) {
+    if (error instanceof UserError) {
       return Err(error);
     }
 

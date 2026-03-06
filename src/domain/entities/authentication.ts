@@ -1,8 +1,8 @@
-export abstract class LoginError extends Error {
+export abstract class UserError extends Error {
   abstract readonly code: string;
 }
 
-export class InvalidCredentialsError extends LoginError {
+export class InvalidCredentialsError extends UserError {
   readonly code = "invalid_credentials";
 
   constructor() {
@@ -10,7 +10,7 @@ export class InvalidCredentialsError extends LoginError {
   }
 }
 
-export class NotImplementedLoginMethodError extends LoginError {
+export class NotImplementedLoginMethodError extends UserError {
   readonly code = "not_implemented";
 
   constructor() {
@@ -18,7 +18,15 @@ export class NotImplementedLoginMethodError extends LoginError {
   }
 }
 
-export class RepositoryError extends LoginError {
+export class UserNotFoundError extends UserError {
+  override readonly code = "user_not_found";
+
+  constructor() {
+    super("User not found");
+  }
+}
+
+export class RepositoryError extends UserError {
   readonly code = "repository_error";
 
   constructor(message: string) {

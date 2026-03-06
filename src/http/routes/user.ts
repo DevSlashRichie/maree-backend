@@ -1,7 +1,7 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { getUserUseCase } from "@/application/use-cases/get-user";
 import { ErrorSchema } from "@/domain/entities/error";
-import { UserSchema } from "@/domain/entities/user";
+import { UserDto } from "@/application/dtos/user";
 import type { State } from "../state";
 
 export const userRouter = new OpenAPIHono<State>();
@@ -24,7 +24,7 @@ userRouter.openapi(
         description: "user profile",
         content: {
           "application/json": {
-            schema: UserSchema,
+            schema: UserDto,
           },
         },
       },

@@ -15,15 +15,15 @@ export const authzMiddleware: MiddlewareHandler<State> = async (ctx, next) => {
   }
 
   try {
-    const { payload } = verify<Actor>(ctx.get("state").authzSecret, token);
+    const { payload } = verify<Actor>(ctx.get("state").AUTHZ_SECRET, token);
 
     const actor = await getActorUseCase(payload.id);
 
-    if (actor.isNone()) {
+    if (!actor) {
       return ctx.json({ message: "forbidden!" }, 403);
     }
 
-    ctx.set("actor", actor.unwrap());
+    ctx.set("actor", actor);
   } catch (err) {
     logger.error(err);
     return ctx.json({ message: "forbidden!" }, 403);
