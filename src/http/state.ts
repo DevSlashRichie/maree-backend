@@ -1,7 +1,7 @@
 import type { MiddlewareHandler } from "hono";
 import { z } from "zod";
-import type { logger } from "@/lib/logger";
 import type { ActorType } from "@/domain/entities/actor";
+import type { logger } from "@/lib/logger";
 
 export const StateEnvSchema = z.object({
   AUTHZ_SECRET: z.string(),
