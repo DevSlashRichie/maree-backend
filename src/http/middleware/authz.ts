@@ -2,9 +2,9 @@ import type { MiddlewareHandler } from "hono";
 import { getCookie } from "hono/cookie";
 import { verify } from "paseto-ts/v4";
 import { getActorUseCase } from "@/application/use-cases/get-actor";
-import type { Actor } from "@/domain/entities/actor";
 import { logger } from "@/lib/logger";
 import type { State } from "../state";
+import type { ActorType } from "@/domain/entities/actor";
 
 export const authzMiddleware: MiddlewareHandler<State> = async (ctx, next) => {
   const token = getCookie(ctx, "tok");
@@ -15,7 +15,7 @@ export const authzMiddleware: MiddlewareHandler<State> = async (ctx, next) => {
   }
 
   try {
-    const { payload } = verify<Actor>(ctx.get("state").AUTHZ_SECRET, token);
+    const { payload } = verify<ActorType>(ctx.get("state").AUTHZ_SECRET, token);
 
     const actor = await getActorUseCase(payload.id);
 

@@ -1,7 +1,7 @@
 import type { MiddlewareHandler } from "hono";
 import { z } from "zod";
-import type { Actor } from "@/domain/entities/actor";
 import type { logger } from "@/lib/logger";
+import type { ActorType } from "@/domain/entities/actor";
 
 export const StateEnvSchema = z.object({
   AUTHZ_SECRET: z.string(),
@@ -9,7 +9,7 @@ export const StateEnvSchema = z.object({
 });
 
 type Variables = {
-  actor: Actor;
+  actor: ActorType;
   logger: typeof logger;
   error: Error;
   state: z.infer<typeof StateEnvSchema>;

@@ -1,9 +1,9 @@
-import type { Actor } from "@/domain/entities/actor";
+import type { ActorType } from "@/domain/entities/actor";
 import { UserNotFoundError } from "@/domain/entities/authentication";
 import { UserRepo } from "@/domain/repositories/user-repo";
 import { DB } from "@/infrastructure/db/postgres";
 
-export async function getActorUseCase(userId: string): Promise<Actor> {
+export async function getActorUseCase(userId: string): Promise<ActorType> {
   const userRepo = new UserRepo(DB);
   const userWithActor = await userRepo.findByIdWithRole(userId);
 
@@ -19,5 +19,5 @@ export async function getActorUseCase(userId: string): Promise<Actor> {
     firstName: userWithActor.firstName,
     createdAt: userWithActor.createdAt,
     role: userWithActor.rolesTable?.name,
-  } as Actor;
+  } as ActorType;
 }

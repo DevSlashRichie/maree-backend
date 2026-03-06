@@ -1,6 +1,8 @@
-import type { Role } from "./roles";
-import type { User } from "./user";
+import { z } from "zod";
+import { UserSchema } from "./user";
 
-export interface Actor extends User {
-  role: Role;
-}
+export const ActorSchema = UserSchema.extend({
+  role: z.string(),
+}).openapi("Actor");
+
+export type ActorType = z.infer<typeof ActorSchema>;
