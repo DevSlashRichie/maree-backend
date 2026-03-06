@@ -8,7 +8,7 @@ AVANCE 2:
 
 
 AVANCE 3:
- ./docs
+- [DOCS](https://github.com/DevSlashRichie/maree-backend/tree/main/docs)
 
 
 INTEGRANTES DEL EQUIPO:
