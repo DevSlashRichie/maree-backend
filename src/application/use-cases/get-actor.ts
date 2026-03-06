@@ -1,7 +1,7 @@
-import { UserRepo } from "@/domain/repositories/user-repo";
-import { UserNotFoundError } from "@/domain/entities/authentication";
-import { DB } from "@/infrastructure/db/postgres";
 import type { Actor } from "@/domain/entities/actor";
+import { UserNotFoundError } from "@/domain/entities/authentication";
+import { UserRepo } from "@/domain/repositories/user-repo";
+import { DB } from "@/infrastructure/db/postgres";
 
 export async function getActorUseCase(userId: string): Promise<Actor> {
   const userRepo = new UserRepo(DB);
