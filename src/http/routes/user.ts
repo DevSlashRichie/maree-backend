@@ -1,7 +1,7 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { getUserUseCase } from "@/application/use-cases/get-user";
+import { getActorUseCase } from "@/application/use-cases/get-actor";
+import { ActorSchema } from "@/domain/entities/actor";
 import { ErrorSchema } from "@/domain/entities/error";
-import { UserSchema } from "@/domain/entities/user";
 import type { State } from "../state";
 
 export const userRouter = new OpenAPIHono<State>();
@@ -24,7 +24,7 @@ userRouter.openapi(
         description: "user profile",
         content: {
           "application/json": {
-            schema: UserSchema,
+            schema: ActorSchema,
           },
         },
       },
@@ -40,7 +40,7 @@ userRouter.openapi(
   }),
   async (ctx) => {
     const actor = ctx.get("actor");
-    const user = await getUserUseCase(actor.id);
+    const user = await getActorUseCase(actor.id);
 
     // TODO: move this error creation into the application layer.
     if (!user) {

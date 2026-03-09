@@ -1,0 +1,55 @@
+name: Build & Deploy to Azure
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build and push to ACR
+        run: |
+          az acr build \
+            -r ${{ secrets.ACR_NAME }} \
+            -t maree:${{ github.sha }} \
+            --file Dockerfile .
+
+      - name: Tag as latest
+        if: github.ref == 'refs/heads/main'
+        run: |
+          az acr build \
+            -r ${{ secrets.ACR_NAME }} \
+            -t maree:latest \
+            --file Dockerfile .
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Update Container App
+        run: |
+          IMAGE="${{ secrets.ACR_NAME }}.azurecr.io/maree:${{ github.sha }}"
+          
+          az containerapp update \
+            --name maree \
+            --resource-group maree-prod-rg \
+            --image $IMAGE \
+            --set-env-vars "KAPSO_API_KEY=${{ secrets.KAPSO_API_KEY }}"

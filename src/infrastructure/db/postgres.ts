@@ -43,7 +43,7 @@ export async function seedIfRequired() {
       count: 1,
     }).refine((funcs) => ({
       branchsTable: {
-        count: 2,
+        count: 35,
         columns: {
           state: funcs.valuesFromArray({
             values: ["open", "closed"],
@@ -77,7 +77,7 @@ export async function seedIfRequired() {
         },
       },
       userTable: {
-        count: 5,
+        count: 100,
         columns: {
           email: funcs.email(),
           firstName: funcs.firstName(),
@@ -87,7 +87,7 @@ export async function seedIfRequired() {
         with: {
           ordersTable: [
             {
-              count: [2, 4],
+              count: [10, 20],
               weight: 1,
             },
           ],
@@ -103,12 +103,12 @@ export async function seedIfRequired() {
         count: 3,
         columns: {
           name: funcs.valuesFromArray({
-            values: ["admin", "manager", "staff"],
+            values: ["admin", "manager", "staff", "waiter"],
           }),
         },
       },
       policyTable: {
-        count: 4,
+        count: 20,
         columns: {
           name: funcs.valuesFromArray({
             values: [
@@ -116,6 +116,22 @@ export async function seedIfRequired() {
               "write:orders",
               "read:products",
               "write:products",
+              "read:branches",
+              "write:branches",
+              "read:staff",
+              "write:staff",
+              "read:schedules",
+              "write:schedules",
+              "read:roles",
+              "write:roles",
+              "read:users",
+              "write:users",
+              "read:categories",
+              "write:categories",
+              "read:discounts",
+              "write:discounts",
+              "read:notifications",
+              "write:notifications",
             ],
           }),
         },
@@ -124,7 +140,23 @@ export async function seedIfRequired() {
         count: 5,
         columns: {
           name: funcs.valuesFromArray({
-            values: ["burgers", "pizzas", "drinks", "desserts", "sides"],
+            values: [
+              "burgers",
+              "pizzas",
+              "drinks",
+              "desserts",
+              "sides",
+              "salads",
+              "sandwiches",
+              "tacos",
+              "seafood",
+              "steaks",
+              "pasta",
+              "breakfast",
+              "vegan",
+              "kids",
+              "appetizers",
+            ],
           }),
           description: funcs.loremIpsum({ sentencesCount: 1 }),
         },
@@ -160,17 +192,17 @@ export async function seedIfRequired() {
         },
       },
       productVariantsTable: {
-        count: 15,
+        count: 35,
         columns: {
           name: funcs.valuesFromArray({
-            values: ["Small", "Medium", "Large", "Regular"],
+            values: ["Small", "Medium", "Large"],
           }),
           price: funcs.int({ minValue: 5000, maxValue: 20000 }),
           image: funcs.string({}),
         },
       },
       discountsTable: {
-        count: 3,
+        count: 30,
         columns: {
           name: funcs.valuesFromArray({
             values: ["Summer Sale", "Winter Discount", "Happy Hour"],
@@ -207,7 +239,7 @@ export async function seedIfRequired() {
         with: {
           notificationTable: [
             {
-              count: [8, 13],
+              count: [50, 60],
               weight: 1,
             },
           ],
@@ -226,7 +258,7 @@ export async function seedIfRequired() {
         },
       },
       ordersTable: {
-        count: 10,
+        count: 60,
         columns: {
           total: funcs.int({ minValue: 1000, maxValue: 10000 }),
           status: funcs.valuesFromArray({
@@ -236,11 +268,14 @@ export async function seedIfRequired() {
           orderNumber: funcs.uuid({}),
         },
         with: {
-          orderItemsTable: [{ count: [1, 3], weight: 1 }],
+          orderItemsTable: [
+            { count: [1, 3], weight: 0.5 },
+            { count: [10, 15], weight: 0.5 },
+          ],
         },
       },
       orderItemsTable: {
-        count: 20,
+        count: 50,
         columns: {
           quantity: funcs.int({ minValue: 1, maxValue: 5 }),
           pricingSnapshot: funcs.int({ minValue: 500, maxValue: 3000 }),
@@ -248,7 +283,7 @@ export async function seedIfRequired() {
         },
       },
       reviewsTable: {
-        count: 5,
+        count: 60,
         columns: {
           satisfactionRate: funcs.int({ minValue: 1, maxValue: 5 }),
           notes: funcs.loremIpsum({ sentencesCount: 1 }),

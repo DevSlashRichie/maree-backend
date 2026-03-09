@@ -1,8 +1,18 @@
-export * from "./branch";
-export * from "./discount";
-export * from "./notification";
-export * from "./order";
-export * from "./product";
-export * from "./rbac";
-export * from "./review";
-export * from "./user";
+export { branchsTable, schedulesTable, staffTable } from "./branch";
+export { discountBranchesTable, discountsTable } from "./discount";
+export {
+  notificationTable,
+  notificationTemplateTable,
+  notificationTemplateTriggerTable,
+  notificationTriggerTable,
+} from "./notification";
+export { orderItemsTable, ordersTable } from "./order";
+export { categoryTable, productTable, productVariantsTable } from "./product";
+export {
+  policyTable,
+  rolePoliciesTable,
+  rolesTable,
+  userRoleTable,
+} from "./rbac";
+export { reviewsTable } from "./review";
+export { userPasswordTable, userTable } from "./user";
