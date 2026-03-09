@@ -10,7 +10,7 @@ type SaveUserType = Omit<
 
 type SavePasswordType = Omit<
   InferInsertModel<typeof userPasswordTable>,
-  "created_at"
+  "createdAt"
 >;
 
 export class UserRepo {
