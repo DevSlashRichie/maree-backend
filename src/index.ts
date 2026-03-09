@@ -8,6 +8,7 @@ import {
 } from "./infrastructure/db/postgres";
 import { envKapsoSchema } from "./infrastructure/wa/kapso";
 import { envTwilioSchema } from "./infrastructure/wa/twilio";
+import "@/lib/bigint";
 
 async function main() {
   const parsed = await envDatabaseSchema.safeParseAsync(process.env);

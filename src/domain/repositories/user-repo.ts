@@ -14,7 +14,7 @@ type SavePasswordType = Omit<
 >;
 
 export class UserRepo {
-  constructor(private readonly conn: Executor) {}
+  constructor(private readonly conn: Executor) { }
 
   async findById(id: string) {
     const user = await this.conn.query.userTable.findFirst({

@@ -12,4 +12,10 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.userPasswordTable.userId,
     }),
   },
+  productTable: {
+    productVariantsTable: r.one.productVariantsTable({
+      from: r.productTable.id,
+      to: r.productVariantsTable.productId,
+    }),
+  },
 }));

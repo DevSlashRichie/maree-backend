@@ -12,6 +12,7 @@ import {
   type State,
   type StateEnvSchema,
 } from "./state";
+import { cors } from "hono/cors";
 
 export const EnvHttpConf = z.object({
   HOST: z.ipv4(),
@@ -28,6 +29,14 @@ export function createHttpServer(
 ) {
   const app = new OpenAPIHono<State>();
 
+  app.use(
+    "*",
+    cors({
+      origin: "*",
+      allowHeaders: ["*"],
+      allowMethods: ["*"],
+    }),
+  );
   app.use("*", createStateMiddleware(stateConf));
   app.use("*", loggerMiddleware);
 
@@ -48,6 +57,12 @@ export function createHttpServer(
       version: "1.0.0",
       title: "Maree Backend API",
     },
+    servers: [
+      {
+        url: "http://localhost:8383",
+        description: "LOCALHOST",
+      },
+    ],
   });
   app.get(
     "/docs/scalar",
