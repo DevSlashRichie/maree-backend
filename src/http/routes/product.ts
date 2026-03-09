@@ -5,7 +5,6 @@ import { getProductsUseCase } from "@/application/use-cases/get-products";
 import { ErrorSchema } from "@/domain/entities/error";
 import { ProductFiltersSchema } from "@/domain/entities/product";
 import type { State } from "../state";
-import { ko } from "zod/v4/locales";
 
 export const productRouter = new OpenAPIHono<State>();
 

@@ -5,7 +5,7 @@ import { productTable } from "@/infrastructure/db/schema";
 import { buildFilters } from "@/lib/filters";
 
 export class ProductRepo {
-  constructor(private readonly conn: Executor) { }
+  constructor(private readonly conn: Executor) {}
 
   async findAll(filters?: ProductFilters): Promise<Product[]> {
     const whereConditions = filters

@@ -1,6 +1,7 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { Scalar } from "@scalar/hono-api-reference";
 import { serve } from "bun";
+import { cors } from "hono/cors";
 import z from "zod";
 import { loggerMiddleware } from "./middleware/logger";
 import { authenticationRouter } from "./routes/authentication";
@@ -12,7 +13,6 @@ import {
   type State,
   type StateEnvSchema,
 } from "./state";
-import { cors } from "hono/cors";
 
 export const EnvHttpConf = z.object({
   HOST: z.ipv4(),
