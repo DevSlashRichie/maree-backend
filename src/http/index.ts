@@ -8,6 +8,7 @@ import { branchRouter } from "./routes/branch";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
 import { userRouter } from "./routes/user";
+import { reviewRouter } from "./routes/review";
 import { createStateMiddleware, type State } from "./state";
 
 export const envHttpConf = z.object({
@@ -37,6 +38,7 @@ export function createHttpServer(options: z.infer<typeof envHttpConf>) {
   app.route("/orders", orderRouter);
   app.route("/branches", branchRouter);
   app.route("/auth", authenticationRouter);
+  app.route("/review", reviewRouter);
 
   app.doc("/docs/openapi.json", {
     openapi: "3.0.0",
