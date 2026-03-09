@@ -5,6 +5,7 @@ import { AlreadyExistsBranch, BranchSchema } from "@/domain/entities/branch";
 import { ErrorSchema } from "@/domain/entities/error";
 import { logger } from "@/lib/logger";
 import type { State } from "../state";
+import { getBranchUseCase } from "@/application/use-cases/get-branch";
 
 export const branchRouter = new OpenAPIHono<State>();
 
@@ -81,5 +82,46 @@ branchRouter.openapi(
     }
 
     return ctx.json(result.unwrap(), 201);
+  },
+);
+
+branchRouter.openapi(
+  createRoute({
+    tags: ["Branch"],
+    method: "get",
+    path: "/@me",
+    responses: {
+      200: {
+        description: "branch profile",
+        content: {
+          "application/json": {
+            schema: BranchSchema,
+          },
+        },
+      },
+      409: {
+        description: "branch not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+
+  async (ctx) => {
+    const branchName = ctx.get("branch");
+    const branch = await getBranchUseCase(branchName.name);
+
+    // TODO: move this error creation into the application layer.
+    if (branch == null) {
+      return ctx.json(
+        { message: "branch not found", code: "branch_not_found" },
+        409,
+      );
+    }
+
+    return ctx.json(branch, 200);
   },
 );

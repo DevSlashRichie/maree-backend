@@ -20,6 +20,16 @@ export class BranchRepo {
     return !!branch;
   }
 
+  async findByName(name: string) {
+    const branch = await this.conn.query.branchsTable.findFirst({
+      where: {
+        name,
+      },
+    });
+
+    return branch;
+  }
+
   async saveBranch(data: SaveBranchType) {
     const [branch] = await this.conn
       .insert(branchsTable)
