@@ -34,8 +34,8 @@ branchRouter.openapi(
           },
         },
       },
-      409: {
-        description: "branch not found",
+      404: {
+        description: "branch name already used",
         content: {
           "application/json": {
             schema: ErrorSchema,
@@ -66,7 +66,7 @@ branchRouter.openapi(
             code: err.name,
             message: "The name is already used",
           },
-          409,
+          404,
         );
       }
 
@@ -89,7 +89,7 @@ branchRouter.openapi(
   createRoute({
     tags: ["Branch"],
     method: "get",
-    path: "/@me",
+    path: "/:branch",
     responses: {
       200: {
         description: "branch profile",
@@ -111,11 +111,11 @@ branchRouter.openapi(
   }),
 
   async (ctx) => {
-    const branchName = ctx.get("branch");
-    const branch = await getBranchUseCase(branchName.name);
+    const branchName = ctx.req.param("branch");
+    const branch = await getBranchUseCase(branchName);
 
     // TODO: move this error creation into the application layer.
-    if (branch == null) {
+    if (!branch) {
       return ctx.json(
         { message: "branch not found", code: "branch_not_found" },
         409,

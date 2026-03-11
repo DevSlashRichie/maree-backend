@@ -1,11 +1,9 @@
 import type { MiddlewareHandler } from "hono";
 import type { Actor } from "@/domain/entities/actor";
-import type { Branch } from "@/domain/entities/branch";
 import type { logger } from "@/lib/logger";
 
 type Variables = {
   actor: Actor;
-  branch: Branch;
   logger: typeof logger;
 
   state: {
