@@ -1,11 +1,10 @@
-import { RegisterReviewDto } from "@/domain/dtos/register-review";
-import { ReviewSchema } from "@/domain/entities/review";
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { ErrorSchema } from "@/domain/entities/error";
-import type { State } from "../state";
 import { registerReviewUseCase } from "@/application/use-cases/register-review";
+import { RegisterReviewDto } from "@/domain/dtos/register-review";
+import { ErrorSchema } from "@/domain/entities/error";
+import { ReviewSchema } from "@/domain/entities/review";
 import { logger } from "@/lib/logger";
-
+import type { State } from "../state";
 
 export const reviewRouter = new OpenAPIHono<State>();
 
@@ -51,7 +50,7 @@ reviewRouter.openapi(
 
     if (result.isErr()) {
       const err = result.unwrapErr();
-    logger.error("Unknown error: %s", err);
+      logger.error("Unknown error: %s", err);
 
       return ctx.json(
         {
