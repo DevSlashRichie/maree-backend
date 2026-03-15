@@ -44,4 +44,20 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.loyaltyCardsTable.id,
     }),
   },
+  policyTable: {
+    rolePoliciesTable: r.many.rolePoliciesTable({
+      from: r.policyTable.id,
+      to: r.rolePoliciesTable.policyId,
+    }),
+  },
+  rolePoliciesTable: {
+    policyTable: r.one.policyTable({
+      from: r.rolePoliciesTable.policyId,
+      to: r.policyTable.id,
+    }),
+    rolesTable: r.one.rolesTable({
+      from: r.rolePoliciesTable.roleId,
+      to: r.rolesTable.id,
+    }),
+  },
 }));

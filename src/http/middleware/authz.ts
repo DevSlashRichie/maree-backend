@@ -5,6 +5,7 @@ import { getActorUseCase } from "@/application/use-cases/get-actor";
 import type { ActorType } from "@/domain/entities/actor";
 import { logger } from "@/lib/logger";
 import type { State } from "../state";
+import { checkPolicies } from "@/application/use-cases/check-policies";
 
 export const authzMiddleware: MiddlewareHandler<State> = async (ctx, next) => {
   const token = getCookie(ctx, "tok");
@@ -31,3 +32,26 @@ export const authzMiddleware: MiddlewareHandler<State> = async (ctx, next) => {
 
   await next();
 };
+
+// we create a closure to configure the middleware
+export function checkPolicyMiddleware(requiredPolicies: string[]) {
+  const middleware: MiddlewareHandler<State> = async (ctx, next) => {
+    const actor = ctx.get("actor");
+
+    // if for any reason is not set, then return err.
+    if (!actor) {
+      logger.warn("Request without token.");
+      return ctx.json({ message: "forbidden!" }, 403);
+    }
+
+    const arePoliciesValid = checkPolicies(actor.role, requiredPolicies);
+    if (!arePoliciesValid) {
+      logger.warn("Request via incorrect role requested.");
+      return ctx.json({ message: "forbidden!" }, 403);
+    }
+
+    await next();
+  };
+
+  return middleware;
+}

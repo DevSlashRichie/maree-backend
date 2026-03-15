@@ -5,6 +5,7 @@ import { getProductsUseCase } from "@/application/use-cases/get-products";
 import { ErrorSchema } from "@/domain/entities/error";
 import { ProductFiltersSchema } from "@/domain/entities/product";
 import type { State } from "../state";
+import { checkPolicyMiddleware } from "../middleware/authz";
 
 export const productRouter = new OpenAPIHono<State>();
 
@@ -91,6 +92,7 @@ productRouter.openapi(
         },
       },
     },
+    middleware: checkPolicyMiddleware(["products:write"])
   }),
   async (ctx) => {
     const body = await ctx.req.json();

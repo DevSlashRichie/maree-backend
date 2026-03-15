@@ -96,7 +96,13 @@ export async function loginUserUseCase(
       await codeMethod(user, data.method.value);
     }
 
-    const token = encrypt(encryptKey, { userId: user.id });
+    // do rbac stuff
+    const actor = await userRepo.findByIdWithRole(user.id);
+
+    const token = encrypt(encryptKey, {
+      userId: user.id,
+      role: actor?.rolesTable?.id || null,
+    });
 
     return Ok({ token });
   } catch (error) {
