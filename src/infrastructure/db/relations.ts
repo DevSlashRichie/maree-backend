@@ -18,4 +18,30 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.productVariantsTable.productId,
     }),
   },
+  rewardRedemptionsTable: {
+    rewardsTable: r.one.rewardsTable({
+      from: r.rewardRedemptionsTable.rewardId,
+      to: r.rewardsTable.id,
+    }),
+    branchsTable: r.one.branchsTable({
+      from: r.rewardRedemptionsTable.branchId,
+      to: r.branchsTable.id,
+    }),
+  },
+  loyaltyCardsTable: {
+    loyaltyTransactionsTable: r.one.loyaltyTransactionsTable({
+      from: r.loyaltyCardsTable.id,
+      to: r.loyaltyTransactionsTable.loyaltyCardId,
+    }),
+    userTable: r.one.userTable({
+      from: r.loyaltyCardsTable.userId,
+      to: r.userTable.id,
+    }),
+  },
+  loyaltyTransactionsTable: {
+    loyaltyCardsTable: r.one.loyaltyCardsTable({
+      from: r.loyaltyTransactionsTable.loyaltyCardId,
+      to: r.loyaltyCardsTable.id,
+    }),
+  },
 }));

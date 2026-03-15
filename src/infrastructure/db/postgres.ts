@@ -15,7 +15,7 @@ export const envDatabaseSchema = z.object({
 
 export const DB = drizzle({
   connection: {
-    host: Option.from(process.env.DB_HOST).unwrap(),
+    host: Option.from(process.env.DB_HOST).expect("You are missing DB HOST"),
     port: Number(process.env.DB_PORT),
     password: Option.from(process.env.DB_PASSWORD).unwrap(),
     user: Option.from(process.env.DB_USERNAME).unwrap(),
