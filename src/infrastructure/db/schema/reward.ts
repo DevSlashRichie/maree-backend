@@ -34,4 +34,3 @@ export const rewardRedemptionsTable = pgTable("reward_redemption", {
     .notNull()
     .defaultNow(),
 });
-

@@ -3,7 +3,6 @@ import {
   loyaltyCardsTable,
   loyaltyTransactionsTable,
   rewardRedemptionsTable,
-  rewardsTable,
 } from "@/infrastructure/db/schema";
 
 export class RewardsRepo {

@@ -14,7 +14,7 @@ productRouter.openapi(
     method: "get",
     path: "/",
     request: {
-      query: ProductFiltersSchema
+      query: ProductFiltersSchema,
     },
     responses: {
       200: {
@@ -39,7 +39,8 @@ productRouter.openapi(
     const queryString = ctx.req.query();
     const parsedQuery = qs.parse(queryString);
 
-    const filterValidation = await ProductFiltersSchema.safeParseAsync(parsedQuery);
+    const filterValidation =
+      await ProductFiltersSchema.safeParseAsync(parsedQuery);
 
     if (!filterValidation.success) {
       const invalidFields = filterValidation.error.issues.map((e) =>

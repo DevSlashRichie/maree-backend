@@ -1,5 +1,4 @@
 import { z } from "@hono/zod-openapi";
-import { RewardSchema } from "@/domain/entities/reward";
 
 export const RedeemRewardSchema = z
   .object({
