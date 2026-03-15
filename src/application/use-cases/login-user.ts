@@ -2,10 +2,8 @@ import { Err, Ok, type Result } from "oxide.ts";
 import { encrypt } from "paseto-ts/v4";
 import type { z } from "zod";
 import type {
-  LoginResult,
   LoginResultSchema,
   LoginSchema,
-  TokenSchema,
 } from "@/application/dtos/authentication";
 import {
   InvalidCredentialsError,

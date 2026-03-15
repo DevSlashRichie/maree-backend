@@ -1,10 +1,10 @@
 import type { MiddlewareHandler } from "hono";
 import { getCookie } from "hono/cookie";
 import { decrypt } from "paseto-ts/v4";
+import type { TokenPayloadType } from "@/application/dtos/authentication";
 import { checkPolicies } from "@/application/use-cases/check-policies";
 import { logger } from "@/lib/logger";
 import type { State } from "../state";
-import type { TokenPayloadType } from "@/application/dtos/authentication";
 
 export function authzMiddleware(strict: boolean = true) {
   const middleware: MiddlewareHandler<State> = async (ctx, next) => {

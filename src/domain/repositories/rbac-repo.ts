@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
 import {
   policyTable,
@@ -5,10 +6,9 @@ import {
   rolesTable,
 } from "@/infrastructure/db/schema";
 import { isUuid } from "@/lib/uuid";
-import { eq } from "drizzle-orm";
 
 export class RbacRepo {
-  constructor(private readonly conn: Executor) { }
+  constructor(private readonly conn: Executor) {}
 
   async findPoliciesForRole(roleId: string) {
     const policies = await this.conn

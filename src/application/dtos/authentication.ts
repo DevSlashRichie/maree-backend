@@ -1,5 +1,5 @@
-import { ActorSchema } from "@/domain/entities/actor";
 import { z } from "@hono/zod-openapi";
+import { ActorSchema } from "@/domain/entities/actor";
 
 export const LoginSchema = z
   .object({

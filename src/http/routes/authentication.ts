@@ -1,8 +1,8 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { setCookie } from "hono/cookie";
 import {
-  LoginSchema,
   LoginResultSchema,
+  LoginSchema,
 } from "@/application/dtos/authentication";
 import { RegisterUserDto } from "@/application/dtos/register-user.ts";
 import { loginUserUseCase } from "@/application/use-cases/login-user";
