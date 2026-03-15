@@ -4,10 +4,11 @@ import { ProductListSchema } from "@/application/dtos/product";
 import { getProductsUseCase } from "@/application/use-cases/get-products";
 import { ErrorSchema } from "@/domain/entities/error";
 import { ProductFiltersSchema } from "@/domain/entities/product";
-import { checkPolicyMiddleware } from "../middleware/authz";
+import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 import type { State } from "../state";
 
 export const productRouter = new OpenAPIHono<State>();
+productRouter.use(authzMiddleware(false));
 
 productRouter.openapi(
   createRoute({

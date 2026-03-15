@@ -9,13 +9,8 @@ export async function checkPolicies(
 
   const _policies = await rbacRepo.findPoliciesForRole(roleId);
   const policies = new Set(
-    // we use a trick with flatmap to filter while mapping.
-    _policies.flatMap((it) => {
-      if (it.policyTable?.name) {
-        return it.policyTable?.name;
-      }
-
-      return [];
+    _policies.map((it) => {
+      return it.policy.name;
     }),
   );
 

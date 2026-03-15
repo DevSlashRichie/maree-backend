@@ -1,3 +1,4 @@
+import { ActorSchema } from "@/domain/entities/actor";
 import { z } from "@hono/zod-openapi";
 
 export const LoginSchema = z
@@ -18,13 +19,21 @@ export const LoginSchema = z
   })
   .openapi("Login");
 
-export const TokenSchema = z
-  .union([
-    z.object({
-      token: z.string().min(1),
-    }),
+export const LoginResultSchema = z
+  .discriminatedUnion("success", [
     z.object({
       success: z.literal(true),
+      token: z.string(),
+      actor: ActorSchema,
+    }),
+    z.object({
+      success: z.literal(false),
+      required_action: z.literal("login_with_sent_code"),
     }),
   ])
-  .openapi("Token");
+  .openapi("LoginResult");
+
+export interface TokenPayloadType {
+  userId: string;
+  role: string | null;
+}

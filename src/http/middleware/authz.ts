@@ -1,37 +1,41 @@
 import type { MiddlewareHandler } from "hono";
 import { getCookie } from "hono/cookie";
-import { verify } from "paseto-ts/v4";
+import { decrypt } from "paseto-ts/v4";
 import { checkPolicies } from "@/application/use-cases/check-policies";
-import { getActorUseCase } from "@/application/use-cases/get-actor";
-import type { ActorType } from "@/domain/entities/actor";
 import { logger } from "@/lib/logger";
 import type { State } from "../state";
+import type { TokenPayloadType } from "@/application/dtos/authentication";
 
-export const authzMiddleware: MiddlewareHandler<State> = async (ctx, next) => {
-  const token = getCookie(ctx, "tok");
+export function authzMiddleware(strict: boolean = true) {
+  const middleware: MiddlewareHandler<State> = async (ctx, next) => {
+    const token = getCookie(ctx, "tok");
 
-  if (!token) {
-    logger.warn("Request without token.");
-    return ctx.json({ message: "forbidden!" }, 403);
-  }
+    if (!token) {
+      if (strict) {
+        logger.warn("Request without token.");
+        return ctx.json({ message: "forbidden!" }, 403);
+      } else {
+        return await next();
+      }
+    }
 
-  try {
-    const { payload } = verify<ActorType>(ctx.get("state").AUTHZ_SECRET, token);
+    try {
+      const { payload } = decrypt<TokenPayloadType>(
+        ctx.get("state").AUTHZ_SECRET,
+        token,
+      );
 
-    const actor = await getActorUseCase(payload.id);
-
-    if (!actor) {
+      ctx.set("actor", payload);
+    } catch (err) {
+      logger.error(err);
       return ctx.json({ message: "forbidden!" }, 403);
     }
 
-    ctx.set("actor", actor);
-  } catch (err) {
-    logger.error(err);
-    return ctx.json({ message: "forbidden!" }, 403);
-  }
+    await next();
+  };
 
-  await next();
-};
+  return middleware;
+}
 
 // we create a closure to configure the middleware
 export function checkPolicyMiddleware(requiredPolicies: string[]) {
@@ -40,7 +44,12 @@ export function checkPolicyMiddleware(requiredPolicies: string[]) {
 
     // if for any reason is not set, then return err.
     if (!actor) {
-      logger.warn("Request without token.");
+      logger.warn("Request without actor");
+      return ctx.json({ message: "forbidden!" }, 403);
+    }
+
+    if (!actor || !actor.role) {
+      logger.warn("Request without role");
       return ctx.json({ message: "forbidden!" }, 403);
     }
 
