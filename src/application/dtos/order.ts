@@ -6,3 +6,9 @@ export const OrderHistoryDto = z
     orders: z.array(OrderSchema),
   })
   .openapi("OrderHistory");
+
+export const IncomingOrdersDto = z
+  .object({
+    orders: z.array(OrderSchema),
+  })
+  .openapi("IncomingOrders");

@@ -1,22 +1,17 @@
 import { Err, Ok, type Result } from "oxide.ts";
-import {
-  type Order,
-  type OrderError,
-  UnknownError,
-} from "@/domain/entities/order.ts";
+import type { Order, OrderError } from "@/domain/entities/order.ts";
+import { UnknownError } from "@/domain/entities/user.ts";
 import { OrderRepo } from "@/domain/repositories/order-repo.ts";
 import { DB } from "@/infrastructure/db/postgres.ts";
 
-export async function getOderHistoryUseCase(
-  id: string,
-): Promise<Result<Order[], OrderError>> {
+export async function getIncomingOrdersUseCase(): Promise<
+  Result<Order[], OrderError>
+> {
   return await DB.transaction(async (txn) => {
     try {
       const orderRepo = new OrderRepo(txn);
-      // TODO: validate that the user exists
       const filters = {
-        userId: { eq: id },
-        status: { eq: "completed" },
+        status: { eq: "in-progress" },
       };
       const orders = await orderRepo.findAll(filters);
       return Ok(orders);
