@@ -2,10 +2,13 @@ import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { registerReviewUseCase } from "@/application/use-cases/register-review";
 import { RegisterReviewDto } from "@/domain/dtos/register-review";
 import { ErrorSchema } from "@/domain/entities/error";
-import { ReviewSchema } from "@/domain/entities/review";
+import { 
+  ReviewSchema, 
+  InvalidSatisfactionRateError,
+  UserNotFoundError
+} from "@/domain/entities/review.ts"
 import { logger } from "@/lib/logger";
 import type { State } from "../state";
-
 export const reviewRouter = new OpenAPIHono<State>();
 
 reviewRouter.openapi(
@@ -33,6 +36,20 @@ reviewRouter.openapi(
           },
         },
       },
+      400: {
+        description: "Invalid rate",
+        content: {"application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      404: {
+        description: "User nor found",
+        content: {"application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
       500: {
         description: "unexpected",
         content: {
@@ -50,6 +67,24 @@ reviewRouter.openapi(
 
     if (result.isErr()) {
       const err = result.unwrapErr();
+      if (err instanceof InvalidSatisfactionRateError) {
+        return ctx.json(
+        {
+          code: err.name,
+          message: "Invalid rate",
+        },
+        400
+      );
+      }
+      if (err instanceof UserNotFoundError) {
+        return ctx.json(
+          {
+            code: err.name,
+            message: "User not found",
+          },
+          404
+        );
+      } 
       logger.error("Unknown error: %s", err);
 
       return ctx.json(

@@ -10,6 +10,25 @@ export abstract class RegisterReviewError extends Error {
   abstract readonly code: string;
 }
 
+export class InvalidSatisfactionRateError extends RegisterReviewError {
+  readonly code = "INVALID_SATISFACTION_RATE";
+  
+  constructor(rate: number) {
+    super(`Satisfaction rate ${rate} is invalid.`);
+    this.name = "InvalidSatisfactionRateError";
+  }
+}
+
+export class UserNotFoundError extends RegisterReviewError {
+  readonly code = "USER_NOT_FOUND";
+
+  constructor (userId: string){
+    super(`User with ID ${userId} was not found.`);
+    this.name = "UserNotFoundError";    
+  }
+
+}
+
 export class UnknownError extends RegisterReviewError {
   readonly code = "unknown";
 

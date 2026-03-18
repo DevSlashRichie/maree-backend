@@ -1,6 +1,6 @@
 import type { InferInsertModel } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
-import { branchsTable, reviewsTable } from "@/infrastructure/db/schema";
+import { reviewsTable } from "@/infrastructure/db/schema";
 
 type SaveReviewType = Omit<
   InferInsertModel<typeof reviewsTable>,

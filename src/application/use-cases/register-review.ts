@@ -1,18 +1,26 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import type z from "zod";
-import type { RegisterReviewDto } from "@/domain/dtos/register-review";
-import { RegisterReviewError, type ReviewType } from "@/domain/entities/review";
+import { RegisterReviewDto } from "@/domain/dtos/register-review";
+import { InvalidSatisfactionRateError, RegisterReviewError, UserNotFoundError, type ReviewType } from "@/domain/entities/review";
 import { UnknownError } from "@/domain/entities/user";
 import { ReviewRepo } from "@/domain/repositories/review-repo";
 import { DB } from "@/infrastructure/db/postgres";
+import { UserRepo } from "@/domain/repositories/user-repo";
 
 export async function registerReviewUseCase(
   data: z.infer<typeof RegisterReviewDto>,
 ): Promise<Result<ReviewType, RegisterReviewError>> {
   try {
     const reviewRepo = new ReviewRepo(DB);
-    // NOTE: validar user id y order id
-    //NOTE: satisfactionRate entre 0 y 5
+    const userRepo = new UserRepo(DB);
+
+    if(data.satisfactionRate < 0 || data.satisfactionRate > 5){
+      return Err(new InvalidSatisfactionRateError (data.satisfactionRate));
+    }
+
+    const userExists = await userRepo.findById(data.userId);
+    if(!userExists) return Err(new UserNotFoundError(data.userId)); 
+
     const review = await reviewRepo.saveReview(data);
     return Ok(review);
   } catch (error) {
