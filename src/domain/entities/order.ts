@@ -11,6 +11,7 @@ import {
 
 export type Order = InferSelectModel<typeof ordersTable>;
 export const OrderSchema = createSelectSchema(ordersTable);
+export type OrderType = z.infer<typeof OrderSchema>;
 
 export const OrderFilterSchema = z.object({
   id: UuidFilterSchema.optional(),
@@ -35,5 +36,21 @@ export class UnknownError extends OrderError {
 
   constructor(err: string) {
     super(`Unknown error: ${err}`);
+  }
+}
+
+export class OrderNotFound extends OrderError {
+  readonly code = "order_not_found";
+
+  constructor() {
+    super("Order not found");
+  }
+}
+
+export class OrderAlreadyClosed extends OrderError {
+  readonly code = "order_already_closed";
+
+  constructor() {
+    super("Order is already closed");
   }
 }

@@ -12,3 +12,9 @@ export const IncomingOrdersDto = z
     orders: z.array(OrderSchema),
   })
   .openapi("IncomingOrders");
+
+export const closeOrderDto = z
+  .object({
+    id: z.string(),
+  })
+  .openapi("CloseOrder");

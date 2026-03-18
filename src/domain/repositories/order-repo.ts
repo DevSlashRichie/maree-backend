@@ -1,5 +1,9 @@
-import { and } from "drizzle-orm";
-import type { Order, OrderFilters } from "@/domain/entities/order.ts";
+import { and, eq } from "drizzle-orm";
+import {
+  type Order,
+  type OrderFilters,
+  OrderNotFound,
+} from "@/domain/entities/order.ts";
 import type { Executor } from "@/infrastructure/db/postgres.ts";
 import { ordersTable } from "@/infrastructure/db/schema";
 import { buildFilters } from "@/lib/filters";
@@ -21,5 +25,29 @@ export class OrderRepo {
       .where(whereClause);
 
     return orders;
+  }
+
+  async findById(id: string) {
+    const order = await this.conn.query.ordersTable.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    return order ?? null;
+  }
+
+  async closeOrder(id: string) {
+    const [order] = await this.conn
+      .update(ordersTable)
+      .set({ status: "completed" })
+      .where(eq(ordersTable.id, id))
+      .returning();
+
+    if (!order) {
+      throw new OrderNotFound();
+    }
+
+    return order;
   }
 }
