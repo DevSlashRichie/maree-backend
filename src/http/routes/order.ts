@@ -9,7 +9,8 @@ import { ErrorSchema } from "@/domain/entities/error.ts";
 import type { State } from "@/http/state.ts";
 import { logger } from "@/lib/logger.ts";
 import { closeOrderUseCase } from "@/application/use-cases/close-order";
-import { OrderSchema, OrderNotFound, OrderAlreadyClosed } from "@/domain/entities/order";
+import { OrderSchema, OrderNotFound, OrderAlreadyClosed, OrderAlreadyMark } from "@/domain/entities/order";
+import { markOrderReadyUseCase } from "@/application/use-cases/mark-order-ready";
 
 export const orderRouter = new OpenAPIHono<State>();
 
@@ -124,6 +125,77 @@ orderRouter.openapi(
       const statusCode =
         err instanceof OrderNotFound ? 404
         : err instanceof OrderAlreadyClosed ? 409
+        : 500;
+
+      return ctx.json(
+        {
+          code: err.code,
+          message: err.message,
+        },
+        statusCode,
+      );
+    }
+
+    return ctx.json(result.unwrap(), 200);
+  },
+);
+
+orderRouter.openapi(
+  createRoute({
+    tags: ["Order"],
+    method: "patch",
+    path: "/:id/ready",
+    request: {
+      params: z.object({
+        id: z.string(),
+      }),
+    },
+    responses: {
+      200: {
+        description: "Order is ready",
+        content: {
+          "application/json": {
+            schema: OrderSchema,
+          },
+        },
+      },
+      404: {
+        description: "Order not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      409: {
+        description: "Order already mark",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "Internal server error",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const { id } = ctx.req.valid("param");
+
+    const result = await markOrderReadyUseCase({ id });
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+
+      const statusCode =
+        err instanceof OrderNotFound ? 404
+        : err instanceof OrderAlreadyMark ? 409
         : 500;
 
       return ctx.json(
