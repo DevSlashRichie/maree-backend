@@ -54,7 +54,9 @@ export const userRoleTable = pgTable(
     userId: uuid("user_id")
       .notNull()
       .references(() => userTable.id),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     primaryKey({
