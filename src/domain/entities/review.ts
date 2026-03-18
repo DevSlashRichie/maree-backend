@@ -12,7 +12,7 @@ export abstract class RegisterReviewError extends Error {
 
 export class InvalidSatisfactionRateError extends RegisterReviewError {
   readonly code = "INVALID_SATISFACTION_RATE";
-  
+
   constructor(rate: number) {
     super(`Satisfaction rate ${rate} is invalid.`);
     this.name = "InvalidSatisfactionRateError";
@@ -22,11 +22,19 @@ export class InvalidSatisfactionRateError extends RegisterReviewError {
 export class UserNotFoundError extends RegisterReviewError {
   readonly code = "USER_NOT_FOUND";
 
-  constructor (userId: string){
+  constructor(userId: string) {
     super(`User with ID ${userId} was not found.`);
-    this.name = "UserNotFoundError";    
+    this.name = "UserNotFoundError";
   }
+}
 
+export class OrderNotFoundError extends RegisterReviewError {
+  readonly code = "ORDER_NOT_FOUND";
+
+  constructor(orderId: string) {
+    super(`Order with ID ${orderId} was not found.`);
+    this.name = "OrderNotFoundError";
+  }
 }
 
 export class UnknownError extends RegisterReviewError {

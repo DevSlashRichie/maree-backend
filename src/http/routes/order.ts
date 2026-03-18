@@ -3,13 +3,17 @@ import {
   IncomingOrdersDto,
   OrderHistoryDto,
 } from "@/application/dtos/order.ts";
+import { closeOrderUseCase } from "@/application/use-cases/close-order";
 import { getIncomingOrdersUseCase } from "@/application/use-cases/get-incoming-orders.ts";
 import { getOderHistoryUseCase } from "@/application/use-cases/get-oder-history.ts";
 import { ErrorSchema } from "@/domain/entities/error.ts";
+import {
+  OrderAlreadyClosed,
+  OrderNotFound,
+  OrderSchema,
+} from "@/domain/entities/order";
 import type { State } from "@/http/state.ts";
 import { logger } from "@/lib/logger.ts";
-import { closeOrderUseCase } from "@/application/use-cases/close-order";
-import { OrderSchema, OrderNotFound, OrderAlreadyClosed } from "@/domain/entities/order";
 
 export const orderRouter = new OpenAPIHono<State>();
 
@@ -122,9 +126,11 @@ orderRouter.openapi(
       const err = result.unwrapErr();
 
       const statusCode =
-        err instanceof OrderNotFound ? 404
-        : err instanceof OrderAlreadyClosed ? 409
-        : 500;
+        err instanceof OrderNotFound
+          ? 404
+          : err instanceof OrderAlreadyClosed
+            ? 409
+            : 500;
 
       return ctx.json(
         {

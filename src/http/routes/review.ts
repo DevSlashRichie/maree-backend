@@ -1,12 +1,13 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { RegisterReviewDto } from "@/application/dtos/register-review";
 import { registerReviewUseCase } from "@/application/use-cases/register-review";
-import { RegisterReviewDto } from "@/domain/dtos/register-review";
 import { ErrorSchema } from "@/domain/entities/error";
-import { 
-  ReviewSchema, 
+import {
   InvalidSatisfactionRateError,
-  UserNotFoundError
-} from "@/domain/entities/review.ts"
+  OrderNotFoundError,
+  ReviewSchema,
+  UserNotFoundError,
+} from "@/domain/entities/review.ts";
 import { logger } from "@/lib/logger";
 import type { State } from "../state";
 export const reviewRouter = new OpenAPIHono<State>();
@@ -38,14 +39,24 @@ reviewRouter.openapi(
       },
       400: {
         description: "Invalid rate",
-        content: {"application/json": {
+        content: {
+          "application/json": {
             schema: ErrorSchema,
           },
         },
       },
       404: {
-        description: "User nor found",
-        content: {"application/json": {
+        description: "User not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      403: {
+        description: "Order not found",
+        content: {
+          "application/json": {
             schema: ErrorSchema,
           },
         },
@@ -69,12 +80,12 @@ reviewRouter.openapi(
       const err = result.unwrapErr();
       if (err instanceof InvalidSatisfactionRateError) {
         return ctx.json(
-        {
-          code: err.name,
-          message: "Invalid rate",
-        },
-        400
-      );
+          {
+            code: err.name,
+            message: "Invalid rate",
+          },
+          400,
+        );
       }
       if (err instanceof UserNotFoundError) {
         return ctx.json(
@@ -82,9 +93,18 @@ reviewRouter.openapi(
             code: err.name,
             message: "User not found",
           },
-          404
+          404,
         );
-      } 
+      }
+      if (err instanceof OrderNotFoundError) {
+        return ctx.json(
+          {
+            code: err.name,
+            message: "User not found",
+          },
+          403,
+        );
+      }
       logger.error("Unknown error: %s", err);
 
       return ctx.json(
