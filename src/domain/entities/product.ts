@@ -1,26 +1,24 @@
+import { z } from "@hono/zod-openapi";
 import type { InferSelectModel } from "drizzle-orm";
-import { createSelectSchema } from "drizzle-orm/zod";
-import { productTable } from "@/infrastructure/db/schema";
+import { createSelectSchema } from "drizzle-zod";
+import { productTable } from "@/infrastructure/db/schema/product";
+import {
+  DateFilterSchema,
+  StringFilterSchema,
+  UuidFilterSchema,
+} from "@/lib/filters";
 
 export type Product = InferSelectModel<typeof productTable>;
+
 export const ProductSchema = createSelectSchema(productTable);
+export type ProductType = z.infer<typeof ProductSchema>;
 
-export abstract class CreateProductError extends Error {
-  abstract readonly code: string;
-}
+export const ProductFiltersSchema = z.object({
+  id: UuidFilterSchema.optional(),
+  name: StringFilterSchema.optional(),
+  status: StringFilterSchema.optional(),
+  categoryId: UuidFilterSchema.optional(),
+  createdAt: DateFilterSchema.optional(),
+});
 
-export class ProductAlreadyExists extends CreateProductError {
-  readonly code = "product_already_exists";
-
-  constructor() {
-    super("Product already exists");
-  }
-}
-
-export class UnknownError extends CreateProductError {
-  readonly code = "unknown";
-
-  constructor(err: string) {
-    super(`Unkown error: ${err}`);
-  }
-}
+export type ProductFilters = z.infer<typeof ProductFiltersSchema>;

@@ -1,14 +1,18 @@
 import type { MiddlewareHandler } from "hono";
-import type { Actor } from "@/domain/entities/actor";
+import { z } from "zod";
+import type { ActorType } from "@/domain/entities/actor";
 import type { logger } from "@/lib/logger";
 
-type Variables = {
-  actor: Actor;
-  logger: typeof logger;
+export const StateEnvSchema = z.object({
+  AUTHZ_SECRET: z.string(),
+  FROM_NUMBER: z.string(),
+});
 
-  state: {
-    authzSecret: string;
-  };
+type Variables = {
+  actor: ActorType;
+  logger: typeof logger;
+  error: Error;
+  state: z.infer<typeof StateEnvSchema>;
 };
 
 export interface State {
