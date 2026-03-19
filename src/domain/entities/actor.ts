@@ -6,3 +6,4 @@ export const ActorSchema = UserSchema.extend({
 }).openapi("Actor");
 
 export type ActorType = z.infer<typeof ActorSchema>;
+export type Actor = ActorType;

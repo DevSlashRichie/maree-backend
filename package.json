@@ -47,6 +47,7 @@
     "check:write": "bunx biome check --write",
     "prepare": "husky",
     "db:start": "cd infra/dev && docker compose up -d",
-    "db:stop": "cd infra/dev && docker compose down"
+    "db:stop": "cd infra/dev && docker compose down",
+    "ts:check": "bunx tsc --noEmit"
   }
 }

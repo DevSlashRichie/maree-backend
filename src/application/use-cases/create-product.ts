@@ -4,6 +4,7 @@ import type { CreateProductDto } from "@/domain/dtos/create-product.ts";
 import {
   type CreateProductError,
   ProductAlreadyExists,
+  type ProductType,
 } from "@/domain/entities/product.ts";
 import { UnknownError } from "@/domain/entities/user.ts";
 import { ProductRepo } from "@/domain/repositories/product-repo.ts";
@@ -11,7 +12,7 @@ import { DB } from "@/infrastructure/db/postgres.ts";
 
 export async function createProductUseCase(
   data: z.infer<typeof CreateProductDto>,
-): Promise<Result<z.infer<typeof CreateProductDto>, CreateProductError>> {
+): Promise<Result<ProductType, CreateProductError>> {
   try {
     const productRepo = new ProductRepo(DB);
 
