@@ -1,9 +1,9 @@
+import type { InferInsertModel } from "drizzle-orm";
 import { and } from "drizzle-orm";
 import type { Product, ProductFilters } from "@/domain/entities/product";
 import type { Executor } from "@/infrastructure/db/postgres";
 import { productTable } from "@/infrastructure/db/schema";
 import { buildFilters } from "@/lib/filters";
-import type { InferInsertModel } from "drizzle-orm";
 
 type SaveProductType = Omit<
   InferInsertModel<typeof productTable>,
@@ -57,5 +57,4 @@ export class ProductRepo {
     });
     return !!product;
   }
-
 }
