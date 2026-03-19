@@ -5,6 +5,7 @@ import { cors } from "hono/cors";
 import z from "zod";
 import { loggerMiddleware } from "./middleware/logger";
 import { authenticationRouter } from "./routes/authentication";
+import { branchRouter } from "./routes/branch";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
 import { userRouter } from "./routes/user";
@@ -49,6 +50,7 @@ export function createHttpServer(
   app.route("/users", userRouter);
   app.route("/products", productRouter);
   app.route("/orders", orderRouter);
+  app.route("/branches", branchRouter);
   app.route("/auth", authenticationRouter);
 
   app.doc("/docs/openapi.json", {
