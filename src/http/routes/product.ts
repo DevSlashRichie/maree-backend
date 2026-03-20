@@ -1,10 +1,17 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import qs from "qs";
 import { ProductListSchema } from "@/application/dtos/product";
+import { createProductUseCase } from "@/application/use-cases/create-product.ts";
 import { getProductsUseCase } from "@/application/use-cases/get-products";
+import { CreateProductDto } from "@/domain/dtos/create-product.ts";
 import { ErrorSchema } from "@/domain/entities/error";
 import { ProductFiltersSchema } from "@/domain/entities/product";
-import type { State } from "../state";
+import {
+  ProductAlreadyExists,
+  ProductSchema,
+} from "@/domain/entities/product.ts";
+import type { State } from "@/http/state.ts";
+import { logger } from "@/lib/logger";
 
 export const productRouter = new OpenAPIHono<State>();
 
@@ -69,20 +76,36 @@ productRouter.openapi(
     request: {
       body: {
         required: true,
-        description: "product data",
+        description: "product details",
         content: {
           "application/json": {
-            schema: ProductListSchema,
+            schema: CreateProductDto,
           },
         },
       },
     },
     responses: {
       201: {
-        description: "product created",
+        description: "new product",
         content: {
           "application/json": {
-            schema: ProductListSchema,
+            schema: ProductSchema,
+          },
+        },
+      },
+      409: {
+        description: "product already exists",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "unexpected",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
           },
         },
       },
@@ -90,7 +113,31 @@ productRouter.openapi(
   }),
   async (ctx) => {
     const body = await ctx.req.json();
+    const result = await createProductUseCase(body);
 
-    return ctx.json(body, 201);
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+
+      if (err instanceof ProductAlreadyExists) {
+        return ctx.json(
+          {
+            code: err.name,
+            message: "Product already exists",
+          },
+          409,
+        );
+      }
+
+      logger.error("Error: %s", err);
+
+      return ctx.json(
+        {
+          code: "unexpected",
+          message: "unexpected",
+        },
+        500,
+      );
+    }
+    return ctx.json(result.unwrap(), 201);
   },
 );

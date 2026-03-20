@@ -4,7 +4,7 @@ import type { z } from "zod";
 import type {
   RegisterUserDto,
   RegisterUserResponseDto,
-} from "@/domain/dtos/register-user.ts";
+} from "@/application/dtos/register-user.ts";
 import {
   PasswordIsRequired,
   RegisterUserError,
