@@ -14,7 +14,6 @@ import {
   type State,
   type StateEnvSchema,
 } from "./state";
-import { PluginListInstance } from "twilio/lib/rest/flexApi/v1/plugin";
 
 export const EnvHttpConf = z.object({
   HOST: z.ipv4(),
