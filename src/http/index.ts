@@ -14,6 +14,7 @@ import {
   type State,
   type StateEnvSchema,
 } from "./state";
+import { PluginListInstance } from "twilio/lib/rest/flexApi/v1/plugin";
 
 export const EnvHttpConf = z.object({
   HOST: z.ipv4(),
@@ -63,6 +64,10 @@ export function createHttpServer(
       {
         url: "http://localhost:8383",
         description: "LOCALHOST",
+      },
+      {
+        url: "https://maree.kindmeadow-92ce4777.centralus.azurecontainerapps.io",
+        description: "PRODUCTION",
       },
     ],
   });
