@@ -47,11 +47,11 @@ export function createHttpServer(
   });
   //app.use("*", authzMiddleware);
 
-  app.route("/users", userRouter);
-  app.route("/products", productRouter);
-  app.route("/orders", orderRouter);
-  app.route("/branches", branchRouter);
-  app.route("/auth", authenticationRouter);
+  app.route("/v1/users", userRouter);
+  app.route("/v1/products", productRouter);
+  app.route("/v1/orders", orderRouter);
+  app.route("/v1/branches", branchRouter);
+  app.route("/v1/auth", authenticationRouter);
 
   app.doc("/docs/openapi.json", {
     openapi: "3.0.0",
