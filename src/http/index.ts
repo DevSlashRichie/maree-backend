@@ -1,9 +1,11 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { Scalar } from "@scalar/hono-api-reference";
 import { serve } from "bun";
+import { cors } from "hono/cors";
 import z from "zod";
 import { loggerMiddleware } from "./middleware/logger";
 import { authenticationRouter } from "./routes/authentication";
+import { branchRouter } from "./routes/branch";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
 import { userRouter } from "./routes/user";
@@ -28,6 +30,14 @@ export function createHttpServer(
 ) {
   const app = new OpenAPIHono<State>();
 
+  app.use(
+    "*",
+    cors({
+      origin: "*",
+      allowHeaders: ["*"],
+      allowMethods: ["*"],
+    }),
+  );
   app.use("*", createStateMiddleware(stateConf));
   app.use("*", loggerMiddleware);
 
@@ -40,6 +50,7 @@ export function createHttpServer(
   app.route("/users", userRouter);
   app.route("/products", productRouter);
   app.route("/orders", orderRouter);
+  app.route("/branches", branchRouter);
   app.route("/auth", authenticationRouter);
 
   app.doc("/docs/openapi.json", {
@@ -48,6 +59,16 @@ export function createHttpServer(
       version: "1.0.0",
       title: "Maree Backend API",
     },
+    servers: [
+      {
+        url: "http://localhost:8383",
+        description: "LOCALHOST",
+      },
+      {
+        url: "https://maree.kindmeadow-92ce4777.centralus.azurecontainerapps.io",
+        description: "PRODUCTION",
+      },
+    ],
   });
   app.get(
     "/docs/scalar",
