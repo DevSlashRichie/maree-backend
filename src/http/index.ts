@@ -8,6 +8,7 @@ import { authenticationRouter } from "./routes/authentication";
 import { branchRouter } from "./routes/branch";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
+import { rewardRouter } from "./routes/reward";
 import { userRouter } from "./routes/user";
 import {
   createStateMiddleware,
@@ -47,11 +48,15 @@ export function createHttpServer(
   });
   //app.use("*", authzMiddleware);
 
-  app.route("/users", userRouter);
-  app.route("/products", productRouter);
-  app.route("/orders", orderRouter);
-  app.route("/branches", branchRouter);
+  const v1 = new OpenAPIHono<State>();
+
+  v1.route("/users", userRouter);
+  v1.route("/products", productRouter);
+  v1.route("/orders", orderRouter);
+  v1.route("/rewards", rewardRouter);
+
   app.route("/auth", authenticationRouter);
+  app.route("/v1", v1);
 
   app.doc("/docs/openapi.json", {
     openapi: "3.0.0",

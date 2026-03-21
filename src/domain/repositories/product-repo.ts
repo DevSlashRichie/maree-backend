@@ -11,7 +11,7 @@ type SaveProductType = Omit<
 >;
 
 export class ProductRepo {
-  constructor(private readonly conn: Executor) {}
+  constructor(private readonly conn: Executor) { }
 
   async findAll(filters?: ProductFilters): Promise<Product[]> {
     const whereConditions = filters

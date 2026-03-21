@@ -1,6 +1,9 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { setCookie } from "hono/cookie";
-import { LoginSchema, TokenSchema } from "@/application/dtos/authentication";
+import {
+  LoginResultSchema,
+  LoginSchema,
+} from "@/application/dtos/authentication";
 import { RegisterUserDto } from "@/application/dtos/register-user.ts";
 import { loginUserUseCase } from "@/application/use-cases/login-user";
 import { registerUserUseCase } from "@/application/use-cases/register-user.ts";
@@ -36,7 +39,7 @@ authenticationRouter.openapi(
         description: "user profile",
         content: {
           "application/json": {
-            schema: TokenSchema,
+            schema: LoginResultSchema,
           },
         },
       },
@@ -82,7 +85,19 @@ authenticationRouter.openapi(
       );
     }
 
-    return ctx.json(result.unwrap(), 200);
+    const loginResult = result.unwrap();
+
+    if (loginResult.success) {
+      setCookie(ctx, "tok", loginResult.token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "Lax",
+        path: "/",
+        maxAge: 43830, // 1 day
+      });
+    }
+
+    return ctx.json(loginResult, 200);
   },
 );
 
@@ -185,6 +200,7 @@ authenticationRouter.openapi(
       path: "/",
       maxAge: 43830, // 1 day
     });
+
     return ctx.json(result.unwrap().user, 201);
   },
 );
