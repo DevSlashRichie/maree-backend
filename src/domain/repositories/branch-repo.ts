@@ -8,7 +8,7 @@ type SaveBranchType = Omit<
 >;
 
 export class BranchRepo {
-  constructor(private readonly conn: Executor) { }
+  constructor(private readonly conn: Executor) {}
 
   async existsBranch(name: string) {
     const branch = await this.conn.query.branchsTable.findFirst({
