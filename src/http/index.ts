@@ -7,6 +7,7 @@ import { loggerMiddleware } from "./middleware/logger";
 import { authenticationRouter } from "./routes/authentication";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
+import { reviewRouter } from "./routes/review";
 import { rewardRouter } from "./routes/reward";
 import { userRouter } from "./routes/user";
 import {
@@ -53,6 +54,7 @@ export function createHttpServer(
   v1.route("/products", productRouter);
   v1.route("/orders", orderRouter);
   v1.route("/rewards", rewardRouter);
+  v1.route("/review", reviewRouter);
 
   app.route("/auth", authenticationRouter);
   app.route("/v1", v1);
