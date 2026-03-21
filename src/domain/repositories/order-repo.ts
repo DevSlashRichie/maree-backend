@@ -50,4 +50,18 @@ export class OrderRepo {
 
     return order;
   }
+
+  async orderReady(id: string) {
+    const [order] = await this.conn
+      .update(ordersTable)
+      .set({ status: "ready" })
+      .where(eq(ordersTable.id, id))
+      .returning();
+
+    if (!order) {
+      throw new OrderNotFound();
+    }
+
+    return order;
+  }
 }

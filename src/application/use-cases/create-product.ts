@@ -1,6 +1,6 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import type { z } from "zod";
-import type { CreateProductDto } from "@/domain/dtos/create-product.ts";
+import type { CreateProductDto } from "@/application/dtos/create-product.ts";
 import {
   type CreateProductError,
   ProductAlreadyExists,

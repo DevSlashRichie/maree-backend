@@ -1,6 +1,7 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { getActorUseCase } from "@/application/use-cases/get-actor";
 import { ActorSchema } from "@/domain/entities/actor";
+import { UserNotFoundError } from "@/domain/entities/authentication";
 import { ErrorSchema } from "@/domain/entities/error";
 import type { State } from "../state";
 
@@ -40,16 +41,15 @@ userRouter.openapi(
   }),
   async (ctx) => {
     const actor = ctx.get("actor");
-    const user = await getActorUseCase(actor.id);
 
-    // TODO: move this error creation into the application layer.
-    if (!user) {
-      return ctx.json(
-        { message: "user not found", code: "user_not_found" },
-        404,
-      );
+    try {
+      const user = await getActorUseCase(actor.userId);
+      return ctx.json(user, 200);
+    } catch (error) {
+      if (error instanceof UserNotFoundError) {
+        return ctx.json({ code: error.code, message: error.message }, 404);
+      }
+      throw error;
     }
-
-    return ctx.json(user, 200);
   },
 );

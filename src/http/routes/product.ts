@@ -3,23 +3,28 @@ import qs from "qs";
 import { ProductListSchema } from "@/application/dtos/product";
 import { createProductUseCase } from "@/application/use-cases/create-product.ts";
 import { getProductsUseCase } from "@/application/use-cases/get-products";
-import { CreateProductDto } from "@/domain/dtos/create-product.ts";
+import { CreateProductDto } from "@/application//dtos/create-product.ts";
 import { ErrorSchema } from "@/domain/entities/error";
-import { ProductFiltersSchema } from "@/domain/entities/product";
+import { ProductFiltersSchema, ProductSchema } from "@/domain/entities/product";
 import {
   ProductAlreadyExists,
-  ProductSchema,
 } from "@/domain/entities/product.ts";
 import type { State } from "@/http/state.ts";
 import { logger } from "@/lib/logger";
 
+import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
+
 export const productRouter = new OpenAPIHono<State>();
+productRouter.use(authzMiddleware(false));
 
 productRouter.openapi(
   createRoute({
     tags: ["Products"],
     method: "get",
     path: "/",
+    request: {
+      query: ProductFiltersSchema,
+    },
     responses: {
       200: {
         description: "product list",
@@ -43,7 +48,8 @@ productRouter.openapi(
     const queryString = ctx.req.query();
     const parsedQuery = qs.parse(queryString);
 
-    const filterValidation = ProductFiltersSchema.safeParse(parsedQuery);
+    const filterValidation =
+      await ProductFiltersSchema.safeParseAsync(parsedQuery);
 
     if (!filterValidation.success) {
       const invalidFields = filterValidation.error.issues.map((e) =>
@@ -110,6 +116,7 @@ productRouter.openapi(
         },
       },
     },
+    middleware: checkPolicyMiddleware(["products:write"]),
   }),
   async (ctx) => {
     const body = await ctx.req.json();
