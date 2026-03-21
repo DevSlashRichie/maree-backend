@@ -5,7 +5,6 @@ import { cors } from "hono/cors";
 import z from "zod";
 import { loggerMiddleware } from "./middleware/logger";
 import { authenticationRouter } from "./routes/authentication";
-import { branchRouter } from "./routes/branch";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
 import { rewardRouter } from "./routes/reward";
