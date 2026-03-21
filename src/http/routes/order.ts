@@ -3,8 +3,6 @@ import {
   IncomingOrdersDto,
   OrderHistoryDto,
 } from "@/application/dtos/order.ts";
-import type { State } from "@/http/state.ts";
-import { logger } from "@/lib/logger.ts";
 import { closeOrderUseCase } from "@/application/use-cases/close-order";
 import { getIncomingOrdersUseCase } from "@/application/use-cases/get-incoming-orders.ts";
 import { getOderHistoryUseCase } from "@/application/use-cases/get-oder-history.ts";
@@ -16,6 +14,8 @@ import {
   OrderNotFound,
   OrderSchema,
 } from "@/domain/entities/order";
+import type { State } from "@/http/state.ts";
+import { logger } from "@/lib/logger.ts";
 
 export const orderRouter = new OpenAPIHono<State>();
 

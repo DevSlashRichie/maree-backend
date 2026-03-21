@@ -9,7 +9,7 @@ import { ordersTable } from "@/infrastructure/db/schema";
 import { buildFilters } from "@/lib/filters";
 
 export class OrderRepo {
-  constructor(private readonly conn: Executor) { }
+  constructor(private readonly conn: Executor) {}
 
   async findAll(filters?: OrderFilters): Promise<Order[]> {
     const whereConditions = filters
