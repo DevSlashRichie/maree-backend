@@ -1,6 +1,7 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { CreateBranchDto } from "@/application/dtos/create-branch";
 import { createBranchUseCase } from "@/application/use-cases/create-branch";
+import { getBranchUseCase } from "@/application/use-cases/get-branch";
+import { CreateBranchDto } from "@/domain/dtos/create-branch";
 import { AlreadyExistsBranch, BranchSchema } from "@/domain/entities/branch";
 import { ErrorSchema } from "@/domain/entities/error";
 import { logger } from "@/lib/logger";
@@ -81,5 +82,46 @@ branchRouter.openapi(
     }
 
     return ctx.json(result.unwrap(), 201);
+  },
+);
+
+branchRouter.openapi(
+  createRoute({
+    tags: ["Branch"],
+    method: "get",
+    path: "/:branch",
+    responses: {
+      200: {
+        description: "branch profile",
+        content: {
+          "application/json": {
+            schema: BranchSchema,
+          },
+        },
+      },
+      409: {
+        description: "branch not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+
+  async (ctx) => {
+    const branchName = ctx.req.param("branch");
+    const branch = await getBranchUseCase(branchName);
+
+    // TODO: move this error creation into the application layer.
+    if (!branch) {
+      return ctx.json(
+        { message: "branch not found", code: "branch_not_found" },
+        409,
+      );
+    }
+
+    return ctx.json(branch, 200);
   },
 );

@@ -5,6 +5,7 @@ import { cors } from "hono/cors";
 import z from "zod";
 import { loggerMiddleware } from "./middleware/logger";
 import { authenticationRouter } from "./routes/authentication";
+import { branchRouter } from "./routes/branch";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
 import { reviewRouter } from "./routes/review";
@@ -48,6 +49,10 @@ export function createHttpServer(
   });
   //app.use("*", authzMiddleware);
 
+  app.route("/users", userRouter);
+  app.route("/products", productRouter);
+  app.route("/orders", orderRouter);
+
   const v1 = new OpenAPIHono<State>();
 
   v1.route("/users", userRouter);
@@ -55,6 +60,7 @@ export function createHttpServer(
   v1.route("/orders", orderRouter);
   v1.route("/rewards", rewardRouter);
   v1.route("/review", reviewRouter);
+  v1.route("/branches", branchRouter);
 
   app.route("/auth", authenticationRouter);
   app.route("/v1", v1);
