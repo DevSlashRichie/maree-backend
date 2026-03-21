@@ -22,3 +22,15 @@ export const ProductFiltersSchema = z.object({
 });
 
 export type ProductFilters = z.infer<typeof ProductFiltersSchema>;
+
+export abstract class CreateProductError extends Error {
+  abstract readonly code: string;
+}
+
+export class ProductAlreadyExists extends CreateProductError {
+  readonly code = "product_already_exists";
+
+  constructor() {
+    super("Product already exists");
+  }
+}
