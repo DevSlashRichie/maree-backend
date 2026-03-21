@@ -1,7 +1,7 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { createBranchUseCase } from "@/application/use-cases/create-branch";
-import { getBranchUseCase } from "@/application/use-cases/get-branch";
 import { CreateBranchDto } from "@/domain/dtos/create-branch";
+import { getBranchUseCase } from "@/application/use-cases/get-branch";
+import { createBranchUseCase } from "@/application/use-cases/create-branch";
 import { AlreadyExistsBranch, BranchSchema } from "@/domain/entities/branch";
 import { ErrorSchema } from "@/domain/entities/error";
 import { logger } from "@/lib/logger";
@@ -34,8 +34,8 @@ branchRouter.openapi(
           },
         },
       },
-      404: {
-        description: "branch name already used",
+      409: {
+        description: "branch not found",
         content: {
           "application/json": {
             schema: ErrorSchema,
@@ -66,7 +66,7 @@ branchRouter.openapi(
             code: err.name,
             message: "The name is already used",
           },
-          404,
+          409,
         );
       }
 

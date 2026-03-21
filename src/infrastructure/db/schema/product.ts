@@ -19,6 +19,7 @@ export const productTable = pgTable("product", {
   id: uuid()
     .primaryKey()
     .$defaultFn(() => uuidv7()),
+  image: text(),
   name: text().notNull(),
   status: text().notNull(),
   categoryId: uuid("category_id")

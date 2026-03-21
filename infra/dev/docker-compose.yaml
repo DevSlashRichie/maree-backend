@@ -8,3 +8,9 @@ services:
       - 5433:5432
     environment:
       POSTGRES_PASSWORD: password
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
