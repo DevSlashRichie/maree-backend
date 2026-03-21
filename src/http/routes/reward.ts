@@ -60,7 +60,7 @@ rewardRouter.openapi(
   }),
   async (ctx) => {
     const actor = ctx.get("actor");
-    const history = await getRedemptionHistoryUseCase(actor.id);
+    const history = await getRedemptionHistoryUseCase(actor.userId);
 
     return ctx.json(history, 200);
   },
@@ -106,7 +106,7 @@ rewardRouter.openapi(
 
     try {
       const result = await redeemRewardUseCase({
-        userId: actor.id,
+        userId: actor.userId,
         rewardId: body.rewardId,
         branchId: body.branchId,
       });
