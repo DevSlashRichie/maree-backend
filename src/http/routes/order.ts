@@ -3,14 +3,19 @@ import {
   IncomingOrdersDto,
   OrderHistoryDto,
 } from "@/application/dtos/order.ts";
+import { closeOrderUseCase } from "@/application/use-cases/close-order";
 import { getIncomingOrdersUseCase } from "@/application/use-cases/get-incoming-orders.ts";
 import { getOderHistoryUseCase } from "@/application/use-cases/get-oder-history.ts";
+import { markOrderReadyUseCase } from "@/application/use-cases/mark-order-ready";
 import { ErrorSchema } from "@/domain/entities/error.ts";
+import {
+  OrderAlreadyClosed,
+  OrderAlreadyMark,
+  OrderNotFound,
+  OrderSchema,
+} from "@/domain/entities/order";
 import type { State } from "@/http/state.ts";
 import { logger } from "@/lib/logger.ts";
-import { closeOrderUseCase } from "@/application/use-cases/close-order";
-import { OrderSchema, OrderNotFound, OrderAlreadyClosed, OrderAlreadyMark } from "@/domain/entities/order";
-import { markOrderReadyUseCase } from "@/application/use-cases/mark-order-ready";
 
 export const orderRouter = new OpenAPIHono<State>();
 
@@ -123,9 +128,11 @@ orderRouter.openapi(
       const err = result.unwrapErr();
 
       const statusCode =
-        err instanceof OrderNotFound ? 404
-        : err instanceof OrderAlreadyClosed ? 409
-        : 500;
+        err instanceof OrderNotFound
+          ? 404
+          : err instanceof OrderAlreadyClosed
+            ? 409
+            : 500;
 
       return ctx.json(
         {
@@ -194,9 +201,11 @@ orderRouter.openapi(
       const err = result.unwrapErr();
 
       const statusCode =
-        err instanceof OrderNotFound ? 404
-        : err instanceof OrderAlreadyMark ? 409
-        : 500;
+        err instanceof OrderNotFound
+          ? 404
+          : err instanceof OrderAlreadyMark
+            ? 409
+            : 500;
 
       return ctx.json(
         {
