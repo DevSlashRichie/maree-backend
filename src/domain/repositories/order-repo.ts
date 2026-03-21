@@ -9,7 +9,7 @@ import { ordersTable } from "@/infrastructure/db/schema";
 import { buildFilters } from "@/lib/filters";
 
 export class OrderRepo {
-  constructor(private readonly conn: Executor) {}
+  constructor(private readonly conn: Executor) { }
 
   async findAll(filters?: OrderFilters): Promise<Order[]> {
     const whereConditions = filters
@@ -41,6 +41,20 @@ export class OrderRepo {
     const [order] = await this.conn
       .update(ordersTable)
       .set({ status: "completed" })
+      .where(eq(ordersTable.id, id))
+      .returning();
+
+    if (!order) {
+      throw new OrderNotFound();
+    }
+
+    return order;
+  }
+
+  async orderReady(id: string) {
+    const [order] = await this.conn
+      .update(ordersTable)
+      .set({ status: "ready" })
       .where(eq(ordersTable.id, id))
       .returning();
 

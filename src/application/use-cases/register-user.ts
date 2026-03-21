@@ -1,10 +1,6 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import { encrypt } from "paseto-ts/v4";
 import type { z } from "zod";
-import type {
-  RegisterUserDto,
-  RegisterUserResponseDto,
-} from "@/domain/dtos/register-user.ts";
 import {
   PasswordIsRequired,
   RegisterUserError,
@@ -13,6 +9,10 @@ import {
 } from "@/domain/entities/user.ts";
 import { UserRepo } from "@/domain/repositories/user-repo.ts";
 import { DB } from "@/infrastructure/db/postgres.ts";
+import type {
+  RegisterUserDto,
+  RegisterUserResponseDto,
+} from "../dtos/register-user";
 
 export async function registerUserUseCase(
   data: z.infer<typeof RegisterUserDto>,
@@ -37,11 +37,11 @@ export async function registerUserUseCase(
         phone: data.phone,
       });
 
-      if (data.role) {
-        if (!data.password) {
-          throw new PasswordIsRequired();
-        }
+      if (data.role && !data.password) {
+        throw new PasswordIsRequired();
+      }
 
+      if (data.password) {
         const hashedPassword = await Bun.password.hash(data.password);
         await userRepo.savePassword({
           userId: user.id,
