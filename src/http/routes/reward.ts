@@ -5,7 +5,7 @@ import {
   RedemptionHistoryItemSchema,
 } from "@/application/dtos/reward";
 import { getRedemptionHistoryUseCase } from "@/application/use-cases/get-redemption-history";
-import { getRewardsUseCase } from "@/application/use-cases/get-rewards";
+import { getRewardsUseCase, getAvailableRewardUseCase } from "@/application/use-cases/get-rewards";
 import {
   InsufficientPointsError,
   LoyaltyCardNotFoundError,
@@ -124,5 +124,40 @@ rewardRouter.openapi(
       }
       throw error;
     }
+  },
+);
+
+rewardRouter.openapi(
+  createRoute({
+    tags: ["Reward"],
+    method: "get",
+    path: "/available",
+    security: [{ Bearer: [] }],
+    responses: {
+      200: {
+        description: "list available rewards for the authenticated user",
+        content: {
+          "application/json": {
+            schema: z.array(RewardSchema),
+          },
+        },
+      },
+      500: {
+        description: "unexpected error",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+      },
+    },
+  },
+    },
+  }),
+  async (ctx) => {
+    const actor = ctx.get("actor");
+    const result = await getAvailableRewardUseCase({ userId: actor.userId });
+    if (result.isErr()) {
+      return ctx.json({ code: "UNKNOWN_ERROR", message: "unexpected error" }, 500);
+    }
+    return ctx.json(result.unwrap(), 200);
   },
 );

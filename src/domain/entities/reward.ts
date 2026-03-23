@@ -7,3 +7,15 @@ export type Reward = InferSelectModel<typeof rewardsTable>;
 
 export const RewardSchema = createSelectSchema(rewardsTable);
 export type RewardType = z.infer<typeof RewardSchema>;
+
+export abstract class RewardError extends Error {
+    abstract readonly code: string;
+}
+
+export class UnknownError extends RewardError {
+    readonly code = "unknown";
+
+    constructor(err: string) {
+        super(`Unknown error: ${err}`);
+    }
+}

@@ -3,7 +3,10 @@ import {
   loyaltyCardsTable,
   loyaltyTransactionsTable,
   rewardRedemptionsTable,
+  rewardsTable,
 } from "@/infrastructure/db/schema";
+import { eq, and, notInArray } from "drizzle-orm";
+import type { Reward } from "@/domain/entities/reward";
 
 export class RewardsRepo {
   constructor(private readonly conn: Executor) {}
@@ -85,4 +88,27 @@ export class RewardsRepo {
       .where({ id: loyaltyCardId })
       .execute();
   }
+
+    async findAvailableRewardForUser(userId: string): Promise<Reward[]> {
+    const redeemed = await this.conn
+      .select({ rewardId: rewardRedemptionsTable.rewardId })
+      .from(rewardRedemptionsTable)
+      .where(eq(rewardRedemptionsTable.userId, userId));
+
+    const redeemedIds = redeemed.map((r) => r.rewardId);
+
+    return this.conn
+      .select()
+      .from(rewardsTable)
+      .where(
+        and(
+          eq(rewardsTable.status, "active"),
+          redeemedIds.length > 0
+            ? notInArray(rewardsTable.id, redeemedIds)
+            : undefined
+        )
+      );
+  }
 }
+
+

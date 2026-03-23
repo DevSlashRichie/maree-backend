@@ -22,3 +22,9 @@ export const RedeemResultSchema = z
     newBalance: z.bigint(),
   })
   .openapi("RedeemResult");
+
+export const AvailableRewardDto = z
+  .object(
+    {
+      userId: z.string().uuid(),
+    });

@@ -16,7 +16,7 @@ export class InvalidSatisfactionRateError extends RegisterReviewError {
   constructor(rate: number) {
     super(`Satisfaction rate ${rate} is invalid.`);
     this.name = "InvalidSatisfactionRateError";
-  }
+  } 
 }
 
 export class UserNotFoundError extends RegisterReviewError {
