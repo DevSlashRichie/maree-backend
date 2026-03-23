@@ -18,3 +18,9 @@ export const closeOrderDto = z
     id: z.string(),
   })
   .openapi("CloseOrder");
+
+export const markOrderReadyDto = z
+  .object({
+    id: z.string(),
+  })
+  .openapi("MarkOrderReady");

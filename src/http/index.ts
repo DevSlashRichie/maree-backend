@@ -9,6 +9,7 @@ import { branchRouter } from "./routes/branch";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
 import { reviewRouter } from "./routes/review";
+import { rewardRouter } from "./routes/reward";
 import { userRouter } from "./routes/user";
 import {
   createStateMiddleware,
@@ -51,9 +52,18 @@ export function createHttpServer(
   app.route("/users", userRouter);
   app.route("/products", productRouter);
   app.route("/orders", orderRouter);
-  app.route("/branches", branchRouter);
+
+  const v1 = new OpenAPIHono<State>();
+
+  v1.route("/users", userRouter);
+  v1.route("/products", productRouter);
+  v1.route("/orders", orderRouter);
+  v1.route("/rewards", rewardRouter);
+  v1.route("/review", reviewRouter);
+  v1.route("/branches", branchRouter);
+
   app.route("/auth", authenticationRouter);
-  app.route("/review", reviewRouter);
+  app.route("/v1", v1);
 
   app.doc("/docs/openapi.json", {
     openapi: "3.0.0",
@@ -65,6 +75,10 @@ export function createHttpServer(
       {
         url: "http://localhost:8383",
         description: "LOCALHOST",
+      },
+      {
+        url: "https://maree.kindmeadow-92ce4777.centralus.azurecontainerapps.io",
+        description: "PRODUCTION",
       },
     ],
   });

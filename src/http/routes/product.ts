@@ -1,18 +1,28 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import qs from "qs";
+import { CreateProductDto } from "@/application//dtos/create-product.ts";
 import { ProductListSchema } from "@/application/dtos/product";
+import { createProductUseCase } from "@/application/use-cases/create-product.ts";
 import { getProductsUseCase } from "@/application/use-cases/get-products";
 import { ErrorSchema } from "@/domain/entities/error";
-import { ProductFiltersSchema } from "@/domain/entities/product";
-import type { State } from "../state";
+import { ProductFiltersSchema, ProductSchema } from "@/domain/entities/product";
+import { ProductAlreadyExists } from "@/domain/entities/product.ts";
+import type { State } from "@/http/state.ts";
+import { logger } from "@/lib/logger";
+
+import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 
 export const productRouter = new OpenAPIHono<State>();
+productRouter.use(authzMiddleware(false));
 
 productRouter.openapi(
   createRoute({
     tags: ["Products"],
     method: "get",
     path: "/",
+    request: {
+      query: ProductFiltersSchema,
+    },
     responses: {
       200: {
         description: "product list",
@@ -36,7 +46,8 @@ productRouter.openapi(
     const queryString = ctx.req.query();
     const parsedQuery = qs.parse(queryString);
 
-    const filterValidation = ProductFiltersSchema.safeParse(parsedQuery);
+    const filterValidation =
+      await ProductFiltersSchema.safeParseAsync(parsedQuery);
 
     if (!filterValidation.success) {
       const invalidFields = filterValidation.error.issues.map((e) =>
@@ -69,28 +80,69 @@ productRouter.openapi(
     request: {
       body: {
         required: true,
-        description: "product data",
+        description: "product details",
         content: {
           "application/json": {
-            schema: ProductListSchema,
+            schema: CreateProductDto,
           },
         },
       },
     },
     responses: {
       201: {
-        description: "product created",
+        description: "new product",
         content: {
           "application/json": {
-            schema: ProductListSchema,
+            schema: ProductSchema,
+          },
+        },
+      },
+      409: {
+        description: "product already exists",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "unexpected",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
           },
         },
       },
     },
+    middleware: checkPolicyMiddleware(["products:write"]),
   }),
   async (ctx) => {
     const body = await ctx.req.json();
+    const result = await createProductUseCase(body);
 
-    return ctx.json(body, 201);
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+
+      if (err instanceof ProductAlreadyExists) {
+        return ctx.json(
+          {
+            code: err.name,
+            message: "Product already exists",
+          },
+          409,
+        );
+      }
+
+      logger.error("Error: %s", err);
+
+      return ctx.json(
+        {
+          code: "unexpected",
+          message: "unexpected",
+        },
+        500,
+      );
+    }
+    return ctx.json(result.unwrap(), 201);
   },
 );
