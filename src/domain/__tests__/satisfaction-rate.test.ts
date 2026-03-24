@@ -1,9 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { InvalidSatisfactionRateError } from "@/domain/entities/review";
-import {
-  createSatisfactionRate,
-  type SatisfactionRate,
-} from "@/domain/value-objects/satisfaction-rate";
+import { createSatisfactionRate } from "@/domain/value-objects/satisfaction-rate";
 
 describe("SatisfactionRate", () => {
   it("should create a valid satisfaction rate of 0", () => {
