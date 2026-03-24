@@ -4,6 +4,7 @@ import {
   policyTable,
   rolePoliciesTable,
   rolesTable,
+  userRoleTable,
 } from "@/infrastructure/db/schema";
 import { isUuid } from "@/lib/uuid";
 
@@ -23,5 +24,28 @@ export class RbacRepo {
       );
 
     return policies;
+  }
+
+  async findRoleByName(name: string) {
+    const role = await this.conn.query.rolesTable.findFirst({
+      where: {
+        name,
+      },
+    });
+
+    return role;
+  }
+
+  async deleteAllUserRoles(userId: string) {
+    await this.conn
+      .delete(userRoleTable)
+      .where(eq(userRoleTable.userId, userId));
+  }
+
+  async assignRoleToUser(userId: string, roleId: string) {
+    await this.conn.insert(userRoleTable).values({
+      userId,
+      roleId,
+    });
   }
 }

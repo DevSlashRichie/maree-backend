@@ -33,3 +33,19 @@ export class RepositoryError extends UserError {
     super(`Repository error: ${message}`);
   }
 }
+
+export class RoleNotFoundError extends UserError {
+  readonly code = "role_not_found";
+
+  constructor() {
+    super("Role not found");
+  }
+}
+
+export class ForbiddenError extends UserError {
+  readonly code = "forbidden";
+
+  constructor() {
+    super("Admin access required");
+  }
+}
