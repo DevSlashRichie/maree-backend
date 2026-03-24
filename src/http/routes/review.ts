@@ -1,13 +1,15 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { RegisterReviewDto } from "@/application/dtos/register-review";
+import {
+  OrderNotFoundError,
+  UserNotFoundError,
+} from "@/application/errors/register-review";
 import { registerReviewUseCase } from "@/application/use-cases/register-review";
 import { ErrorSchema } from "@/domain/entities/error";
 import {
   InvalidSatisfactionRateError,
-  OrderNotFoundError,
   ReviewSchema,
-  UserNotFoundError,
-} from "@/domain/entities/review.ts";
+} from "@/domain/entities/review";
 import { logger } from "@/lib/logger";
 import type { State } from "../state";
 export const reviewRouter = new OpenAPIHono<State>();

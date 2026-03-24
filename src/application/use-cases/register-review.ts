@@ -2,11 +2,14 @@ import { Err, Ok, type Result } from "oxide.ts";
 import type z from "zod";
 import type { RegisterReviewDto } from "@/application/dtos/register-review";
 import {
-  createReview,
   OrderNotFoundError,
   RegisterReviewError,
-  type ReviewType,
   UserNotFoundError,
+} from "@/application/errors/register-review";
+import type { ReviewType } from "@/domain/entities/review";
+import {
+  createReview,
+  InvalidSatisfactionRateError,
 } from "@/domain/entities/review";
 import { UnknownError } from "@/domain/entities/user";
 import { OrderRepo } from "@/domain/repositories/order-repo";
@@ -40,6 +43,11 @@ export async function registerReviewUseCase(
     if (error instanceof RegisterReviewError) {
       return Err(error);
     }
+
+    if (error instanceof InvalidSatisfactionRateError) {
+      return Err(error);
+    }
+
     return Err(
       new UnknownError(
         error instanceof Error ? error.message : "unknown error",
