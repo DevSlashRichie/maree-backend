@@ -1,0 +1,41 @@
+@startuml Reward List Flow
+hide footbox
+
+actor User
+
+boundary "RewardsPageComponent" as Component
+control "http/reward.ts" as Http
+control "application/get-rewards.ts" as UseCase
+
+User ->> Component: view rewards
+
+Component ->> Http: GET /v1/rewards
+activate Http
+
+Http ->> UseCase: getRewardsUseCase()
+activate UseCase
+
+create entity "repo/rewards-repo.ts" as RewardsRepo
+database "Postgres DB" as DB
+UseCase ->> RewardsRepo: <<create>>
+activate RewardsRepo
+
+UseCase ->> RewardsRepo: findAllRewards()
+
+RewardsRepo ->> DB: SELECT * FROM reward
+activate DB
+DB -->> RewardsRepo: rewards[]
+deactivate DB
+
+RewardsRepo -->> UseCase: rewards[]
+deactivate RewardsRepo
+
+UseCase -->> Http: rewards[]
+deactivate UseCase
+
+Http -->> Component: 200 {rewards[]}
+deactivate Http
+
+Component -->> User: render rewards list
+
+@enduml

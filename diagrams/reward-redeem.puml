@@ -1,0 +1,80 @@
+@startuml Reward Redeem Flow
+hide footbox
+
+actor User
+
+boundary "RedeemRewardComponent" as Component
+control "http/reward.ts" as Http
+control "application/redeem-reward.ts" as UseCase
+
+User ->> Component: click redeem reward
+
+Component ->> Http: POST /v1/rewards/redeem
+activate Http
+
+Http -> Http: RedeemRewardSchema.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: redeemRewardUseCase({userId, rewardId, branchId})
+    activate UseCase
+
+    create entity "repo/rewards-repo.ts" as RewardsRepo
+    database "Postgres DB" as DB
+    UseCase ->> RewardsRepo: <<create>>
+    activate RewardsRepo
+
+    UseCase ->> RewardsRepo: findRewardById(rewardId)
+
+    RewardsRepo ->> DB: SELECT * FROM reward WHERE id
+    activate DB
+    DB -->> RewardsRepo: reward
+    deactivate DB
+
+    alt reward not found
+        RewardsRepo -->> UseCase: null
+        UseCase -->> Http: Err(RewardNotFoundError)
+        Http -->> Component: 404 {"message": "reward not found"}
+    else reward found
+        RewardsRepo -->> UseCase: reward
+
+        UseCase ->> RewardsRepo: findLoyaltyCardByUserId(userId)
+
+        RewardsRepo ->> DB: SELECT * FROM loyalty_card WHERE userId
+        DB -->> RewardsRepo: loyaltyCard
+
+        alt loyalty card not found
+            UseCase -->> Http: Err(LoyaltyCardNotFoundError)
+            Http -->> Component: 404 {"message": "loyalty card not found"}
+        else card found
+            RewardsRepo -->> UseCase: loyaltyCard
+
+            alt insufficient points
+                UseCase -->> Http: Err(InsufficientPointsError)
+                Http -->> Component: 400 {"message": "insufficient points"}
+            else sufficient points
+                UseCase ->> RewardsRepo: createRedemption(rewardId, userId, branchId)
+                UseCase ->> RewardsRepo: createLoyaltyTransaction(cardId, cost, "redeemed")
+                UseCase ->> RewardsRepo: updateLoyaltyBalance(cardId, newBalance)
+
+                RewardsRepo ->> DB: INSERT redemption + transaction + UPDATE balance
+                DB -->> RewardsRepo: success
+
+                UseCase -->> Http: Ok({newBalance})
+                Http -->> Component: 200 {newBalance}
+            end
+        end
+    end
+    deactivate RewardsRepo
+end
+
+deactivate Http
+
+alt success
+    Component -->> User: show success message + new balance
+else error
+    Component -->> User: show error message
+end
+
+@enduml
