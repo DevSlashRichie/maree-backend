@@ -4,14 +4,14 @@ import {
   RedeemRewardSchema,
   RedemptionHistoryItemSchema,
 } from "@/application/dtos/reward";
-import { getRedemptionHistoryUseCase } from "@/application/use-cases/get-redemption-history";
-import { getRewardsUseCase } from "@/application/use-cases/get-rewards";
 import {
   InsufficientPointsError,
   LoyaltyCardNotFoundError,
   RewardNotFoundError,
-  redeemRewardUseCase,
-} from "@/application/use-cases/redeem-reward";
+} from "@/application/errors/redeem-reward";
+import { getRedemptionHistoryUseCase } from "@/application/use-cases/get-redemption-history";
+import { getRewardsUseCase } from "@/application/use-cases/get-rewards";
+import { redeemRewardUseCase } from "@/application/use-cases/redeem-reward";
 import { ErrorSchema } from "@/domain/entities/error";
 import { RewardSchema } from "@/domain/entities/reward";
 import type { State } from "../state";

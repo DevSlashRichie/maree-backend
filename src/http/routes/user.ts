@@ -3,15 +3,15 @@ import {
   AssignRoleDto,
   AssignRoleResponseDto,
 } from "@/application/dtos/assign-role";
-import { assignRoleUseCase } from "@/application/use-cases/assign-role";
-import { getActorUseCase } from "@/application/use-cases/get-actor";
-import { removeRoleUseCase } from "@/application/use-cases/remove-role";
-import { ActorSchema } from "@/domain/entities/actor";
 import {
   ForbiddenError,
   RoleNotFoundError,
   UserNotFoundError,
-} from "@/domain/entities/authentication";
+} from "@/application/errors/rbac";
+import { assignRoleUseCase } from "@/application/use-cases/assign-role";
+import { getActorUseCase } from "@/application/use-cases/get-actor";
+import { removeRoleUseCase } from "@/application/use-cases/remove-role";
+import { ActorSchema } from "@/domain/entities/actor";
 import { ErrorSchema } from "@/domain/entities/error";
 import { authzMiddleware } from "../middleware/authz";
 import type { State } from "../state";

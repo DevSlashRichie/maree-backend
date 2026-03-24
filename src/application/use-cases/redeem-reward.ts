@@ -1,33 +1,10 @@
+import {
+  InsufficientPointsError,
+  LoyaltyCardNotFoundError,
+  RewardNotFoundError,
+} from "@/application/errors/redeem-reward";
 import { RewardsRepo } from "@/domain/repositories/rewards-repo";
 import { DB } from "@/infrastructure/db/postgres";
-
-export class InsufficientPointsError extends Error {
-  code = "insufficient_points";
-  required: bigint;
-  available: bigint;
-
-  constructor(required: bigint, available: bigint) {
-    super("Insufficient points to redeem this reward");
-    this.required = required;
-    this.available = available;
-  }
-}
-
-export class RewardNotFoundError extends Error {
-  code = "reward_not_found";
-
-  constructor() {
-    super("Reward not found");
-  }
-}
-
-export class LoyaltyCardNotFoundError extends Error {
-  code = "loyalty_card_not_found";
-
-  constructor() {
-    super("Loyalty card not found");
-  }
-}
 
 export type RedeemRewardInput = {
   userId: string;

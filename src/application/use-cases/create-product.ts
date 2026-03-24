@@ -1,12 +1,12 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import type { z } from "zod";
 import type { CreateProductDto } from "@/application/dtos/create-product.ts";
+import { UnknownError } from "@/application/error";
 import {
   type CreateProductError,
   ProductAlreadyExists,
-  type ProductType,
-} from "@/domain/entities/product.ts";
-import { UnknownError } from "@/domain/entities/user.ts";
+} from "@/application/errors/create-product";
+import type { ProductType } from "@/domain/entities/product.ts";
 import { ProductRepo } from "@/domain/repositories/product-repo.ts";
 import { DB } from "@/infrastructure/db/postgres.ts";
 

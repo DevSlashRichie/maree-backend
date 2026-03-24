@@ -1,12 +1,12 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import { encrypt } from "paseto-ts/v4";
 import type { z } from "zod";
+import { UnknownError } from "@/application/error";
 import {
   PasswordIsRequired,
   RegisterUserError,
-  UnknownError,
   UserAlreadyExistsError,
-} from "@/domain/entities/user.ts";
+} from "@/application/errors/register-user";
 import { UserRepo } from "@/domain/repositories/user-repo.ts";
 import { DB } from "@/infrastructure/db/postgres.ts";
 import type {
@@ -26,6 +26,7 @@ export async function registerUserUseCase(
         data.phone,
         data.email,
       );
+
       if (userAlreadyExists) {
         throw new UserAlreadyExistsError();
       }

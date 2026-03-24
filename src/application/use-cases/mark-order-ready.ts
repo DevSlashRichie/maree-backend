@@ -1,12 +1,12 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import type z from "zod";
+import { UnknownError } from "@/application/error";
 import {
   OrderAlreadyMark,
   OrderError,
   OrderNotFound,
-  type OrderType,
-  UnknownError,
-} from "@/domain/entities/order";
+} from "@/application/errors/order";
+import type { OrderType } from "@/domain/entities/order";
 import { OrderRepo } from "@/domain/repositories/order-repo";
 import { DB } from "@/infrastructure/db/postgres";
 import type { markOrderReadyDto } from "../dtos/order";

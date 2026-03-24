@@ -1,9 +1,7 @@
 import { Err, Ok, type Result } from "oxide.ts";
-import {
-  type Order,
-  type OrderError,
-  UnknownError,
-} from "@/domain/entities/order.ts";
+import { UnknownError } from "@/application/error";
+import type { OrderError } from "@/application/errors/order";
+import type { Order } from "@/domain/entities/order.ts";
 import { OrderRepo } from "@/domain/repositories/order-repo.ts";
 import { DB } from "@/infrastructure/db/postgres.ts";
 

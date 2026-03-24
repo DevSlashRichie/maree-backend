@@ -1,6 +1,7 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import type z from "zod";
 import type { RegisterReviewDto } from "@/application/dtos/register-review";
+import { UnknownError } from "@/application/error";
 import {
   OrderNotFoundError,
   RegisterReviewError,
@@ -11,7 +12,6 @@ import {
   createReview,
   InvalidSatisfactionRateError,
 } from "@/domain/entities/review";
-import { UnknownError } from "@/domain/entities/user";
 import { OrderRepo } from "@/domain/repositories/order-repo";
 import { ReviewRepo } from "@/domain/repositories/review-repo";
 import { UserRepo } from "@/domain/repositories/user-repo";

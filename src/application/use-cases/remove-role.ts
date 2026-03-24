@@ -5,7 +5,7 @@ import {
   ForbiddenError,
   RoleNotFoundError,
   UserNotFoundError,
-} from "@/domain/entities/authentication";
+} from "@/application/errors/rbac";
 import { RbacRepo } from "@/domain/repositories/rbac-repo";
 import { UserRepo } from "@/domain/repositories/user-repo";
 import { DB } from "@/infrastructure/db/postgres";

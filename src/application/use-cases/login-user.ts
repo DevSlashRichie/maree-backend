@@ -7,9 +7,9 @@ import type {
 } from "@/application/dtos/authentication";
 import {
   InvalidCredentialsError,
+  LoginError,
   RepositoryError,
-  UserError,
-} from "@/domain/entities/authentication";
+} from "@/application/errors/login-user";
 import type { User } from "@/domain/entities/user";
 import { UserRepo } from "@/domain/repositories/user-repo";
 import { DB } from "@/infrastructure/db/postgres";
@@ -77,7 +77,7 @@ export async function loginUserUseCase(
   data: z.infer<typeof LoginSchema>,
   encryptKey: string,
   fromNumber: string,
-): Promise<Result<z.infer<typeof LoginResultSchema>, UserError>> {
+): Promise<Result<z.infer<typeof LoginResultSchema>, LoginError>> {
   try {
     const userRepo = new UserRepo(DB);
 
@@ -116,7 +116,7 @@ export async function loginUserUseCase(
       },
     });
   } catch (error) {
-    if (error instanceof UserError) {
+    if (error instanceof LoginError) {
       return Err(error);
     }
 
