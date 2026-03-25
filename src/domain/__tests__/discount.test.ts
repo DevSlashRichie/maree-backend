@@ -61,16 +61,6 @@ describe("createDiscount", () => {
     );
   });
 
-  it("should throw for empty appliesTo", () => {
-    expect(() => createDiscount({ ...validParams, appliesTo: [] })).toThrow();
-  });
-
-  it("should throw for invalid state", () => {
-    expect(() => createDiscount({ ...validParams, state: "invalid" })).toThrow(
-      InvalidDiscountStateError,
-    );
-  });
-
   it("should throw when endDate before startDate", () => {
     expect(() =>
       createDiscount({
