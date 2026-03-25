@@ -93,8 +93,6 @@ resource "azurerm_container_app" "main" {
       image   = var.container_image != "" ? var.container_image : "${azurerm_container_registry.main.login_server}/${var.app_name}:latest"
       cpu     = 0.25
       memory  = "0.5Gi"
-      command = ["/bin/sh", "-c"]
-      args    = ["bun run drizzle:migrate && bun run src/index.ts"]
 
       env {
         name        = "DB_HOST"
