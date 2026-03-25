@@ -1,0 +1,88 @@
+@startuml Auth Login Flow
+hide footbox
+
+actor User
+
+boundary "LoginFormComponent" as Component
+control "http/authentication.ts" as Http
+control "application/login-user.ts" as UseCase
+
+User ->> Component: submit credentials
+
+Component ->> Http: POST /v1/auth/login
+activate Http
+
+Http -> Http: LoginSchema.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: loginUserUseCase(data, secret, fromNumber)
+    activate UseCase
+
+    create entity "repo/user-repo.ts" as UserRepo
+    database "Postgres DB" as DB
+    UseCase ->> UserRepo: <<create>>
+    activate UserRepo
+
+    UseCase ->> UserRepo: findByIdentity(identity)
+
+    UserRepo ->> DB: SELECT user WHERE phone/email = identity
+    activate DB
+    DB -->> UserRepo: user
+    deactivate DB
+
+    alt user not found
+        UserRepo -->> UseCase: null
+        UseCase -->> Http: Err(InvalidCredentialsError)
+        Http -->> Component: 403 {"message": "invalid credentials"}
+    else user found
+        alt method = phone
+            create control "wa/twilio.ts" as WAClient
+            UseCase ->> WAClient: <<create>>
+            activate WAClient
+            UseCase ->> WAClient: sendTextMessage(phone, code)
+            WAClient -->> UseCase: sent
+            deactivate WAClient
+            UseCase -->> Http: Ok({success: false, required_action: "login_with_sent_code"})
+            Http -->> Component: 200 {success: false, required_action}
+        else method = password
+            UseCase ->> UserRepo: findByIdWithPassword(user.id)
+            UserRepo ->> DB: SELECT user + password
+            DB -->> UserRepo: userWithPassword
+            UserRepo -->> UseCase: userWithPassword
+
+            alt password invalid
+                UseCase -->> Http: Err(InvalidCredentialsError)
+                Http -->> Component: 403 {"message": "invalid credentials"}
+            else password valid
+                UseCase ->> UserRepo: findByIdWithRole(user.id)
+                UserRepo ->> DB: SELECT user + roles
+                DB -->> UserRepo: actor
+                UserRepo -->> UseCase: actor
+
+                create control "paseto-ts/v4" as Paseto
+                UseCase ->> Paseto: encrypt(secret, {userId, role})
+                activate Paseto
+                Paseto -->> UseCase: token
+                deactivate Paseto
+
+                UseCase -->> Http: Ok({success: true, token, actor})
+                Http -->> Component: 200 {success: true, token, actor}
+            end
+        end
+    end
+    deactivate UserRepo
+end
+
+deactivate Http
+
+alt success
+    Component -->> User: redirect to dashboard
+else requires action
+    Component -->> User: show code input
+else error
+    Component -->> User: show error message
+end
+
+@enduml

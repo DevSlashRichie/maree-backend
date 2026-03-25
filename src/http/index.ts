@@ -2,12 +2,15 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { Scalar } from "@scalar/hono-api-reference";
 import { serve } from "bun";
 import { cors } from "hono/cors";
-import z from "zod";
+import { HTTPException } from "hono/http-exception";
+import { ZodError, z } from "zod";
 import { loggerMiddleware } from "./middleware/logger";
 import { authenticationRouter } from "./routes/authentication";
 import { branchRouter } from "./routes/branch";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
+import { reviewRouter } from "./routes/review";
+import { rewardRouter } from "./routes/reward";
 import { userRouter } from "./routes/user";
 import {
   createStateMiddleware,
@@ -43,15 +46,63 @@ export function createHttpServer(
 
   app.onError((err, c) => {
     c.set("error", err);
+
+    if (err instanceof ZodError) {
+      return c.json(
+        {
+          name: "ZodError",
+          message: "ZodError",
+          body: err.issues,
+        },
+        400,
+      );
+    }
+
+    if (err instanceof HTTPException && err.cause instanceof ZodError) {
+      return c.json(
+        {
+          name: "ZodError",
+          message: "ZodError",
+          body: err.cause.issues,
+        },
+        400,
+      );
+    }
+
+    if (
+      "status" in err &&
+      err.status === 400 &&
+      err.message.includes("Malformed JSON")
+    ) {
+      return c.json(
+        {
+          name: "HTTPException",
+          message: err.message,
+          body: [],
+        },
+        400,
+      );
+    }
+
     return c.json({ message: "unexpected error" }, 500);
   });
   //app.use("*", authzMiddleware);
 
-  app.route("/v1/users", userRouter);
-  app.route("/v1/products", productRouter);
-  app.route("/v1/orders", orderRouter);
-  app.route("/v1/branches", branchRouter);
-  app.route("/v1/auth", authenticationRouter);
+  app.route("/users", userRouter);
+  app.route("/products", productRouter);
+  app.route("/orders", orderRouter);
+
+  const v1 = new OpenAPIHono<State>();
+
+  v1.route("/users", userRouter);
+  v1.route("/products", productRouter);
+  v1.route("/orders", orderRouter);
+  v1.route("/rewards", rewardRouter);
+  v1.route("/review", reviewRouter);
+  v1.route("/branches", branchRouter);
+
+  app.route("/auth", authenticationRouter);
+  app.route("/v1", v1);
 
   app.doc("/docs/openapi.json", {
     openapi: "3.0.0",

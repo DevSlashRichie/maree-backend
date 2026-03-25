@@ -1,0 +1,41 @@
+@startuml Reward History Flow
+hide footbox
+
+actor User
+
+boundary "RedemptionHistoryPageComponent" as Component
+control "http/reward.ts" as Http
+control "application/get-redemption-history.ts" as UseCase
+
+User ->> Component: view redemption history
+
+Component ->> Http: GET /v1/rewards/history?userId=...
+activate Http
+
+Http ->> UseCase: getRedemptionHistoryUseCase(userId)
+activate UseCase
+
+create entity "repo/rewards-repo.ts" as RewardsRepo
+database "Postgres DB" as DB
+UseCase ->> RewardsRepo: <<create>>
+activate RewardsRepo
+
+UseCase ->> RewardsRepo: findRedemptionsForUser(userId)
+
+RewardsRepo ->> DB: SELECT * FROM reward_redemption WHERE userId
+activate DB
+DB -->> RewardsRepo: redemptions[]
+deactivate DB
+
+RewardsRepo -->> UseCase: redemptions[]
+deactivate RewardsRepo
+
+UseCase -->> Http: redemptions[]
+deactivate UseCase
+
+Http -->> Component: 200 {redemptions[]}
+deactivate Http
+
+Component -->> User: render redemption history
+
+@enduml
