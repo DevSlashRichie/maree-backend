@@ -1,6 +1,10 @@
 import { z } from "@hono/zod-openapi";
 import type { InferSelectModel } from "drizzle-orm";
 import { createSelectSchema } from "drizzle-zod";
+import {
+  createOrderStatus,
+  InvalidOrderStatusError,
+} from "@/domain/value-objects/order-status";
 import { ordersTable } from "@/infrastructure/db/schema";
 import {
   DateFilterSchema,
@@ -27,19 +31,7 @@ export const OrderFilterSchema = z.object({
 
 export type OrderFilters = z.infer<typeof OrderFilterSchema>;
 
-export abstract class OrderError extends Error {
-  abstract readonly code: string;
-}
-
-export class UnknownError extends OrderError {
-  readonly code = "unknown";
-
-  constructor(err: string) {
-    super(`Unknown error: ${err}`);
-  }
-}
-
-export class OrderNotFound extends OrderError {
+export class OrderNotFound extends Error {
   readonly code = "order_not_found";
 
   constructor() {
@@ -47,10 +39,52 @@ export class OrderNotFound extends OrderError {
   }
 }
 
-export class OrderAlreadyClosed extends OrderError {
-  readonly code = "order_already_closed";
+export abstract class OrderDomainError extends Error {
+  abstract readonly code: string;
+}
 
-  constructor() {
-    super("Order is already closed");
+export interface CreateOrderParams {
+  userId: string;
+  branchId: string;
+  discountId: string;
+  total: bigint;
+  status: string;
+  note?: string;
+  orderNumber: string;
+}
+
+export function createOrder(params: CreateOrderParams) {
+  const parsedUserId = z.string().uuid().parse(params.userId);
+  const parsedBranchId = z.string().uuid().parse(params.branchId);
+  const parsedDiscountId = z.string().uuid().parse(params.discountId);
+
+  if (params.total <= 0n) {
+    throw new InvalidOrderTotalError(params.total);
+  }
+  const parsedTotal = params.total;
+
+  const parsedStatus = createOrderStatus(params.status);
+  const parsedNote = params.note ? z.string().parse(params.note) : undefined;
+  const parsedOrderNumber = z.string().min(1).parse(params.orderNumber);
+
+  return {
+    userId: parsedUserId,
+    branchId: parsedBranchId,
+    discountId: parsedDiscountId,
+    total: parsedTotal,
+    status: parsedStatus,
+    note: parsedNote,
+    orderNumber: parsedOrderNumber,
+  };
+}
+
+export class InvalidOrderTotalError extends OrderDomainError {
+  readonly code = "INVALID_ORDER_TOTAL";
+
+  constructor(total: bigint) {
+    super(`Order total ${total} is invalid. Must be greater than 0.`);
+    this.name = "InvalidOrderTotalError";
   }
 }
+
+export { InvalidOrderStatusError };

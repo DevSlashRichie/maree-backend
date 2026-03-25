@@ -1,0 +1,41 @@
+@startuml Order History Flow
+hide footbox
+
+actor User
+
+boundary "OrderHistoryPageComponent" as Component
+control "http/order.ts" as Http
+control "application/get-order-history.ts" as UseCase
+
+User ->> Component: view order history
+
+Component ->> Http: GET /v1/orders/history?userId=...
+activate Http
+
+Http -> UseCase: getOderHistoryUseCase(userId)
+activate UseCase
+
+create entity "repo/order-repo.ts" as OrderRepo
+database "Postgres DB" as DB
+UseCase ->> OrderRepo: <<create>>
+activate OrderRepo
+
+UseCase ->> OrderRepo: findAll({userId, status: "completed"})
+
+OrderRepo ->> DB: SELECT * FROM order WHERE userId AND status = completed
+activate DB
+DB -->> OrderRepo: orders[]
+deactivate DB
+
+OrderRepo -->> UseCase: orders[]
+deactivate OrderRepo
+
+UseCase -->> Http: orders[]
+deactivate UseCase
+
+Http -->> Component: 200 {orders[]}
+deactivate Http
+
+Component -->> User: render order history
+
+@enduml

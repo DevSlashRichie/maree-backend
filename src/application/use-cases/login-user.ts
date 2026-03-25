@@ -2,14 +2,14 @@ import { Err, Ok, type Result } from "oxide.ts";
 import { encrypt } from "paseto-ts/v4";
 import type { z } from "zod";
 import type {
+  LoginResultSchema,
   LoginSchema,
-  TokenSchema,
 } from "@/application/dtos/authentication";
 import {
   InvalidCredentialsError,
+  LoginError,
   RepositoryError,
-  UserError,
-} from "@/domain/entities/authentication";
+} from "@/application/errors/login-user";
 import type { User } from "@/domain/entities/user";
 import { UserRepo } from "@/domain/repositories/user-repo";
 import { DB } from "@/infrastructure/db/postgres";
@@ -77,7 +77,7 @@ export async function loginUserUseCase(
   data: z.infer<typeof LoginSchema>,
   encryptKey: string,
   fromNumber: string,
-): Promise<Result<z.infer<typeof TokenSchema>, UserError>> {
+): Promise<Result<z.infer<typeof LoginResultSchema>, LoginError>> {
   try {
     const userRepo = new UserRepo(DB);
 
@@ -89,18 +89,34 @@ export async function loginUserUseCase(
 
     if (data.method.type === "phone") {
       await phoneMethod(user, user.phone, fromNumber);
-      return Ok({ success: true });
+      return Ok({
+        success: false,
+        required_action: "login_with_sent_code",
+      });
     } else if (data.method.type === "password") {
       await passwordMethod(user, data.method.value, userRepo);
     } else if (data.method.type === "code") {
       await codeMethod(user, data.method.value);
     }
 
-    const token = encrypt(encryptKey, { userId: user.id });
+    // do rbac stuff
+    const actor = await userRepo.findByIdWithRole(user.id);
 
-    return Ok({ token });
+    const token = encrypt(encryptKey, {
+      userId: user.id,
+      role: actor?.rolesTable?.name || null,
+    });
+
+    return Ok({
+      success: true,
+      token,
+      actor: {
+        ...user,
+        role: actor?.rolesTable?.name || null,
+      },
+    });
   } catch (error) {
-    if (error instanceof UserError) {
+    if (error instanceof LoginError) {
       return Err(error);
     }
 

@@ -1,0 +1,41 @@
+@startuml Order Incoming Flow
+hide footbox
+
+actor Staff
+
+boundary "IncomingOrdersPageComponent" as Component
+control "http/order.ts" as Http
+control "application/get-incoming-orders.ts" as UseCase
+
+Staff ->> Component: view incoming orders
+
+Component ->> Http: GET /v1/orders/incoming
+activate Http
+
+Http -> UseCase: getIncomingOrdersUseCase()
+activate UseCase
+
+create entity "repo/order-repo.ts" as OrderRepo
+database "Postgres DB" as DB
+UseCase ->> OrderRepo: <<create>>
+activate OrderRepo
+
+UseCase ->> OrderRepo: findAll({status: "in-progress"})
+
+OrderRepo ->> DB: SELECT * FROM order WHERE status = in-progress
+activate DB
+DB -->> OrderRepo: orders[]
+deactivate DB
+
+OrderRepo -->> UseCase: orders[]
+deactivate OrderRepo
+
+UseCase -->> Http: orders[]
+deactivate UseCase
+
+Http -->> Component: 200 {orders[]}
+deactivate Http
+
+Component -->> Staff: render incoming orders list
+
+@enduml

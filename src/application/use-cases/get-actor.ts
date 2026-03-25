@@ -1,5 +1,5 @@
+import { UserNotFoundError } from "@/application/errors/rbac";
 import type { ActorType } from "@/domain/entities/actor";
-import { UserNotFoundError } from "@/domain/entities/authentication";
 import { UserRepo } from "@/domain/repositories/user-repo";
 import { DB } from "@/infrastructure/db/postgres";
 

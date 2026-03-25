@@ -1,0 +1,73 @@
+@startuml Auth Register Flow
+hide footbox
+
+actor User
+
+boundary "RegisterFormComponent" as Component
+control "http/authentication.ts" as Http
+control "application/register-user.ts" as UseCase
+
+User ->> Component: submit registration
+
+Component ->> Http: POST /v1/auth/register
+activate Http
+
+Http -> Http: RegisterUserDto.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: registerUserUseCase(data, encryptKey)
+    activate UseCase
+
+    create entity "repo/user-repo.ts" as UserRepo
+    database "Postgres DB" as DB
+    UseCase ->> UserRepo: <<create>>
+    activate UserRepo
+
+    UseCase ->> UserRepo: existsUser(phone, email)
+
+    UserRepo ->> DB: SELECT COUNT(*) WHERE phone/email
+    activate DB
+    DB -->> UserRepo: count
+    deactivate DB
+
+    alt user already exists
+        UserRepo -->> UseCase: true
+        UseCase -->> Http: Err(UserAlreadyExistsError)
+        Http -->> Component: 400 {"message": "user already exists"}
+    else user not exists
+        UserRepo -->> UseCase: false
+
+        UseCase ->> UserRepo: saveUser({firstName, lastName, phone, email})
+
+        UserRepo ->> DB: INSERT INTO user
+        DB -->> UserRepo: user
+        deactivate UserRepo
+
+        alt password provided and role required
+            UseCase ->> UserRepo: savePassword({userId, hashedPassword})
+            UserRepo ->> DB: INSERT INTO user_password
+            deactivate UserRepo
+        end
+
+        create control "paseto-ts/v4" as Paseto
+        UseCase ->> Paseto: encrypt(encryptKey, {userId})
+        activate Paseto
+        Paseto -->> UseCase: token
+        deactivate Paseto
+
+        UseCase -->> Http: Ok({user, token})
+        Http -->> Component: 201 {user, token}
+    end
+end
+
+deactivate Http
+
+alt success
+    Component -->> User: redirect to dashboard
+else error
+    Component -->> User: show error message
+end
+
+@enduml

@@ -1,6 +1,6 @@
 import type { MiddlewareHandler } from "hono";
 import { z } from "zod";
-import type { ActorType } from "@/domain/entities/actor";
+import type { TokenPayloadType } from "@/application/dtos/authentication";
 import type { logger } from "@/lib/logger";
 
 export const StateEnvSchema = z.object({
@@ -9,7 +9,7 @@ export const StateEnvSchema = z.object({
 });
 
 type Variables = {
-  actor: ActorType;
+  actor: TokenPayloadType;
   logger: typeof logger;
   error: Error;
   state: z.infer<typeof StateEnvSchema>;

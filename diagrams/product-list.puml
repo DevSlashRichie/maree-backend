@@ -1,0 +1,49 @@
+@startuml Product List Flow
+hide footbox
+
+actor User
+
+boundary "ProductsPageComponent" as Component
+control "http/product.ts" as Http
+control "application/get-products.ts" as UseCase
+
+User ->> Component: open page
+
+Component ->> Http: GET /v1/products?status=active&categoryId=...
+activate Http
+
+Http -> Http: qs.parse(query)
+Http -> Http: ProductFiltersSchema.safeParseAsync(query)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "invalid filters"}
+else validation succeeds
+    Http ->> UseCase: getProductsUseCase(filters)
+    activate UseCase
+
+    create entity "repo/product-repo.ts" as ProductRepo
+    database "Postgres DB" as DB
+    UseCase ->> ProductRepo: <<create>>
+    activate ProductRepo
+
+    UseCase ->> ProductRepo: findAll(filters)
+
+    ProductRepo ->> DB: SELECT * FROM product WHERE filters
+    activate DB
+    DB -->> ProductRepo: products[]
+    deactivate DB
+
+    ProductRepo -->> UseCase: products[]
+    deactivate ProductRepo
+
+    UseCase -->> Http: products[]
+    deactivate UseCase
+
+    Http -->> Component: 200 {products[]}
+end
+
+deactivate Http
+
+Component -->> User: render products list
+
+@enduml
