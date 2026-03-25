@@ -8,6 +8,7 @@ export const userTable = pgTable("user", {
   lastName: text("last_name").notNull(),
   phone: text().notNull().unique(),
   email: text().unique(),
+  gender: text(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

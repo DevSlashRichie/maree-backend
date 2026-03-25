@@ -24,6 +24,8 @@ export const notificationTriggerTable = pgTable("notification_table", {
     .$defaultFn(() => uuidv7()),
   name: text().notNull(),
   eventKey: text("event_key").notNull(),
+  // NOTE: not sure if it's not null
+  cronJob: text("cron_job").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

@@ -29,6 +29,7 @@ export const ordersTable = pgTable("order", {
   status: text().notNull(),
   note: text(),
   orderNumber: text("order_number").notNull(),
+  tableNumber: integer("table_number").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

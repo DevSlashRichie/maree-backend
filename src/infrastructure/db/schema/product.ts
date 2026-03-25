@@ -43,4 +43,30 @@ export const productVariantsTable = pgTable("product_variant", {
   productId: uuid("product_id")
     .notNull()
     .references(() => productTable.id),
+  // NOTE: missing sku field
+});
+
+export const predefinedRecipesTable = pgTable("predefined_recipe", {
+  id: uuid()
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  name: text().notNull(),
+  status: text().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const productVariantConfigsTable = pgTable("product_variant_config", {
+  id: uuid()
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  variantId: uuid("variant_id")
+    .notNull()
+    .references(() => productVariantsTable.id),
+  configurationType: text("configuration_type").notNull(),
+  value: text().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
