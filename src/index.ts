@@ -1,4 +1,4 @@
-import { execSync } from "child_process";
+import { execSync } from "node:child_process";
 import { createHttpServer, EnvHttpConf } from "./http";
 import "dotenv/config";
 import { logger } from "@/lib/logger";
