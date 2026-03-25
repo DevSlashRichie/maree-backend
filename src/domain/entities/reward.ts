@@ -9,13 +9,13 @@ export const RewardSchema = createSelectSchema(rewardsTable);
 export type RewardType = z.infer<typeof RewardSchema>;
 
 export abstract class RewardError extends Error {
-    abstract readonly code: string;
+  abstract readonly code: string;
 }
 
 export class UnknownError extends RewardError {
-    readonly code = "unknown";
+  readonly code = "unknown";
 
-    constructor(err: string) {
-        super(`Unknown error: ${err}`);
-    }
+  constructor(err: string) {
+    super(`Unknown error: ${err}`);
+  }
 }

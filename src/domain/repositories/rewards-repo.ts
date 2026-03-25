@@ -1,3 +1,5 @@
+import { and, eq, notInArray } from "drizzle-orm";
+import type { Reward } from "@/domain/entities/reward";
 import type { Executor } from "@/infrastructure/db/postgres";
 import {
   loyaltyCardsTable,
@@ -5,8 +7,6 @@ import {
   rewardRedemptionsTable,
   rewardsTable,
 } from "@/infrastructure/db/schema";
-import { eq, and, notInArray } from "drizzle-orm";
-import type { Reward } from "@/domain/entities/reward";
 
 export class RewardsRepo {
   constructor(private readonly conn: Executor) {}
@@ -89,7 +89,7 @@ export class RewardsRepo {
       .execute();
   }
 
-    async findAvailableRewardForUser(userId: string): Promise<Reward[]> {
+  async findAvailableRewardForUser(userId: string): Promise<Reward[]> {
     const redeemed = await this.conn
       .select({ rewardId: rewardRedemptionsTable.rewardId })
       .from(rewardRedemptionsTable)
@@ -105,10 +105,8 @@ export class RewardsRepo {
           eq(rewardsTable.status, "active"),
           redeemedIds.length > 0
             ? notInArray(rewardsTable.id, redeemedIds)
-            : undefined
-        )
+            : undefined,
+        ),
       );
   }
 }
-
-
