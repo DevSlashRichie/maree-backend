@@ -9,6 +9,7 @@ import { authenticationRouter } from "./routes/authentication";
 import { branchRouter } from "./routes/branch";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
+import { reportRouter } from "./routes/report";
 import { reviewRouter } from "./routes/review";
 import { rewardRouter } from "./routes/reward";
 import { userRouter } from "./routes/user";
@@ -97,6 +98,7 @@ export function createHttpServer(
   v1.route("/users", userRouter);
   v1.route("/products", productRouter);
   v1.route("/orders", orderRouter);
+  v1.route("/reports", reportRouter);
   v1.route("/rewards", rewardRouter);
   v1.route("/review", reviewRouter);
   v1.route("/branches", branchRouter);
