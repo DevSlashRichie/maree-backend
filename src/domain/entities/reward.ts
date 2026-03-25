@@ -1,3 +1,4 @@
+import { z } from "@hono/zod-openapi";
 import { createSelectSchema } from "drizzle-zod";
 import {
   createRewardCost,
@@ -5,7 +6,6 @@ import {
 } from "@/domain/value-objects/reward-cost";
 import { rewardsTable } from "@/infrastructure/db/schema";
 import { DiscountSchema } from "./discount";
-import { z } from "@hono/zod-openapi";
 
 export const RewardSchema = createSelectSchema(rewardsTable)
   .extend({

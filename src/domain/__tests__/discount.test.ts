@@ -4,7 +4,6 @@ import {
   InvalidCouponCodeError,
   InvalidCouponMaxUsesError,
   InvalidDiscountDatesError,
-  InvalidDiscountStateError,
   InvalidDiscountTypeError,
   InvalidDiscountValueError,
 } from "@/domain/entities/discount";
