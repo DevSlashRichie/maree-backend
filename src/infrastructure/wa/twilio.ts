@@ -32,3 +32,15 @@ export class WATwilioClient implements WhatsAppPort {
     });
   }
 }
+
+/*
+ *
+  Hola, tu codigo de seguridad es: {1} 
+ *
+ * */
+
+/*
+ *
+  Hola, tu codigo de seguridad es: 1248256
+ *
+ * */

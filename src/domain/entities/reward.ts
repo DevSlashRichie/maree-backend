@@ -1,4 +1,3 @@
-import type { InferSelectModel } from "drizzle-orm";
 import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import {
@@ -6,11 +5,35 @@ import {
   InvalidRewardCostError,
 } from "@/domain/value-objects/reward-cost";
 import { rewardsTable } from "@/infrastructure/db/schema";
+import { DiscountSchema } from "./discount";
 
-export type Reward = InferSelectModel<typeof rewardsTable>;
+export const RewardSchema = createSelectSchema(rewardsTable)
+  .extend({
+    discount: DiscountSchema,
+  })
+  .openapi("RewardSchema");
 
-export const RewardSchema = createSelectSchema(rewardsTable);
-export type RewardType = z.infer<typeof RewardSchema>;
+export const DeleteRewardParamsSchema = z.object({
+  rewardId: z.string().uuid(),
+});
+
+export type DeleteRewardParams = z.infer<typeof DeleteRewardParamsSchema>;
+
+export const UpdateRewardParamsSchema = z.object({
+  rewardId: z.string().uuid(),
+});
+
+export type UpdateRewardParams = z.infer<typeof UpdateRewardParamsSchema>;
+
+export interface UpdateRewardData {
+  name?: string;
+  description?: string;
+  status?: string;
+  cost?: bigint;
+  image?: string;
+}
+
+export type Reward = z.infer<typeof RewardSchema>;
 
 export abstract class RewardDomainError extends Error {
   abstract readonly code: string;
@@ -21,6 +44,7 @@ export interface CreateRewardParams {
   description: string;
   status: string;
   cost: bigint;
+  discountId: string;
   image?: string;
 }
 
@@ -29,6 +53,7 @@ export function createReward(params: CreateRewardParams) {
   const parsedDescription = z.string().min(1).parse(params.description);
   const parsedStatus = z.string().min(1).parse(params.status);
   const parsedCost = createRewardCost(params.cost);
+  const parsedDiscountId = z.string().uuid().parse(params.discountId);
   const parsedImage = params.image
     ? z.string().url().parse(params.image)
     : undefined;
@@ -38,6 +63,7 @@ export function createReward(params: CreateRewardParams) {
     description: parsedDescription,
     status: parsedStatus,
     cost: parsedCost,
+    discountId: parsedDiscountId,
     image: parsedImage,
   };
 }

@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { createRoute, z } from "@hono/zod-openapi";
 import {
   IncomingOrdersDto,
   OrderHistoryDto,
@@ -14,10 +14,10 @@ import { getOderHistoryUseCase } from "@/application/use-cases/get-oder-history.
 import { markOrderReadyUseCase } from "@/application/use-cases/mark-order-ready";
 import { ErrorSchema } from "@/domain/entities/error.ts";
 import { OrderSchema } from "@/domain/entities/order";
-import type { State } from "@/http/state.ts";
 import { logger } from "@/lib/logger.ts";
+import { createRouter } from "../utils";
 
-export const orderRouter = new OpenAPIHono<State>();
+export const orderRouter = createRouter();
 
 orderRouter.post("/", (ctx) => {
   return ctx.json({});
