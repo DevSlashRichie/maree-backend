@@ -4,6 +4,7 @@ import { Option } from "oxide.ts";
 import { z } from "zod";
 import { relations } from "./relations";
 import * as schema from "./schema";
+import { migrate } from "drizzle-orm/pg-core";
 
 export const envDatabaseSchema = z.object({
   DB_HOST: z.string().min(1),
@@ -39,6 +40,9 @@ export type TxExecutor = Parameters<typeof DB.transaction>[0] extends (
   : never;
 
 export type Executor = DbExecutor | TxExecutor;
+
+export async function runMigrationsIfRequired() {
+}
 
 export async function seedIfRequired() {
   if (process.env.SEED === "true") {

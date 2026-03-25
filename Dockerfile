@@ -9,7 +9,8 @@ FROM base AS production
 WORKDIR /app
 
 COPY --from=install /app/node_modules node_modules
-COPY package.json .env* tsconfig.json ./
+COPY package.json .env* tsconfig.json drizzle.config.ts ./
+COPY drizzle drizzle
 COPY src src
 
 ENV NODE_ENV=production
