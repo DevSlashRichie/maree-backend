@@ -16,20 +16,3 @@ export async function getRewardsUseCase(): Promise<Reward[]> {
 
   return rewards;
 }
-
-
-export async function getAvailableRewardUseCase(data: z.infer<typeof AvailableRewardDto>):
-  Promise<Result<Reward[], RewardError>>{
-    return await DB.transaction(async (txn) => {
-      try {
-        const rewardsRepo = new RewardsRepo(txn);
-        const rewards = await rewardsRepo.findAvailableRewardForUser(data.userId);
-        return Ok(rewards);
-      } catch (error) {
-        return Err(
-            new UnknownError(
-              error instanceof Error ? error.message : "unknown error",)
-            );
-        }
-      });
-    }
