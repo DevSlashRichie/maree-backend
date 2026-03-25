@@ -67,8 +67,30 @@ jobs:
             -t maree:latest \
             --file Dockerfile .
 
-  deploy:
+  migrations:
     needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Run migrations via init container
+        run: |
+          IMAGE="${{ secrets.ACR_NAME }}.azurecr.io/maree:${{ github.sha }}"
+
+          az containerapp update \
+            --name maree \
+            --resource-group maree-prod-rg \
+            --min-replicas 0 \
+            --init-container-image $IMAGE \
+            --init-container-command "bun" \
+            --init-container-args "run" "db:migrate"
+
+  deploy:
+    needs: migrations
     runs-on: ubuntu-latest
 
     steps:
@@ -84,4 +106,5 @@ jobs:
           az containerapp update \
             --name maree \
             --resource-group maree-prod-rg \
-            --image $IMAGE
+            --image $IMAGE \
+            --min-replicas 1
