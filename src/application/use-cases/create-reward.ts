@@ -1,13 +1,11 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import type z from "zod";
-import { ZodError } from "zod";
 import type { CreateRewardDto } from "@/application/dtos/reward";
 import { UnknownError } from "@/application/error";
 import {
   createDiscount,
   DEFAULT_COUPON_MAX_USES,
   DEFAULT_DISCOUNT_STATE,
-  DEFAULT_HIDDEN,
   generateCouponCode,
   getDefaultDiscountDates,
 } from "@/domain/entities/discount";
