@@ -3,7 +3,7 @@ name: Build & Deploy to Azure
 on:
   push:
     branches: [main]
-    tags: ["v*"]
+    tags: ['v*']
   workflow_dispatch:
 
 jobs:
@@ -68,6 +68,7 @@ jobs:
             --file Dockerfile .
 
   deploy:
+    needs: build-and-push
     runs-on: ubuntu-latest
 
     steps:
@@ -79,9 +80,9 @@ jobs:
       - name: Update Container App
         run: |
           IMAGE="${{ secrets.ACR_NAME }}.azurecr.io/maree:${{ github.sha }}"
-
+          
           az containerapp update \
             --name maree \
             --resource-group maree-prod-rg \
             --image $IMAGE \
-            --min-replicas 1
+            --set-env-vars "KAPSO_API_KEY=${{ secrets.KAPSO_API_KEY }}"
