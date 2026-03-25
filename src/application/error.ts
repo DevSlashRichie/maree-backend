@@ -1,19 +1,11 @@
-export interface UseCaseError<T> {
-  _errorType: T;
-  type: T;
-  message: string;
+export abstract class ApplicationError extends Error {
+  abstract readonly code: string;
 }
 
-export function isDomainError(error: unknown): error is {
-  _errorType: unknown;
-  type: unknown;
-  message: unknown;
-} {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "_errorType" in error &&
-    "type" in error &&
-    "message" in error
-  );
+export class UnknownError extends ApplicationError {
+  readonly code = "unknown";
+
+  constructor(err: string) {
+    super(`Unknown error: ${err}`);
+  }
 }

@@ -1,5 +1,6 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { CreateBranchDto } from "@/application/dtos/create-branch";
+import { AlreadyExistsBranch } from "@/application/errors/create-branch";
 import { createBranchUseCase } from "@/application/use-cases/create-branch";
 import { getBranchUseCase } from "@/application/use-cases/get-branch";
 import { AlreadyExistsBranch, BranchSchema } from "@/domain/entities/branch";

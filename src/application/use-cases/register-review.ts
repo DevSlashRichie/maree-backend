@@ -1,14 +1,17 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import type z from "zod";
 import type { RegisterReviewDto } from "@/application/dtos/register-review";
+import { UnknownError } from "@/application/error";
 import {
-  InvalidSatisfactionRateError,
   OrderNotFoundError,
   RegisterReviewError,
-  type ReviewType,
   UserNotFoundError,
+} from "@/application/errors/register-review";
+import type { ReviewType } from "@/domain/entities/review";
+import {
+  createReview,
+  InvalidSatisfactionRateError,
 } from "@/domain/entities/review";
-import { UnknownError } from "@/domain/entities/user";
 import { OrderRepo } from "@/domain/repositories/order-repo";
 import { ReviewRepo } from "@/domain/repositories/review-repo";
 import { UserRepo } from "@/domain/repositories/user-repo";
@@ -18,30 +21,33 @@ export async function registerReviewUseCase(
   data: z.infer<typeof RegisterReviewDto>,
 ): Promise<Result<ReviewType, RegisterReviewError>> {
   try {
+    const validatedData = createReview(data);
+
     const reviewRepo = new ReviewRepo(DB);
     const userRepo = new UserRepo(DB);
     const orderRepo = new OrderRepo(DB);
 
-    if (data.satisfactionRate < 0 || data.satisfactionRate > 5) {
-      return Err(new InvalidSatisfactionRateError(data.satisfactionRate));
+    const userExists = await userRepo.findById(validatedData.userId);
+    if (!userExists) return Err(new UserNotFoundError(validatedData.userId));
+
+    const orderExists = await orderRepo.findById(validatedData.orderId);
+    if (!orderExists) return Err(new OrderNotFoundError(validatedData.orderId));
+
+    if (orderExists.userId !== validatedData.userId) {
+      return Err(new OrderNotFoundError(validatedData.orderId));
     }
 
-    const userExists = await userRepo.findById(data.userId);
-    if (!userExists) return Err(new UserNotFoundError(data.userId));
-
-    const orderExists = await orderRepo.findById(data.orderId);
-    if (!orderExists) return Err(new OrderNotFoundError(data.orderId));
-
-    if (orderExists.userId !== data.userId) {
-      return Err(new OrderNotFoundError(data.orderId));
-    }
-
-    const review = await reviewRepo.saveReview(data);
+    const review = await reviewRepo.saveReview(validatedData);
     return Ok(review);
   } catch (error) {
     if (error instanceof RegisterReviewError) {
       return Err(error);
     }
+
+    if (error instanceof InvalidSatisfactionRateError) {
+      return Err(error);
+    }
+
     return Err(
       new UnknownError(
         error instanceof Error ? error.message : "unknown error",
