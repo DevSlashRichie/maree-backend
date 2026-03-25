@@ -1,3 +1,4 @@
+import { execSync } from "child_process";
 import { createHttpServer, EnvHttpConf } from "./http";
 import "dotenv/config";
 import { logger } from "@/lib/logger";
@@ -59,6 +60,11 @@ async function main() {
       parsedStateConf.error.flatten().fieldErrors,
     );
     throw new Error("Invalid environment variables");
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    logger.info("Running database migrations...");
+    execSync("bun run drizzle:migrate", { stdio: "inherit" });
   }
 
   await seedIfRequired();
