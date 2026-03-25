@@ -84,5 +84,4 @@ jobs:
           az containerapp update \
             --name maree \
             --resource-group maree-prod-rg \
-            --image $IMAGE \
-            --set-env-vars "KAPSO_API_KEY=${{ secrets.KAPSO_API_KEY }}"
+            --image $IMAGE
