@@ -1,0 +1,49 @@
+@startuml Branch Get Flow
+hide footbox
+
+actor User
+
+boundary "BranchPageComponent" as Component
+control "http/branch.ts" as Http
+control "application/get-branch.ts" as UseCase
+
+User ->> Component: view branch
+
+Component ->> Http: GET /v1/branches/:branch
+activate Http
+
+Http ->> UseCase: getBranchUseCase(branchName)
+activate UseCase
+
+create entity "repo/branch-repo.ts" as BranchRepo
+database "Postgres DB" as DB
+UseCase ->> BranchRepo: <<create>>
+activate BranchRepo
+
+UseCase ->> BranchRepo: findByName(branchName)
+
+BranchRepo ->> DB: SELECT * FROM branch WHERE name
+activate DB
+DB -->> BranchRepo: branch
+deactivate DB
+
+alt branch not found
+    BranchRepo -->> UseCase: null
+    UseCase -->> Http: null
+    Http -->> Component: 404 {"message": "branch not found"}
+else branch found
+    BranchRepo -->> UseCase: branch
+    UseCase -->> Http: branch
+    Http -->> Component: 200 {branch}
+end
+deactivate BranchRepo
+
+deactivate Http
+
+alt success
+    Component -->> User: render branch details
+else error
+    Component -->> User: show not found message
+end
+
+@enduml

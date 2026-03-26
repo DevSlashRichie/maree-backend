@@ -1,19 +1,22 @@
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { createRoute } from "@hono/zod-openapi";
 import { setCookie } from "hono/cookie";
-import { loginUserUseCase } from "@/application/use-cases/login-user";
-import { registerUserUseCase } from "@/application/use-cases/register-user.ts";
-import { LoginSchema, TokenSchema } from "@/domain/dtos/authentication";
-import { RegisterUserDto } from "@/domain/dtos/register-user.ts";
-import { ErrorSchema } from "@/domain/entities/error";
+import {
+  LoginResultSchema,
+  LoginSchema,
+} from "@/application/dtos/authentication";
+import { RegisterUserDto } from "@/application/dtos/register-user.ts";
 import {
   PasswordIsRequired,
   UserAlreadyExistsError,
-  UserSchema,
-} from "@/domain/entities/user.ts";
+} from "@/application/errors/register-user";
+import { loginUserUseCase } from "@/application/use-cases/login-user";
+import { registerUserUseCase } from "@/application/use-cases/register-user.ts";
+import { ErrorSchema } from "@/domain/entities/error";
+import { UserSchema } from "@/domain/entities/user.ts";
 import { logger } from "@/lib/logger";
-import type { State } from "../state";
+import { createRouter } from "../utils";
 
-export const authenticationRouter = new OpenAPIHono<State>();
+export const authenticationRouter = createRouter();
 
 authenticationRouter.openapi(
   createRoute({
@@ -36,7 +39,7 @@ authenticationRouter.openapi(
         description: "user profile",
         content: {
           "application/json": {
-            schema: TokenSchema,
+            schema: LoginResultSchema,
           },
         },
       },
@@ -60,7 +63,13 @@ authenticationRouter.openapi(
   }),
   async (ctx) => {
     const body = await ctx.req.json();
-    const result = await loginUserUseCase(body, ctx.get("state").authzSecret);
+    const state = ctx.get("state");
+
+    const result = await loginUserUseCase(
+      body,
+      state.AUTHZ_SECRET,
+      state.FROM_NUMBER,
+    );
 
     if (result.isErr()) {
       const err = result.unwrapErr();
@@ -76,7 +85,19 @@ authenticationRouter.openapi(
       );
     }
 
-    return ctx.json({ token: result.unwrap().token }, 200);
+    const loginResult = result.unwrap();
+
+    if (loginResult.success) {
+      setCookie(ctx, "tok", loginResult.token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "Lax",
+        path: "/",
+        maxAge: 43830, // 1 day
+      });
+    }
+
+    return ctx.json(loginResult, 200);
   },
 );
 
@@ -135,7 +156,7 @@ authenticationRouter.openapi(
     const body = await ctx.req.json();
     const result = await registerUserUseCase(
       body,
-      ctx.get("state").authzSecret,
+      ctx.get("state").AUTHZ_SECRET,
     );
 
     if (result.isErr()) {
@@ -179,6 +200,7 @@ authenticationRouter.openapi(
       path: "/",
       maxAge: 43830, // 1 day
     });
+
     return ctx.json(result.unwrap().user, 201);
   },
 );

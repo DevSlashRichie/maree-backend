@@ -1,0 +1,23 @@
+FROM oven/bun:1.1-debian AS base
+WORKDIR /app
+
+FROM base AS install
+COPY package.json bun.lock ./
+RUN bun install
+
+FROM base AS runner
+WORKDIR /app
+
+# Copy dependencies
+COPY --from=install /app/node_modules node_modules
+
+# Copy configuration and migration files
+COPY tsconfig.json drizzle.config.ts package.json ./
+COPY drizzle drizzle
+COPY src/infrastructure/db/schema src/infrastructure/db/schema
+
+# Set default environment variables
+ENV NODE_ENV=production
+
+# Run the migration command from package.json
+CMD ["bun", "run", "drizzle:migrate"]

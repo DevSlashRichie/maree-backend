@@ -1,0 +1,66 @@
+@startuml Order Close Flow
+hide footbox
+
+actor Staff
+
+boundary "OrderActionsComponent" as Component
+control "http/order.ts" as Http
+control "application/close-order.ts" as UseCase
+
+Staff ->> Component: click close order
+
+Component ->> Http: PATCH /v1/orders/:id/close
+activate Http
+
+Http -> Http: closeOrderDto.safeParseAsync({id})
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: closeOrderUseCase({id})
+    activate UseCase
+
+    create entity "repo/order-repo.ts" as OrderRepo
+    database "Postgres DB" as DB
+    UseCase ->> OrderRepo: <<create>>
+    activate OrderRepo
+
+    UseCase ->> OrderRepo: findById(id)
+
+    OrderRepo ->> DB: SELECT * FROM order WHERE id
+    activate DB
+    DB -->> OrderRepo: order
+    deactivate DB
+
+    alt order not found
+        OrderRepo -->> UseCase: null
+        UseCase -->> Http: Err(OrderNotFound)
+        Http -->> Component: 404 {"message": "order not found"}
+    else order found
+        OrderRepo -->> UseCase: order
+
+        alt order already closed
+            UseCase -->> Http: Err(OrderAlreadyClosed)
+            Http -->> Component: 400 {"message": "order already closed"}
+        else order can be closed
+            UseCase ->> OrderRepo: closeOrder(id)
+
+            OrderRepo ->> DB: UPDATE order SET status = completed
+            DB -->> OrderRepo: updatedOrder
+            deactivate OrderRepo
+
+            UseCase -->> Http: Ok(updatedOrder)
+            Http -->> Component: 200 {order}
+        end
+    end
+end
+
+deactivate Http
+
+alt success
+    Component -->> Staff: show success message
+else error
+    Component -->> Staff: show error message
+end
+
+@enduml

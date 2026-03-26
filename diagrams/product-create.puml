@@ -1,0 +1,61 @@
+@startuml Product Create Flow
+hide footbox
+
+actor Admin
+
+boundary "ProductFormComponent" as Component
+control "http/product.ts" as Http
+control "application/create-product.ts" as UseCase
+
+Admin ->> Component: submit product data
+
+Component ->> Http: POST /v1/products
+activate Http
+
+Http -> Http: CreateProductDto.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: createProductUseCase(data)
+    activate UseCase
+
+    create entity "repo/product-repo.ts" as ProductRepo
+    database "Postgres DB" as DB
+    UseCase ->> ProductRepo: <<create>>
+    activate ProductRepo
+
+    UseCase ->> ProductRepo: existsProduct(name)
+
+    ProductRepo ->> DB: SELECT COUNT(*) WHERE name = data.name
+    activate DB
+    DB -->> ProductRepo: count
+    deactivate DB
+
+    alt product already exists
+        ProductRepo -->> UseCase: true
+        UseCase -->> Http: Err(ProductAlreadyExists)
+        Http -->> Component: 400 {"message": "product already exists"}
+    else product not exists
+        ProductRepo -->> UseCase: false
+
+        UseCase ->> ProductRepo: saveProduct({name, status, categoryId})
+
+        ProductRepo ->> DB: INSERT INTO product
+        DB -->> ProductRepo: product
+        deactivate ProductRepo
+
+        UseCase -->> Http: Ok(product)
+        Http -->> Component: 201 {product}
+    end
+end
+
+deactivate Http
+
+alt success
+    Component -->> Admin: redirect to product list
+else error
+    Component -->> Admin: show error message
+end
+
+@enduml

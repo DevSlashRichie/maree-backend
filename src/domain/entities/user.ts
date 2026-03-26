@@ -1,6 +1,6 @@
 import type { InferSelectModel } from "drizzle-orm";
-import { createSelectSchema } from "drizzle-orm/zod";
-import type { z } from "zod";
+import { createSelectSchema } from "drizzle-zod";
+import { z } from "zod";
 import { userTable } from "@/infrastructure/db/schema";
 
 export type User = InferSelectModel<typeof userTable>;
@@ -8,30 +8,59 @@ export type User = InferSelectModel<typeof userTable>;
 export const UserSchema = createSelectSchema(userTable);
 export type UserType = z.infer<typeof UserSchema>;
 
-export abstract class RegisterUserError extends Error {
+export abstract class UserDomainError extends Error {
   abstract readonly code: string;
 }
 
-export class UnknownError extends RegisterUserError {
-  readonly code = "unknown";
+export class InvalidPhoneError extends UserDomainError {
+  readonly code = "INVALID_PHONE";
 
-  constructor(err: string) {
-    super(`Unknown error: ${err}`);
+  constructor(phone: string) {
+    super(`Phone number '${phone}' is invalid.`);
+    this.name = "InvalidPhoneError";
   }
 }
 
-export class UserAlreadyExistsError extends RegisterUserError {
-  readonly code = "user_already_exists";
+export class InvalidEmailError extends UserDomainError {
+  readonly code = "INVALID_EMAIL";
 
-  constructor() {
-    super("User already exists");
+  constructor(email: string) {
+    super(`Email '${email}' is invalid.`);
+    this.name = "InvalidEmailError";
   }
 }
 
-export class PasswordIsRequired extends RegisterUserError {
-  readonly code = "password_is_required";
+const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  constructor() {
-    super("Password is required");
+export interface CreateUserParams {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email?: string;
+}
+
+export function createUser(params: CreateUserParams) {
+  const parsedFirstName = z.string().min(1).parse(params.firstName);
+  const parsedLastName = z.string().min(1).parse(params.lastName);
+
+  if (!phoneRegex.test(params.phone)) {
+    throw new InvalidPhoneError(params.phone);
   }
+  const parsedPhone = params.phone;
+
+  let parsedEmail: string | undefined;
+  if (params.email !== undefined) {
+    if (!emailRegex.test(params.email)) {
+      throw new InvalidEmailError(params.email);
+    }
+    parsedEmail = params.email;
+  }
+
+  return {
+    firstName: parsedFirstName,
+    lastName: parsedLastName,
+    phone: parsedPhone,
+    email: parsedEmail,
+  };
 }

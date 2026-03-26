@@ -1,5 +1,6 @@
 import type { InferInsertModel } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
+
 import { userPasswordTable, userTable } from "@/infrastructure/db/schema";
 
 type SaveUserType = Omit<
@@ -9,7 +10,7 @@ type SaveUserType = Omit<
 
 type SavePasswordType = Omit<
   InferInsertModel<typeof userPasswordTable>,
-  "created_at"
+  "createdAt"
 >;
 
 export class UserRepo {

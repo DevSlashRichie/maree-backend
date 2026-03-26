@@ -1,0 +1,61 @@
+@startuml Branch Create Flow
+hide footbox
+
+actor Admin
+
+boundary "BranchFormComponent" as Component
+control "http/branch.ts" as Http
+control "application/create-branch.ts" as UseCase
+
+Admin ->> Component: submit branch data
+
+Component ->> Http: POST /v1/branches
+activate Http
+
+Http -> Http: CreateBranchDto.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: createBranchUseCase(data)
+    activate UseCase
+
+    create entity "repo/branch-repo.ts" as BranchRepo
+    database "Postgres DB" as DB
+    UseCase ->> BranchRepo: <<create>>
+    activate BranchRepo
+
+    UseCase ->> BranchRepo: existsBranch(name)
+
+    BranchRepo ->> DB: SELECT COUNT(*) WHERE name
+    activate DB
+    DB -->> BranchRepo: count
+    deactivate DB
+
+    alt branch already exists
+        BranchRepo -->> UseCase: true
+        UseCase -->> Http: Err(AlreadyExistsBranch)
+        Http -->> Component: 400 {"message": "branch already exists"}
+    else branch not exists
+        BranchRepo -->> UseCase: false
+
+        UseCase ->> BranchRepo: saveBranch({name, state})
+
+        BranchRepo ->> DB: INSERT INTO branch
+        DB -->> BranchRepo: branch
+        deactivate BranchRepo
+
+        UseCase -->> Http: Ok(branch)
+        Http -->> Component: 201 {branch}
+    end
+end
+
+deactivate Http
+
+alt success
+    Component -->> Admin: redirect to branch list
+else error
+    Component -->> Admin: show error message
+end
+
+@enduml

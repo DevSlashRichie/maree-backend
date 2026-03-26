@@ -12,4 +12,58 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.userPasswordTable.userId,
     }),
   },
+  productTable: {
+    productVariantsTable: r.one.productVariantsTable({
+      from: r.productTable.id,
+      to: r.productVariantsTable.productId,
+    }),
+  },
+  rewardRedemptionsTable: {
+    rewardsTable: r.one.rewardsTable({
+      from: r.rewardRedemptionsTable.rewardId,
+      to: r.rewardsTable.id,
+    }),
+    branchsTable: r.one.branchsTable({
+      from: r.rewardRedemptionsTable.branchId,
+      to: r.branchsTable.id,
+    }),
+  },
+  loyaltyCardsTable: {
+    loyaltyTransactionsTable: r.one.loyaltyTransactionsTable({
+      from: r.loyaltyCardsTable.id,
+      to: r.loyaltyTransactionsTable.loyaltyCardId,
+    }),
+    userTable: r.one.userTable({
+      from: r.loyaltyCardsTable.userId,
+      to: r.userTable.id,
+    }),
+  },
+  loyaltyTransactionsTable: {
+    loyaltyCardsTable: r.one.loyaltyCardsTable({
+      from: r.loyaltyTransactionsTable.loyaltyCardId,
+      to: r.loyaltyCardsTable.id,
+    }),
+  },
+  policyTable: {
+    rolePoliciesTable: r.many.rolePoliciesTable({
+      from: r.policyTable.id,
+      to: r.rolePoliciesTable.policyId,
+    }),
+  },
+  rolePoliciesTable: {
+    policyTable: r.one.policyTable({
+      from: r.rolePoliciesTable.policyId,
+      to: r.policyTable.id,
+    }),
+    rolesTable: r.one.rolesTable({
+      from: r.rolePoliciesTable.roleId,
+      to: r.rolesTable.id,
+    }),
+  },
+  rewardsTable: {
+    discountsTable: r.one.discountsTable({
+      from: r.rewardsTable.discountId,
+      to: r.discountsTable.id,
+    }),
+  },
 }));

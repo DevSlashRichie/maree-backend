@@ -37,7 +37,7 @@ branchRouter.openapi(
           },
         },
       },
-      404: {
+      409: {
         description: "branch name already used",
         content: {
           "application/json": {
@@ -69,7 +69,7 @@ branchRouter.openapi(
             code: err.name,
             message: "The name is already used",
           },
-          404,
+          409,
         );
       }
 

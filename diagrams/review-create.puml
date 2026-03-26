@@ -1,0 +1,94 @@
+@startuml Review Create Flow
+hide footbox
+
+actor User
+
+boundary "ReviewFormComponent" as Component
+control "http/review.ts" as Http
+control "application/register-review.ts" as UseCase
+
+User ->> Component: submit review
+
+Component ->> Http: POST /v1/reviews
+activate Http
+
+Http -> Http: RegisterReviewDto.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: registerReviewUseCase(data)
+    activate UseCase
+
+    create control "domain/createReview" as DomainCreate
+    UseCase ->> DomainCreate: createReview(params)
+
+    DomainCreate -> DomainCreate: validate UUIDs + satisfactionRate (0-5)
+
+    alt validation fails
+        DomainCreate -->> UseCase: Err(InvalidSatisfactionRateError)
+        UseCase -->> Http: Err(InvalidSatisfactionRateError)
+        Http -->> Component: 400 {"message": "invalid satisfaction rate"}
+    else validation succeeds
+        DomainCreate -->> UseCase: validatedData
+        UseCase -->> UseCase: validatedData
+
+        create entity "repo/user-repo.ts" as UserRepo
+        create entity "repo/order-repo.ts" as OrderRepo
+        create entity "repo/review-repo.ts" as ReviewRepo
+        database "Postgres DB" as DB
+        UseCase ->> UserRepo: <<create>>
+        UseCase ->> OrderRepo: <<create>>
+        UseCase ->> ReviewRepo: <<create>>
+
+        UseCase ->> UserRepo: findById(userId)
+
+        UserRepo ->> DB: SELECT * FROM user WHERE id
+        activate DB
+        DB -->> UserRepo: user
+        deactivate DB
+
+        alt user not found
+            UserRepo -->> UseCase: null
+            UseCase -->> Http: Err(UserNotFoundError)
+            Http -->> Component: 404 {"message": "user not found"}
+        else user found
+            UseCase ->> OrderRepo: findById(orderId)
+
+            OrderRepo ->> DB: SELECT * FROM order WHERE id
+            DB -->> OrderRepo: order
+
+            alt order not found
+                UseCase -->> Http: Err(OrderNotFoundError)
+                Http -->> Component: 404 {"message": "order not found"}
+            else order found
+                alt order.userId != userId
+                    UseCase -->> Http: Err(OrderNotFoundError)
+                    Http -->> Component: 403 {"message": "order not found"}
+                else
+                    UseCase ->> ReviewRepo: saveReview(validatedData)
+
+                    ReviewRepo ->> DB: INSERT INTO review
+                    DB -->> ReviewRepo: review
+
+                    UseCase -->> Http: Ok(review)
+                    Http -->> Component: 201 {review}
+                end
+            end
+        end
+        deactivate UserRepo
+        deactivate OrderRepo
+        deactivate ReviewRepo
+    end
+    deactivate DomainCreate
+end
+
+deactivate Http
+
+alt success
+    Component -->> User: show success message
+else error
+    Component -->> User: show error message
+end
+
+@enduml
