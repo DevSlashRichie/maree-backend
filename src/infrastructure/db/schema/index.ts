@@ -1,6 +1,6 @@
 export { branchsTable, schedulesTable, staffTable } from "./branch";
 export { discountBranchesTable, discountsTable } from "./discount";
-export { loyaltyCardsTable, loyaltyTransactionsTable } from "./loyalty";
+export { loyaltyTransactionsTable } from "./loyalty";
 export {
   notificationTable,
   notificationTemplateTable,
