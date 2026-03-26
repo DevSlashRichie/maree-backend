@@ -11,3 +11,12 @@ export async function getBranchUseCase(name: string): Promise<Branch | null> {
 
   return branch || null;
 }
+
+export async function getBranchesUseCase(): Promise<Branch[]> {
+  const branches = await DB.transaction(async (txn) => {
+    const branchRepo = new BranchRepo(txn);
+    return branchRepo.findAll();
+  });
+
+  return branches;
+}
