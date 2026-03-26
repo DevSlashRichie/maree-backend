@@ -1,4 +1,5 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { LoyaltyCardDetailsDto } from "@/application/dtos/reward";
 import {
   LoyaltyCardNotFound,
   UnknownLoyaltyCardError,
@@ -21,7 +22,7 @@ loyaltyRouter.openapi(
         description: "Returns the loyalty card for the authenticated user",
         content: {
           "application/json": {
-            schema: LoyaltyCardSchema,
+            schema: LoyaltyCardDetailsDto,
           },
         },
       },

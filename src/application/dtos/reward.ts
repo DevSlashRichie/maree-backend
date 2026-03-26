@@ -50,3 +50,11 @@ export const UpdateRewardDto = z
     image: z.string().url().optional(),
   })
   .openapi("UpdateReward");
+
+export const LoyaltyCardDetailsDto = z.object({
+  currentBalance: z.number(),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  phone: z.string().min(10),
+  lastRedemptions: z.array(z.string()),
+});

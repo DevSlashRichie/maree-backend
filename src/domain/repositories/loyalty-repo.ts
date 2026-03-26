@@ -1,30 +1,41 @@
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
 import { loyaltyTransactionsTable } from "@/infrastructure/db/schema";
 
 export class LoyaltyRepo {
   constructor(private readonly conn: Executor) {}
 
- async findCurrentBalance(userId: string) {
-  const transactions = await this.conn
-  .select({
-    transactionType: loyaltyTransactionsTable.transactionType,
-    value: loyaltyTransactionsTable.value,
-  })
-  .from(loyaltyTransactionsTable)
-  .where(eq(loyaltyTransactionsTable.userId, userId))
-  
-  const earned = transactions
-  .filter(t => t.transactionType === "earned")
-  .reduce((acc: number, t) => acc + Number(t.value), 0);
+  async findCurrentBalance(userId: string) {
+    const transactions = await this.conn
+      .select({
+        transactionType: loyaltyTransactionsTable.transactionType,
+        value: loyaltyTransactionsTable.value,
+      })
+      .from(loyaltyTransactionsTable)
+      .where(eq(loyaltyTransactionsTable.userId, userId));
 
-  const redeemed = transactions
-  .filter(t => t.transactionType === "redeemed")
-  .reduce((acc: number, t) => acc + Number(t.value), 0);
-  
-  return earned - redeemed;
+    const earned = transactions
+      .filter((t) => t.transactionType === "earned")
+      .reduce((acc: number, t) => acc + Number(t.value), 0);
+
+    const redeemed = transactions
+      .filter((t) => t.transactionType === "redeemed")
+      .reduce((acc: number, t) => acc + Number(t.value), 0);
+
+    return earned - redeemed;
   }
 
-  
-
+  async findLastRedemptions(userId: string, limit: number) {
+    return await this.conn
+      .select()
+      .from(loyaltyTransactionsTable)
+      .where(
+        and(
+          eq(loyaltyTransactionsTable.userId, userId),
+          eq(loyaltyTransactionsTable.transactionType, "redeemed"),
+        ),
+      )
+      .orderBy(desc(loyaltyTransactionsTable.createdAt))
+      .limit(limit);
+  }
 }
