@@ -1,6 +1,11 @@
 import { and, desc, eq } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
-import { loyaltyTransactionsTable } from "@/infrastructure/db/schema";
+import {
+  branchsTable,
+  loyaltyTransactionsTable,
+  rewardRedemptionsTable,
+  rewardsTable,
+} from "@/infrastructure/db/schema";
 
 export class LoyaltyRepo {
   constructor(private readonly conn: Executor) {}
@@ -28,14 +33,17 @@ export class LoyaltyRepo {
   async findLastRedemptions(userId: string, limit: number) {
     return await this.conn
       .select()
-      .from(loyaltyTransactionsTable)
-      .where(
-        and(
-          eq(loyaltyTransactionsTable.userId, userId),
-          eq(loyaltyTransactionsTable.transactionType, "redeemed"),
-        ),
+      .from(rewardRedemptionsTable)
+      .innerJoin(
+        branchsTable,
+        eq(rewardRedemptionsTable.branchId, branchsTable.id),
       )
-      .orderBy(desc(loyaltyTransactionsTable.createdAt))
+      .innerJoin(
+        rewardsTable,
+        eq(rewardRedemptionsTable.rewardId, rewardsTable.id),
+      )
+      .where(eq(rewardRedemptionsTable.userId, userId))
+      .orderBy(desc(rewardRedemptionsTable.createdAt))
       .limit(limit);
   }
 }

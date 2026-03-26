@@ -7,6 +7,7 @@ import { ZodError, z } from "zod";
 import { loggerMiddleware } from "./middleware/logger";
 import { authenticationRouter } from "./routes/authentication";
 import { branchRouter } from "./routes/branch";
+import { loyaltyRouter } from "./routes/loyalty-card";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
 import { reportRouter } from "./routes/report";
@@ -89,10 +90,6 @@ export function createHttpServer(
   });
   //app.use("*", authzMiddleware);
 
-  app.route("/users", userRouter);
-  app.route("/products", productRouter);
-  app.route("/orders", orderRouter);
-
   const v1 = new OpenAPIHono<State>();
 
   v1.route("/users", userRouter);
@@ -102,6 +99,7 @@ export function createHttpServer(
   v1.route("/rewards", rewardRouter);
   v1.route("/review", reviewRouter);
   v1.route("/branches", branchRouter);
+  v1.route("/loyalty", loyaltyRouter);
 
   app.route("/auth", authenticationRouter);
   app.route("/v1", v1);

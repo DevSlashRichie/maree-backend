@@ -25,8 +25,8 @@ export const discountsTable = pgTable("discount", {
     .defaultNow(),
   endDate: timestamp("ended_at", { withTimezone: true }).notNull().defaultNow(),
   code: text(),
-  maxUses: integer(),
-  currentUses: integer().notNull().default(0),
+  maxUses: integer("max_uses"),
+  currentUses: integer("current_uses").notNull().default(0),
   isActive: text().default("true"),
   hidden: boolean().notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })

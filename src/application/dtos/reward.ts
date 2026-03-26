@@ -1,5 +1,6 @@
 import { z } from "@hono/zod-openapi";
 import { DISCOUNT_STATES } from "@/domain/entities/discount";
+import { RewardRedeemSchema } from "@/domain/entities/loyalty";
 
 export const CreateRewardDto = z
   .object({
@@ -56,5 +57,11 @@ export const LoyaltyCardDetailsDto = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   phone: z.string().min(10),
-  lastRedemptions: z.array(z.string()),
+  lastRedemptions: z.array(
+    z.object({
+      name: z.string(),
+      branch: z.string(),
+      date: z.string(),
+    }),
+  ),
 });

@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
 import {
-  loyaltyCardsTable,
   loyaltyTransactionsTable,
   rewardRedemptionsTable,
   rewardsTable,
@@ -59,14 +58,14 @@ export class RewardsRepo {
     return reedemptions;
   }
 
-  async findLoyaltyCardByUserId(userId: string) {
-    const card = await this.conn.query.loyaltyCardsTable.findFirst({
-      where: {
-        userId,
-      },
-    });
-    return card;
-  }
+  // async findLoyaltyCardByUserId(userId: string) {
+  //   const card = await this.conn.query.loyaltyCardsTable.findFirst({
+  //     where: {
+  //       userId,
+  //     },
+  //   });
+  //   return card;
+  // }
 
   async findRewardById(rewardId: string) {
     const reward = await this.conn.query.rewardsTable.findFirst({
@@ -133,7 +132,6 @@ export class RewardsRepo {
     const result = await this.conn
       .insert(loyaltyTransactionsTable)
       .values({
-        loyaltyCardId,
         value,
         transactionType,
         orderId,

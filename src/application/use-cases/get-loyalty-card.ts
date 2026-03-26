@@ -1,6 +1,6 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import type z from "zod";
-import { LoyaltyCardDetailsDto } from "@/application/dtos/reward";
+import type { LoyaltyCardDetailsDto } from "@/application/dtos/reward";
 import {
   type GetLoyaltyCardError,
   LoyaltyCardNotFound,
@@ -22,20 +22,24 @@ export async function getLoyaltyCardUseCase(
       loyaltyRepo.findLastRedemptions(userId, 3),
     ]);
 
+    console.log("user", user);
+
     if (!user) {
       return Err(new LoyaltyCardNotFound(userId));
     }
 
-    const loyaltyCardDetails = LoyaltyCardDetailsDto.parse({
+    return Ok({
       currentBalance: balance,
       firstName: user.firstName,
-      LastName: user.lastName,
+      lastName: user.lastName,
       phone: user.phone,
-      lastRedemptions: lastRedemptions.join(", "),
+      lastRedemptions: lastRedemptions.map((it) => ({
+        branch: it.branch.name,
+        name: it.reward.name,
+        date: it.reward_redemption.createdAt.toISOString(),
+      })),
     });
-
-    return Ok(loyaltyCardDetails);
   } catch (error) {
-    return Err(new UnknownLoyaltyCardError());
+    return Err(error);
   }
 }
