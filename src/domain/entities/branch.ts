@@ -7,6 +7,26 @@ export type Branch = InferSelectModel<typeof branchsTable>;
 export const BranchSchema = createSelectSchema(branchsTable);
 export type BranchType = z.infer<typeof BranchSchema>;
 
+export abstract class CreateBranchError extends Error {
+  abstract readonly code: string;
+}
+
+export class UnknownError extends CreateBranchError {
+  readonly code = "unknown";
+
+  constructor(err: string) {
+    super(`Unknown error: ${err}`);
+  }
+}
+
+export class AlreadyExistsBranch extends CreateBranchError {
+  readonly code = "branch_already_exists";
+
+  constructor() {
+    super("Branch already exists");
+  }
+}
+
 export abstract class BranchDomainError extends Error {
   abstract readonly code: string;
 }
