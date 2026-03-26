@@ -1,13 +1,13 @@
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { createRoute } from "@hono/zod-openapi";
 import { AlreadyExistsBranch } from "@/application/errors/create-branch";
 import { createBranchUseCase } from "@/application/use-cases/create-branch";
 import { getBranchUseCase } from "@/application/use-cases/get-branch";
 import { BranchSchema } from "@/domain/entities/branch";
 import { ErrorSchema } from "@/domain/entities/error";
 import { logger } from "@/lib/logger";
-import type { State } from "../state";
+import { createRouter } from "../utils";
 
-export const branchRouter = new OpenAPIHono<State>();
+export const branchRouter = createRouter();
 
 branchRouter.openapi(
   createRoute({

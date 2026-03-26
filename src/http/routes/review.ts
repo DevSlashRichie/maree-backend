@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { createRoute } from "@hono/zod-openapi";
 import { RegisterReviewDto } from "@/application/dtos/register-review";
 import {
   OrderNotFoundError,
@@ -11,8 +11,9 @@ import {
   ReviewSchema,
 } from "@/domain/entities/review";
 import { logger } from "@/lib/logger";
-import type { State } from "../state";
-export const reviewRouter = new OpenAPIHono<State>();
+import { createRouter } from "../utils";
+
+export const reviewRouter = createRouter();
 
 reviewRouter.openapi(
   createRoute({

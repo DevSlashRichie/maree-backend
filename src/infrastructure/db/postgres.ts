@@ -20,6 +20,10 @@ export const DB = drizzle({
     password: Option.from(process.env.DB_PASSWORD).unwrap(),
     user: Option.from(process.env.DB_USERNAME).unwrap(),
     database: Option.from(process.env.DB_DATABASE).unwrap(),
+    ssl:
+      process.env.NODE_ENV === "production"
+        ? { rejectUnauthorized: false }
+        : false,
   },
   casing: "snake_case",
   schema,
@@ -35,6 +39,8 @@ export type TxExecutor = Parameters<typeof DB.transaction>[0] extends (
   : never;
 
 export type Executor = DbExecutor | TxExecutor;
+
+export async function runMigrationsIfRequired() {}
 
 export async function seedIfRequired() {
   if (process.env.SEED === "true") {
@@ -214,6 +220,7 @@ export async function seedIfRequired() {
           state: funcs.valuesFromArray({
             values: ["active", "inactive"],
           }),
+          maxUses: funcs.int({ minValue: 1, maxValue: 10 }),
         },
         with: {
           discountBranchesTable: [

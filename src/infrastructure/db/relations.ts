@@ -60,4 +60,10 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.rolesTable.id,
     }),
   },
+  rewardsTable: {
+    discountsTable: r.one.discountsTable({
+      from: r.rewardsTable.discountId,
+      to: r.discountsTable.id,
+    }),
+  },
 }));

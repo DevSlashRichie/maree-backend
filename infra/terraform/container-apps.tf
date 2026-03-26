@@ -89,10 +89,10 @@ resource "azurerm_container_app" "main" {
 
   template {
     container {
-      name   = var.app_name
-      image  = var.container_image != "" ? var.container_image : "${azurerm_container_registry.main.login_server}/${var.app_name}:latest"
-      cpu    = 0.25
-      memory = "0.5Gi"
+      name    = var.app_name
+      image   = var.container_image != "" ? var.container_image : "${azurerm_container_registry.main.login_server}/${var.app_name}:latest"
+      cpu     = 0.25
+      memory  = "0.5Gi"
 
       env {
         name        = "DB_HOST"
@@ -115,7 +115,7 @@ resource "azurerm_container_app" "main" {
       }
 
       env {
-        name = "DB_USERNAME"
+        name        = "DB_USERNAME"
         secret_name = "db-username"
       }
 
@@ -125,7 +125,7 @@ resource "azurerm_container_app" "main" {
       }
 
       env {
-        name = "HOST"
+        name  = "HOST"
         value = "0.0.0.0"
       }
 

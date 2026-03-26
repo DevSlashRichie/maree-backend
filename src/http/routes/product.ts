@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { createRoute } from "@hono/zod-openapi";
 import qs from "qs";
 import { CreateProductDto } from "@/application//dtos/create-product.ts";
 import { ProductListSchema } from "@/application/dtos/product";
@@ -7,12 +7,11 @@ import { createProductUseCase } from "@/application/use-cases/create-product.ts"
 import { getProductsUseCase } from "@/application/use-cases/get-products";
 import { ErrorSchema } from "@/domain/entities/error";
 import { ProductFiltersSchema, ProductSchema } from "@/domain/entities/product";
-import type { State } from "@/http/state.ts";
 import { logger } from "@/lib/logger";
-
 import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
+import { createRouter } from "../utils";
 
-export const productRouter = new OpenAPIHono<State>();
+export const productRouter = createRouter();
 productRouter.use(authzMiddleware(false));
 
 productRouter.openapi(
