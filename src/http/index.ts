@@ -89,10 +89,6 @@ export function createHttpServer(
   });
   //app.use("*", authzMiddleware);
 
-  app.route("/users", userRouter);
-  app.route("/products", productRouter);
-  app.route("/orders", orderRouter);
-
   const v1 = new OpenAPIHono<State>();
 
   v1.route("/users", userRouter);
