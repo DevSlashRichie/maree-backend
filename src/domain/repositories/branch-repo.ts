@@ -20,6 +20,11 @@ export class BranchRepo {
     return !!branch;
   }
 
+  async findAll() {
+    const branches = await this.conn.query.branchsTable.findMany();
+    return branches;
+  }
+
   async findByName(name: string) {
     const branch = await this.conn.query.branchsTable.findFirst({
       where: {
