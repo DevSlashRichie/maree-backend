@@ -1,7 +1,10 @@
 import { createRoute } from "@hono/zod-openapi";
 import { AlreadyExistsBranch } from "@/application/errors/create-branch";
 import { createBranchUseCase } from "@/application/use-cases/create-branch";
-import { getBranchUseCase } from "@/application/use-cases/get-branch";
+import {
+  getBranchesUseCase,
+  getBranchUseCase,
+} from "@/application/use-cases/get-branch";
 import { CreateBranchDto } from "@/domain/dtos/create-branch";
 import { BranchSchema } from "@/domain/entities/branch";
 import { ErrorSchema } from "@/domain/entities/error";
@@ -83,6 +86,37 @@ branchRouter.openapi(
     }
 
     return ctx.json(result.unwrap(), 201);
+  },
+);
+
+branchRouter.openapi(
+  createRoute({
+    tags: ["Branch"],
+    method: "get",
+    path: "/",
+    responses: {
+      200: {
+        description: "list of branches",
+        content: {
+          "application/json": {
+            schema: BranchSchema.array(),
+          },
+        },
+      },
+      500: {
+        description: "unexpected",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+
+  async (ctx) => {
+    const branches = await getBranchesUseCase();
+    return ctx.json(branches, 200);
   },
 );
 
