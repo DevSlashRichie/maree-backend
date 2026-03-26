@@ -7,6 +7,7 @@ const validParams = {
   description: "Get a free coffee",
   status: "active",
   cost: 100n,
+  discountId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
 };
 
 describe("createReward", () => {
@@ -16,6 +17,7 @@ describe("createReward", () => {
     expect(reward.description).toBe("Get a free coffee");
     expect(reward.status).toBe("active");
     expect(Number(reward.cost)).toBe(100);
+    expect(reward.discountId).toBe(validParams.discountId);
   });
 
   it("should create reward with image", () => {
@@ -54,6 +56,12 @@ describe("createReward", () => {
   it("should throw for invalid image URL", () => {
     expect(() =>
       createReward({ ...validParams, image: "not-a-url" }),
+    ).toThrow();
+  });
+
+  it("should throw for invalid discountId", () => {
+    expect(() =>
+      createReward({ ...validParams, discountId: "invalid-uuid" }),
     ).toThrow();
   });
 });

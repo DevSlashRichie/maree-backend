@@ -39,6 +39,7 @@
     "zod": "^4.3.6"
   },
   "scripts": {
+    "drizzle:up": "&& bunx --bun drizzle-kit up",
     "drizzle:migrate": "bunx --bun drizzle-kit migrate",
     "drizzle:generate": "bunx --bun drizzle-kit generate",
     "dev": "bun run --watch src/index.ts",

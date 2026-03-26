@@ -1,5 +1,6 @@
 import { and, eq, notInArray } from "drizzle-orm";
 import type { Reward } from "@/domain/entities/reward";
+import { eq } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
 import {
   loyaltyCardsTable,
@@ -11,14 +12,40 @@ import {
 export class RewardsRepo {
   constructor(private readonly conn: Executor) {}
 
+  async saveReward(data: {
+    name: string;
+    description: string;
+    status: string;
+    cost: bigint;
+    discountId: string;
+    image?: string;
+  }) {
+    const result = await this.conn
+      .insert(rewardsTable)
+      .values({
+        name: data.name,
+        description: data.description,
+        status: data.status,
+        cost: data.cost,
+        discountId: data.discountId,
+        image: data.image,
+      })
+      .returning();
+    return result[0];
+  }
+
   async findAllRewards(status?: "enabled" | "disabled") {
     const rewards = await this.conn.query.rewardsTable.findMany({
-      where: {
-        status,
+      where: status ? { status } : undefined,
+      with: {
+        discountsTable: true,
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
 
-    return rewards;
+    return rewards.filter((r) => !r.deletedAt);
   }
 
   async findReedemsForUser(userId: string) {
@@ -46,6 +73,43 @@ export class RewardsRepo {
   async findRewardById(rewardId: string) {
     const reward = await this.conn.query.rewardsTable.findFirst({
       where: { id: rewardId },
+    });
+    return reward;
+  }
+
+  async softDeleteReward(rewardId: string) {
+    const [reward] = await this.conn
+      .update(rewardsTable)
+      .set({ deletedAt: new Date() })
+      .where(eq(rewardsTable.id, rewardId))
+      .returning();
+    return reward;
+  }
+
+  async updateReward(
+    rewardId: string,
+    data: {
+      name?: string;
+      description?: string;
+      status?: string;
+      cost?: bigint;
+      image?: string;
+    },
+  ) {
+    const [reward] = await this.conn
+      .update(rewardsTable)
+      .set(data)
+      .where(eq(rewardsTable.id, rewardId))
+      .returning();
+    return reward;
+  }
+
+  async findRewardWithDiscount(rewardId: string) {
+    const reward = await this.conn.query.rewardsTable.findFirst({
+      where: { id: rewardId },
+      with: {
+        discountsTable: true,
+      },
     });
     return reward;
   }

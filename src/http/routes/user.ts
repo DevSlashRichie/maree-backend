@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { createRoute, z } from "@hono/zod-openapi";
 import {
   AssignRoleDto,
   AssignRoleResponseDto,
@@ -14,9 +14,9 @@ import { removeRoleUseCase } from "@/application/use-cases/remove-role";
 import { ActorSchema } from "@/domain/entities/actor";
 import { ErrorSchema } from "@/domain/entities/error";
 import { authzMiddleware } from "../middleware/authz";
-import type { State } from "../state";
+import { createRouter } from "../utils";
 
-export const userRouter = new OpenAPIHono<State>();
+export const userRouter = createRouter();
 
 userRouter.get("/", (ctx) => {
   return ctx.json({});
@@ -73,6 +73,9 @@ userRouter.openapi(
     security: [{ Bearer: [] }],
     middleware: [authzMiddleware(true)],
     request: {
+      params: z.object({
+        userId: z.string().uuid(),
+      }),
       body: {
         required: true,
         content: {
@@ -140,6 +143,12 @@ userRouter.openapi(
     path: "/{userId}/roles/{roleName}",
     security: [{ Bearer: [] }],
     middleware: [authzMiddleware(true)],
+    request: {
+      params: z.object({
+        userId: z.string().uuid(),
+        roleName: z.string(),
+      }),
+    },
     responses: {
       200: {
         description: "role removed successfully",

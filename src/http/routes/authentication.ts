@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { createRoute } from "@hono/zod-openapi";
 import { setCookie } from "hono/cookie";
 import {
   LoginResultSchema,
@@ -14,9 +14,9 @@ import { registerUserUseCase } from "@/application/use-cases/register-user.ts";
 import { ErrorSchema } from "@/domain/entities/error";
 import { UserSchema } from "@/domain/entities/user.ts";
 import { logger } from "@/lib/logger";
-import type { State } from "../state";
+import { createRouter } from "../utils";
 
-export const authenticationRouter = new OpenAPIHono<State>();
+export const authenticationRouter = createRouter();
 
 authenticationRouter.openapi(
   createRoute({

@@ -12,7 +12,21 @@ import { AvailableRewardDto } from "../dtos/reward";
 export async function getRewardsUseCase(): Promise<Reward[]> {
   const rewardsRepo = new RewardsRepo(DB);
 
-  const rewards = await rewardsRepo.findAllRewards();
+  const rewards = (await rewardsRepo.findAllRewards()).map(
+    (it) =>
+      ({
+        id: it.id,
+        name: it.name,
+        description: it.description,
+        status: it.status,
+        cost: it.cost,
+        createdAt: it.createdAt,
+        deletedAt: it.deletedAt,
+        discountId: it.discountId,
+        image: it.image,
+        discount: it.discountsTable,
+      }) as Reward,
+  );
 
   return rewards;
 }

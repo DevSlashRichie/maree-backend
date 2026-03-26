@@ -1,8 +1,11 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { createRoute, z } from "@hono/zod-openapi";
+import { ZodError } from "zod";
 import {
+  CreateRewardDto,
   RedeemResultSchema,
   RedeemRewardSchema,
   RedemptionHistoryItemSchema,
+  UpdateRewardDto,
 } from "@/application/dtos/reward";
 import { getRedemptionHistoryUseCase } from "@/application/use-cases/get-redemption-history";
 import {
@@ -14,14 +17,74 @@ import {
   LoyaltyCardNotFoundError,
   RewardNotFoundError,
 } from "@/application/errors/redeem-reward";
+import { createRewardUseCase } from "@/application/use-cases/create-reward";
+import { deleteRewardUseCase } from "@/application/use-cases/delete-reward";
 import { getRedemptionHistoryUseCase } from "@/application/use-cases/get-redemption-history";
 import { getRewardsUseCase } from "@/application/use-cases/get-rewards";
 import { redeemRewardUseCase } from "@/application/use-cases/redeem-reward";
+import { updateRewardUseCase } from "@/application/use-cases/update-reward";
 import { ErrorSchema } from "@/domain/entities/error";
-import { RewardSchema } from "@/domain/entities/reward";
-import type { State } from "../state";
+import {
+  DeleteRewardParamsSchema,
+  RewardSchema,
+  UpdateRewardParamsSchema,
+} from "@/domain/entities/reward";
+import { createRouter } from "../utils";
 
-export const rewardRouter = new OpenAPIHono<State>();
+export const rewardRouter = createRouter();
+
+rewardRouter.openapi(
+  createRoute({
+    tags: ["Reward"],
+    method: "post",
+    path: "/",
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: CreateRewardDto,
+          },
+        },
+      },
+    },
+    responses: {
+      201: {
+        description: "reward created",
+        content: {
+          "application/json": {
+            schema: RewardSchema,
+          },
+        },
+      },
+      400: {
+        description: "invalid request",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const body = ctx.req.valid("json");
+
+    const result = await createRewardUseCase(body);
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+
+      // we let the error handler handle zod error.
+      if (err instanceof ZodError) {
+        throw err;
+      }
+
+      return ctx.json({ code: err.name, message: err.message }, 400);
+    }
+
+    return ctx.json(result.unwrap(), 201);
+  },
+);
 
 rewardRouter.openapi(
   createRoute({

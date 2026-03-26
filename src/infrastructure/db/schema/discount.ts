@@ -1,6 +1,8 @@
 import { randomUUIDv7 as uuidv7 } from "bun";
 import {
   bigint,
+  boolean,
+  integer,
   pgTable,
   primaryKey,
   text,
@@ -22,6 +24,11 @@ export const discountsTable = pgTable("discount", {
     .notNull()
     .defaultNow(),
   endDate: timestamp("ended_at", { withTimezone: true }).notNull().defaultNow(),
+  code: text(),
+  maxUses: integer(),
+  currentUses: integer().notNull().default(0),
+  isActive: text().default("true"),
+  hidden: boolean().notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

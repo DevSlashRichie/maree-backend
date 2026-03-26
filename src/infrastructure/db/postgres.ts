@@ -20,6 +20,10 @@ export const DB = drizzle({
     password: Option.from(process.env.DB_PASSWORD).unwrap(),
     user: Option.from(process.env.DB_USERNAME).unwrap(),
     database: Option.from(process.env.DB_DATABASE).unwrap(),
+    ssl:
+      process.env.NODE_ENV === "production"
+        ? { rejectUnauthorized: false }
+        : false,
   },
   casing: "snake_case",
   schema,
