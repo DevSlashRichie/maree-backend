@@ -11,6 +11,10 @@ AVANCE 3:
 - [DOCS](https://github.com/DevSlashRichie/maree-backend/tree/main/docs)
 
 
+AVANCE 4:
+- [DOC](https://docs.google.com/document/d/1uzbWKZmHQ27tPd9bj6rE5opsh_tJDxnxbfuMxa8hQUM/edit?usp=sharing)
+
+
 INTEGRANTES DEL EQUIPO:
 - A01710266 - Ricardo Rodriguez Medina
 - A01713173 - Diego Méndez Morales
