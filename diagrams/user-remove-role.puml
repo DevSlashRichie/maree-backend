@@ -19,14 +19,12 @@ else
     Http ->> UseCase: removeRoleUseCase(actor, userId, roleName)
     activate UseCase
 
-    create entity "repo/rbac-repo.ts" as RbacRepo
-    create entity "repo/user-repo.ts" as UserRepo
-    database "Postgres DB" as DB
     UseCase ->> RbacRepo: <<create>>
-    UseCase ->> UserRepo: <<create>>
+    activate RbacRepo
 
     UseCase ->> RbacRepo: findRoleByName(roleName)
 
+    create database "Postgres DB" as DB
     RbacRepo ->> DB: SELECT * FROM roles WHERE name = roleName
     activate DB
     DB -->> RbacRepo: role
@@ -39,18 +37,22 @@ else
     else role found
         RbacRepo -->> UseCase: role
 
-        UseCase ->> UserRepo: findById(userId)
+        UseCase ->> UserRepo: <<create>>
+        activate UserRepo
 
         UserRepo ->> DB: SELECT * FROM user WHERE id
+        activate DB
         DB -->> UserRepo: user
+        deactivate DB
 
         alt user not found
             UseCase -->> Http: Err(UserNotFoundError)
             Http -->> Component: 404 {"message": "user not found"}
         else user found
-            UseCase ->> RbacRepo: deleteAllUserRoles(userId)
-
             RbacRepo ->> DB: DELETE FROM user_roles WHERE userId
+            activate DB
+            DB -->> RbacRepo: deleted
+            deactivate DB
 
             UseCase -->> Http: Ok({userId, role: roleName})
             Http -->> Component: 200 {userId, role: roleName}
