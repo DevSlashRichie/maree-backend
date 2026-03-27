@@ -19,14 +19,6 @@ import { createRouter } from "../utils";
 
 export const orderRouter = createRouter();
 
-orderRouter.post("/", (ctx) => {
-  return ctx.json({});
-});
-
-orderRouter.get("/", (ctx) => {
-  return ctx.json({});
-});
-
 orderRouter.openapi(
   createRoute({
     tags: ["Order"],
@@ -52,8 +44,7 @@ orderRouter.openapi(
     },
   }),
   async (ctx) => {
-    // TODO: somehow get the user id
-    const id = "idk";
+    const id = ctx.get("actor").userId;
     const history = await getOderHistoryUseCase(id);
 
     if (history.isErr()) {
@@ -78,7 +69,7 @@ orderRouter.openapi(
   createRoute({
     tags: ["Order"],
     method: "patch",
-    path: "/:id/close",
+    path: "/{id}/close",
     request: {
       params: z.object({
         id: z.string(),
@@ -151,7 +142,7 @@ orderRouter.openapi(
   createRoute({
     tags: ["Order"],
     method: "patch",
-    path: "/:id/ready",
+    path: "/{id}/ready",
     request: {
       params: z.object({
         id: z.string(),

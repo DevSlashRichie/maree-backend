@@ -37,9 +37,10 @@ export function createHttpServer(
   app.use(
     "*",
     cors({
-      origin: "*",
-      allowHeaders: ["*"],
-      allowMethods: ["*"],
+      origin: (e) => e,
+      allowHeaders: ["Content-Type", "Authorization"],
+      allowMethods: ["GET", "POST", "DELETE", "PATCH", "PUT"],
+      credentials: true,
     }),
   );
   app.use("*", createStateMiddleware(stateConf));

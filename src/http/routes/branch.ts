@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { createBranchUseCase } from "@/application/use-cases/create-branch";
 import {
   getBranchesUseCase,
@@ -123,7 +123,12 @@ branchRouter.openapi(
   createRoute({
     tags: ["Branch"],
     method: "get",
-    path: "/:branch",
+    path: "/{id}",
+    request: {
+      params: z.object({
+        id: z.string(),
+      }),
+    },
     responses: {
       200: {
         description: "branch profile",
@@ -145,7 +150,7 @@ branchRouter.openapi(
   }),
 
   async (ctx) => {
-    const branchName = ctx.req.param("branch");
+    const branchName = ctx.req.param("id");
     const branch = await getBranchUseCase(branchName);
 
     // TODO: move this error creation into the application layer.

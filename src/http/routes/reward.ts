@@ -25,6 +25,7 @@ import {
   UpdateRewardParamsSchema,
 } from "@/domain/entities/reward";
 import { createRouter } from "../utils";
+import { authzMiddleware } from "../middleware/authz";
 
 export const rewardRouter = createRouter();
 
@@ -86,6 +87,7 @@ rewardRouter.openapi(
     tags: ["Reward"],
     method: "get",
     path: "/",
+    middleware: authzMiddleware(false),
     responses: {
       200: {
         description: "list all available rewards",
@@ -98,6 +100,8 @@ rewardRouter.openapi(
     },
   }),
   async (ctx) => {
+    console.log(ctx.get("actor"));
+
     const rewards = await getRewardsUseCase();
 
     return ctx.json(rewards, 200);

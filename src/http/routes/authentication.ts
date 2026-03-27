@@ -91,7 +91,7 @@ authenticationRouter.openapi(
       setCookie(ctx, "tok", loginResult.token, {
         httpOnly: true,
         secure: true,
-        sameSite: "Lax",
+        sameSite: "None",
         path: "/",
         maxAge: 43830, // 1 day
       });

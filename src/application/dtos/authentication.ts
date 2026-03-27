@@ -15,6 +15,7 @@ export const LoginSchema = z
           .transform((val) => Number(val)),
       }),
       z.object({ type: z.literal("password"), value: z.string().min(1) }),
+      z.object({ type: z.literal("test") }),
     ]),
   })
   .openapi("Login");

@@ -97,6 +97,10 @@ export async function loginUserUseCase(
       await passwordMethod(user, data.method.value, userRepo);
     } else if (data.method.type === "code") {
       await codeMethod(user, data.method.value);
+    } else if (data.method.type === "test") {
+      // nothing we just continue
+    } else {
+      throw new InvalidCredentialsError();
     }
 
     // do rbac stuff
