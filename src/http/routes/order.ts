@@ -274,7 +274,7 @@ orderRouter.openapi(
         description: "orders with user",
         content: {
           "application/json": {
-            schema: OrdersWithUsersDto,
+            schema: OrderWithUserSchema.array(),
           },
         },
       },
