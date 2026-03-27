@@ -1,7 +1,9 @@
 import { createRoute, z } from "@hono/zod-openapi";
+import qs from "qs";
 import {
   IncomingOrdersDto,
   OrderHistoryDto,
+  OrdersWithUsersDto,
 } from "@/application/dtos/order.ts";
 import {
   OrderAlreadyClosed,
@@ -11,9 +13,14 @@ import {
 import { closeOrderUseCase } from "@/application/use-cases/close-order";
 import { getIncomingOrdersUseCase } from "@/application/use-cases/get-incoming-orders.ts";
 import { getOderHistoryUseCase } from "@/application/use-cases/get-oder-history.ts";
+import { getOrdersUseCase } from "@/application/use-cases/get-orders.ts";
 import { markOrderReadyUseCase } from "@/application/use-cases/mark-order-ready";
 import { ErrorSchema } from "@/domain/entities/error.ts";
-import { OrderSchema } from "@/domain/entities/order";
+import {
+  OrderFilterSchema,
+  OrderSchema,
+  OrderWithUserSchema,
+} from "@/domain/entities/order";
 import { logger } from "@/lib/logger.ts";
 import { createRouter } from "../utils";
 
@@ -253,5 +260,80 @@ orderRouter.openapi(
     }
 
     return ctx.json(incomingOrders.unwrap, 200);
+  },
+);
+
+orderRouter.openapi(
+  createRoute({
+    tags: ["Order"],
+    method: "get",
+    path: "/",
+    responses: {
+      200: {
+        description: "orders with user",
+        content: {
+          "application/json": {
+            schema: OrderWithUserSchema.array(),
+          },
+        },
+      },
+      400: {
+        description: "invaliid filter",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "internal server error",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const queryString = ctx.req.query();
+    const parsedQuery = qs.parse(queryString);
+
+    const filterValidation =
+      await OrderFilterSchema.safeParseAsync(parsedQuery);
+
+    if (!filterValidation.success) {
+      const invalidFields = filterValidation.error.issues.map((e) =>
+        e.path.join("."),
+      );
+
+      return ctx.json(
+        {
+          code: "invalid_filter",
+          message: `Invalid filter fields: ${invalidFields.join(", ")}`,
+        },
+        400,
+      );
+    }
+    const filters = filterValidation.data;
+    const hasFilters = Object.keys(filters).length > 0;
+
+    const orders = await getOrdersUseCase(hasFilters ? filters : undefined);
+
+    if (orders.isErr()) {
+      const err = orders.unwrapErr();
+
+      logger.warn("Failed login: (%s) %s", err.code, err.message);
+
+      return ctx.json(
+        {
+          code: err.code,
+          message: err.message,
+        },
+        500,
+      );
+    }
+
+    return ctx.json(orders.unwrap(), 200);
   },
 );

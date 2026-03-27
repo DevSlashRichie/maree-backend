@@ -1,5 +1,5 @@
 import { z } from "@hono/zod-openapi";
-import { OrderSchema } from "@/domain/entities/order.ts";
+import { OrderSchema, OrderWithUserSchema } from "@/domain/entities/order.ts";
 
 export const OrderHistoryDto = z
   .object({
@@ -12,6 +12,12 @@ export const IncomingOrdersDto = z
     orders: z.array(OrderSchema),
   })
   .openapi("IncomingOrders");
+
+export const OrdersWithUsersDto = z
+  .object({
+    orders: z.array(OrderWithUserSchema),
+  })
+  .openapi("OrdersWithUsers");
 
 export const closeOrderDto = z
   .object({

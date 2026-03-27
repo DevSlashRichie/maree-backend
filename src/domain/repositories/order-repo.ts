@@ -3,9 +3,10 @@ import {
   type Order,
   type OrderFilters,
   OrderNotFound,
+  type OrderWithUser,
 } from "@/domain/entities/order.ts";
 import type { Executor } from "@/infrastructure/db/postgres.ts";
-import { ordersTable } from "@/infrastructure/db/schema";
+import { ordersTable, userTable } from "@/infrastructure/db/schema";
 import { buildFilters } from "@/lib/filters";
 
 export class OrderRepo {
@@ -23,6 +24,22 @@ export class OrderRepo {
       .select()
       .from(ordersTable)
       .where(whereClause);
+
+    return orders;
+  }
+
+  async findAllWithUser(filters?: OrderFilters): Promise<OrderWithUser[]> {
+    const whereConditions = filters
+      ? buildFilters(filters as Record<string, unknown>, ordersTable)
+      : [];
+
+    const whereClause =
+      whereConditions.length > 0 ? and(...whereConditions) : undefined;
+
+    const orders = await this.conn
+      .select()
+      .from(ordersTable)
+      .leftJoin(userTable, eq(ordersTable.userId, userTable.id));
 
     return orders;
   }

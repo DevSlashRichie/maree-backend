@@ -1,6 +1,7 @@
 import { z } from "@hono/zod-openapi";
 import type { InferSelectModel } from "drizzle-orm";
 import { createSelectSchema } from "drizzle-zod";
+import { type User, UserSchema } from "@/domain/entities/user.ts";
 import {
   createOrderStatus,
   InvalidOrderStatusError,
@@ -16,6 +17,14 @@ import {
 export type Order = InferSelectModel<typeof ordersTable>;
 export const OrderSchema = createSelectSchema(ordersTable);
 export type OrderType = z.infer<typeof OrderSchema>;
+export type OrderWithUser = {
+  order: Order;
+  user: User | null;
+};
+export const OrderWithUserSchema = z.object({
+  order: OrderSchema,
+  user: UserSchema.nullable(),
+});
 
 export const OrderFilterSchema = z.object({
   id: UuidFilterSchema.optional(),
