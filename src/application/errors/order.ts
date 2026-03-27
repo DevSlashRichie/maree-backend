@@ -27,3 +27,18 @@ export class OrderAlreadyMark extends OrderError {
     super("Order is already mark ready");
   }
 }
+
+export class OrderAlreadyPending extends OrderError {
+  readonly code = "order_already_pending";
+
+  constructor() {
+    super("Order is already mark pending");
+  }
+}
+export class OrderAlreadyProcessing extends OrderError {
+  readonly code = "order_already_processing";
+
+  constructor() {
+    super("Order is already mark processing");
+  }
+}

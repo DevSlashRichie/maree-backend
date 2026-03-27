@@ -81,4 +81,32 @@ export class OrderRepo {
 
     return order;
   }
+
+  async orderPending(id: string) {
+    const [order] = await this.conn
+      .update(ordersTable)
+      .set({ status: "pending" })
+      .where(eq(ordersTable.id, id))
+      .returning();
+
+    if (!order) {
+      throw new OrderNotFound();
+    }
+
+    return order;
+  }
+
+  async orderProcessing(id: string) {
+    const [order] = await this.conn
+      .update(ordersTable)
+      .set({ status: "processing" })
+      .where(eq(ordersTable.id, id))
+      .returning();
+
+    if (!order) {
+      throw new OrderNotFound();
+    }
+
+    return order;
+  }
 }
