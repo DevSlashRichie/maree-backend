@@ -12,7 +12,9 @@ AVANCE 3:
 
 
 AVANCE 4:
-- [DOC](https://docs.google.com/document/d/1uzbWKZmHQ27tPd9bj6rE5opsh_tJDxnxbfuMxa8hQUM/edit?usp=sharing)
+- [DOC DRIVE](https://docs.google.com/document/d/1uzbWKZmHQ27tPd9bj6rE5opsh_tJDxnxbfuMxa8hQUM/edit?usp=sharing)
+- [DOC AQUI](https://github.com/DevSlashRichie/maree-frontend/blob/main/docs/Fourth%20Progress%20Report.pdf)
+- [Video](https://drive.google.com/file/d/1Jg8_Orcu8EIS5Ffmq4eX9D-3kNA2aQqj/view?usp=sharing)
 
 
 INTEGRANTES DEL EQUIPO:
