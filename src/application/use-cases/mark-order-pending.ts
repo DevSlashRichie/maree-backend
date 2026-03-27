@@ -1,6 +1,7 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import type z from "zod";
 import type { markOrderReadyDto } from "@/application/dtos/order.ts";
+import { UnknownError } from "@/application/error.ts";
 import {
   OrderAlreadyPending,
   OrderError,
@@ -9,7 +10,6 @@ import {
 import type { OrderType } from "@/domain/entities/order.ts";
 import { OrderRepo } from "@/domain/repositories/order-repo.ts";
 import { DB } from "@/infrastructure/db/postgres.ts";
-import { UnknownError } from "@/application/error.ts";
 
 export async function markOrderPendingUseCase(
   data: z.infer<typeof markOrderReadyDto>,
