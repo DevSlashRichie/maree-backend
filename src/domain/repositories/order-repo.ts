@@ -33,7 +33,7 @@ export class OrderRepo {
       ? buildFilters(filters as Record<string, unknown>, ordersTable)
       : [];
 
-    const whereClause =
+    const _whereClause =
       whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
     const orders = await this.conn

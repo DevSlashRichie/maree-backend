@@ -3,7 +3,6 @@ import qs from "qs";
 import {
   IncomingOrdersDto,
   OrderHistoryDto,
-  OrdersWithUsersDto,
 } from "@/application/dtos/order.ts";
 import {
   OrderAlreadyClosed,
