@@ -1,6 +1,8 @@
 import type { InferInsertModel } from "drizzle-orm";
 import { and, eq, sql } from "drizzle-orm";
+import type z from "zod";
 import type { Pagination, StaffFilters, UserFilters } from "@/application/dtos";
+import type { UserListSchema } from "@/application/dtos/user";
 import type { User } from "@/domain/entities/user";
 import type { Executor } from "@/infrastructure/db/postgres";
 import {
@@ -42,7 +44,7 @@ export class UserRepo {
   async findAll(
     filters?: UserFilters,
     pagination?: Pagination,
-  ): Promise<PaginatedUsers> {
+  ): Promise<z.infer<typeof UserListSchema>> {
     const page = pagination?.page ?? 1;
     const limit = pagination?.limit ?? 20;
     const offset = (page - 1) * limit;
