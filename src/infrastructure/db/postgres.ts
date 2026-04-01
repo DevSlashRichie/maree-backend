@@ -68,12 +68,6 @@ export async function seedIfRequired() {
               count: 1,
             },
           ],
-          productVariantsTable: [
-            {
-              count: [3, 6],
-              weight: 1,
-            },
-          ],
         },
       },
       schedulesTable: {
@@ -101,6 +95,12 @@ export async function seedIfRequired() {
             {
               weight: 1,
               count: 1,
+            },
+          ],
+          loyaltyTransactionsTable: [
+            {
+              weight: 1,
+              count: 25,
             },
           ],
         },
@@ -294,6 +294,15 @@ export async function seedIfRequired() {
         columns: {
           satisfactionRate: funcs.int({ minValue: 1, maxValue: 5 }),
           notes: funcs.loremIpsum({ sentencesCount: 1 }),
+        },
+      },
+      loyaltyTransactionsTable: {
+        count: 25,
+        columns: {
+          transactionType: funcs.valuesFromArray({
+            values: ["earned", "redeemed"],
+          }),
+          value: funcs.int({ minValue: 1, maxValue: 2 }),
         },
       },
     }));

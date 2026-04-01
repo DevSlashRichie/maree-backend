@@ -1,15 +1,7 @@
 import type { InferSelectModel } from "drizzle-orm";
 import { createSelectSchema } from "drizzle-zod";
 import type { z } from "zod";
-import {
-  loyaltyCardsTable,
-  loyaltyTransactionsTable,
-} from "@/infrastructure/db/schema";
-
-export type LoyaltyCard = InferSelectModel<typeof loyaltyCardsTable>;
-
-export const LoyaltyCardSchema = createSelectSchema(loyaltyCardsTable);
-export type LoyaltyCardType = z.infer<typeof LoyaltyCardSchema>;
+import { loyaltyTransactionsTable } from "@/infrastructure/db/schema";
 
 export type LoyaltyTransaction = InferSelectModel<
   typeof loyaltyTransactionsTable
