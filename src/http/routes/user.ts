@@ -1,8 +1,19 @@
 import { createRoute, z } from "@hono/zod-openapi";
+import qs from "qs";
+import {
+  PaginationSchema,
+  StaffFiltersSchema,
+  UserFiltersSchema,
+} from "@/application/dtos";
 import {
   AssignRoleDto,
   AssignRoleResponseDto,
 } from "@/application/dtos/assign-role";
+import {
+  StaffListSchema,
+  UserListSchema,
+  UserWithStatsSchema,
+} from "@/application/dtos/user";
 import {
   ForbiddenError,
   RoleNotFoundError,
@@ -10,6 +21,10 @@ import {
 } from "@/application/errors/rbac";
 import { assignRoleUseCase } from "@/application/use-cases/assign-role";
 import { getActorUseCase } from "@/application/use-cases/get-actor";
+import { getStaffUseCase } from "@/application/use-cases/get-staff";
+import { getStaffByIdUseCase } from "@/application/use-cases/get-staff-by-id";
+import { getUserUseCase } from "@/application/use-cases/get-user";
+import { getUsersUseCase } from "@/application/use-cases/get-users";
 import { removeRoleUseCase } from "@/application/use-cases/remove-role";
 import { ActorSchema } from "@/domain/entities/actor";
 import { ErrorSchema } from "@/domain/entities/error";
@@ -17,20 +32,138 @@ import { authzMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
 
 export const userRouter = createRouter();
+//userRouter.use(authzMiddleware(false));
 
-userRouter.get("/", (ctx) => {
-  return ctx.json({});
-});
+userRouter.openapi(
+  createRoute({
+    tags: ["User"],
+    method: "get",
+    path: "/",
+    request: {
+      query: UserFiltersSchema.merge(PaginationSchema),
+    },
+    responses: {
+      200: {
+        description: "user list",
+        content: {
+          "application/json": {
+            schema: UserListSchema,
+          },
+        },
+      },
+      400: {
+        description: "invalid filter",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const queryString = ctx.req.query();
+    const parsedQuery = qs.parse(queryString);
 
-userRouter.post("/", (ctx) => {
-  return ctx.json({});
-});
+    const filterValidation =
+      await UserFiltersSchema.merge(PaginationSchema).safeParseAsync(
+        parsedQuery,
+      );
+
+    if (!filterValidation.success) {
+      const invalidFields = filterValidation.error.issues.map((e) =>
+        e.path.join("."),
+      );
+
+      return ctx.json(
+        {
+          code: "invalid_filter",
+          message: `Invalid filter fields: ${invalidFields.join(", ")}`,
+        },
+        400,
+      );
+    }
+
+    const { page, limit, ...filters } = filterValidation.data;
+    const hasFilters = Object.keys(filters).length > 0;
+
+    const result = await getUsersUseCase(hasFilters ? filters : undefined, {
+      page,
+      limit,
+    });
+
+    return ctx.json(result, 200);
+  },
+);
+
+userRouter.openapi(
+  createRoute({
+    tags: ["User"],
+    method: "get",
+    path: "/staff",
+    request: {
+      query: StaffFiltersSchema.merge(PaginationSchema),
+    },
+    responses: {
+      200: {
+        description: "staff list",
+        content: {
+          "application/json": {
+            schema: StaffListSchema,
+          },
+        },
+      },
+      400: {
+        description: "invalid filter",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const queryString = ctx.req.query();
+    const parsedQuery = qs.parse(queryString);
+
+    const filterValidation =
+      await StaffFiltersSchema.merge(PaginationSchema).safeParseAsync(
+        parsedQuery,
+      );
+
+    if (!filterValidation.success) {
+      const invalidFields = filterValidation.error.issues.map((e) =>
+        e.path.join("."),
+      );
+
+      return ctx.json(
+        {
+          code: "invalid_filter",
+          message: `Invalid filter fields: ${invalidFields.join(", ")}`,
+        },
+        400,
+      );
+    }
+
+    const { page, limit, ...filters } = filterValidation.data;
+    const hasFilters = Object.keys(filters).length > 0;
+
+    const result = await getStaffUseCase(hasFilters ? filters : undefined, {
+      page,
+      limit,
+    });
+
+    return ctx.json(result, 200);
+  },
+);
 
 userRouter.openapi(
   createRoute({
     tags: ["User"],
     method: "get",
     path: "/@me",
+    middleware: [authzMiddleware(true)],
     responses: {
       200: {
         description: "user profile",
@@ -62,6 +195,94 @@ userRouter.openapi(
       }
       throw error;
     }
+  },
+);
+
+userRouter.openapi(
+  createRoute({
+    tags: ["User"],
+    method: "get",
+    path: "/{userId}",
+    request: {
+      params: z.object({
+        userId: z.string().uuid(),
+      }),
+    },
+    responses: {
+      200: {
+        description: "user profile",
+        content: {
+          "application/json": {
+            schema: UserWithStatsSchema,
+          },
+        },
+      },
+      404: {
+        description: "user not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const userId = ctx.req.param("userId");
+    const user = await getUserUseCase(userId);
+
+    if (!user) {
+      return ctx.json(
+        { code: "USER_NOT_FOUND", message: "User not found" },
+        404,
+      );
+    }
+
+    return ctx.json(user, 200);
+  },
+);
+
+userRouter.openapi(
+  createRoute({
+    tags: ["User"],
+    method: "get",
+    path: "/staff/{userId}",
+    request: {
+      params: z.object({
+        userId: z.string().uuid(),
+      }),
+    },
+    responses: {
+      200: {
+        description: "staff member with role",
+        content: {
+          "application/json": {
+            schema: ActorSchema,
+          },
+        },
+      },
+      404: {
+        description: "staff not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const userId = ctx.req.param("userId");
+    const staff = await getStaffByIdUseCase(userId);
+
+    if (!staff) {
+      return ctx.json(
+        { code: "STAFF_NOT_FOUND", message: "Staff member not found" },
+        404,
+      );
+    }
+
+    return ctx.json(staff, 200);
   },
 );
 

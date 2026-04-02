@@ -120,6 +120,7 @@ export function createHttpServer(
       },
     ],
   });
+
   app.get(
     "/docs/scalar",
     Scalar({

@@ -1,7 +1,14 @@
 import { randomUUIDv7 as uuidv7 } from "bun";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
-import { bigint, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { branchsTable } from "./branch.ts";
+import {
+  bigint,
+  boolean,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 export const categoryTable = pgTable("category", {
   id: uuid()
@@ -25,6 +32,7 @@ export const productTable = pgTable("product", {
   categoryId: uuid("category_id")
     .notNull()
     .references(() => categoryTable.id),
+  type: text().notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -37,10 +45,21 @@ export const productVariantsTable = pgTable("product_variant", {
   name: text().notNull(),
   price: bigint({ mode: "bigint" }).notNull(),
   image: text(),
-  branchId: uuid("branch_id")
-    .notNull()
-    .references(() => branchsTable.id),
   productId: uuid("product_id")
     .notNull()
     .references(() => productTable.id),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const productComponentsTable = pgTable("product_component", {
+  id: uuid()
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  productVariantId: uuid("product_variant_id")
+    .notNull()
+    .references(() => productVariantsTable.id),
+  quantity: integer().notNull(),
+  isRemovable: boolean("is_removable").notNull().default(false),
 });
