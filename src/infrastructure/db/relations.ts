@@ -66,4 +66,10 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.discountsTable.id,
     }),
   },
+  branchsTable: {
+    schedulesTable: r.many.schedulesTable({
+      from: r.branchsTable.id,
+      to: r.schedulesTable.branchId,
+    }),
+  },
 }));

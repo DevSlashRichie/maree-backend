@@ -1,11 +1,15 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { createBranchUseCase } from "@/application/use-cases/create-branch";
 import {
+  getBranchByIdUseCase,
   getBranchesUseCase,
-  getBranchUseCase,
 } from "@/application/use-cases/get-branch";
 import { CreateBranchDto } from "@/domain/dtos/create-branch";
-import { AlreadyExistsBranch, BranchSchema } from "@/domain/entities/branch";
+import {
+  AlreadyExistsBranch,
+  BranchSchema,
+  BranchWithSchedulesSchema,
+} from "@/domain/entities/branch";
 import { ErrorSchema } from "@/domain/entities/error";
 import { logger } from "@/lib/logger";
 import type { State } from "../state";
@@ -95,10 +99,10 @@ branchRouter.openapi(
     path: "/",
     responses: {
       200: {
-        description: "list of branches",
+        description: "list of branches with schedules",
         content: {
           "application/json": {
-            schema: BranchSchema.array(),
+            schema: BranchWithSchedulesSchema.array(),
           },
         },
       },
@@ -131,14 +135,14 @@ branchRouter.openapi(
     },
     responses: {
       200: {
-        description: "branch profile",
+        description: "branch profile with schedules",
         content: {
           "application/json": {
-            schema: BranchSchema,
+            schema: BranchWithSchedulesSchema,
           },
         },
       },
-      409: {
+      404: {
         description: "branch not found",
         content: {
           "application/json": {
@@ -150,14 +154,13 @@ branchRouter.openapi(
   }),
 
   async (ctx) => {
-    const branchName = ctx.req.param("id");
-    const branch = await getBranchUseCase(branchName);
+    const id = ctx.req.param("id");
+    const branch = await getBranchByIdUseCase(id);
 
-    // TODO: move this error creation into the application layer.
     if (!branch) {
       return ctx.json(
         { message: "branch not found", code: "branch_not_found" },
-        409,
+        404,
       );
     }
 

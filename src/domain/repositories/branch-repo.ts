@@ -21,7 +21,11 @@ export class BranchRepo {
   }
 
   async findAll() {
-    const branches = await this.conn.query.branchsTable.findMany();
+    const branches = await this.conn.query.branchsTable.findMany({
+      with: {
+        schedulesTable: true,
+      },
+    });
     return branches;
   }
 
@@ -29,6 +33,22 @@ export class BranchRepo {
     const branch = await this.conn.query.branchsTable.findFirst({
       where: {
         name,
+      },
+      with: {
+        schedulesTable: true,
+      },
+    });
+
+    return branch;
+  }
+
+  async findById(id: string) {
+    const branch = await this.conn.query.branchsTable.findFirst({
+      where: {
+        id,
+      },
+      with: {
+        schedulesTable: true,
       },
     });
 
