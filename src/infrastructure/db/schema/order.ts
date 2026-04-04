@@ -59,5 +59,8 @@ export const orderItemsModifiersTable = pgTable("order_items_modifiers", {
   orderItemId: uuid("order_item_id")
     .notNull()
     .references(() => orderItemsTable.id),
+  productVariantId: uuid("variant_id")
+    .notNull()
+    .references(() => productVariantsTable.id),
   quantityDelta: integer().notNull(),
 });
