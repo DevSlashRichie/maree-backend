@@ -1,5 +1,6 @@
 import { z } from "@hono/zod-openapi";
 import { DISCOUNT_STATES } from "@/domain/entities/discount";
+import { LoyaltyTransactionSchema } from "@/domain/entities/loyalty";
 
 export const CreateRewardDto = z
   .object({
@@ -20,6 +21,7 @@ export const CreateRewardDto = z
 
 export const RedeemRewardSchema = z
   .object({
+    userId: z.string().uuid(),
     rewardId: z.string().uuid(),
     branchId: z.string().uuid(),
   })
@@ -50,3 +52,17 @@ export const UpdateRewardDto = z
     image: z.string().url().optional(),
   })
   .openapi("UpdateReward");
+
+export const AddVisitDto = z
+  .object({
+    userId: z.string().uuid(),
+    amount: z.coerce.number().min(1).default(1),
+  })
+  .openapi("AddVisit");
+
+export const AddVisitResultSchema = z
+  .object({
+    transaction: LoyaltyTransactionSchema,
+    newBalance: z.coerce.bigint(),
+  })
+  .openapi("AddVisitResult");

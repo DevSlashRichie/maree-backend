@@ -31,3 +31,11 @@ export class LoyaltyCardNotFoundError extends RedeemRewardError {
     super("Loyalty card not found");
   }
 }
+
+export class RewardAlreadyRedeemedError extends RedeemRewardError {
+  readonly code = "reward_already_redeemed";
+
+  constructor() {
+    super("This reward has already been redeemed by the user");
+  }
+}

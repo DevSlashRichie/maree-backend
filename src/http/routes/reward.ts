@@ -1,6 +1,8 @@
 import { createRoute, z } from "@hono/zod-openapi";
 import { ZodError } from "zod";
 import {
+  AddVisitDto,
+  AddVisitResultSchema,
   CreateRewardDto,
   RedeemResultSchema,
   RedeemRewardSchema,
@@ -10,8 +12,13 @@ import {
 import {
   InsufficientPointsError,
   LoyaltyCardNotFoundError,
+  RewardAlreadyRedeemedError,
   RewardNotFoundError,
 } from "@/application/errors/redeem-reward";
+import {
+  addVisitUseCase,
+  UserNotFoundError,
+} from "@/application/use-cases/add-visit";
 import { createRewardUseCase } from "@/application/use-cases/create-reward";
 import { deleteRewardUseCase } from "@/application/use-cases/delete-reward";
 import { getRedemptionHistoryUseCase } from "@/application/use-cases/get-redemption-history";
@@ -134,7 +141,6 @@ rewardRouter.openapi(
     tags: ["Reward"],
     method: "post",
     path: "/redeem",
-    security: [{ Bearer: [] }],
     request: {
       body: {
         content: {
@@ -162,14 +168,14 @@ rewardRouter.openapi(
         },
       },
     },
+    security: [{ Bearer: [] }],
   }),
   async (ctx) => {
-    const actor = ctx.get("actor");
     const body = ctx.req.valid("json");
 
     try {
       const result = await redeemRewardUseCase({
-        userId: actor.userId,
+        userId: body.userId,
         rewardId: body.rewardId,
         branchId: body.branchId,
       });
@@ -177,6 +183,12 @@ rewardRouter.openapi(
       return ctx.json(result, 200);
     } catch (error) {
       if (error instanceof RewardNotFoundError) {
+        return ctx.json({ code: error.code, message: error.message }, 400);
+      }
+      if (error instanceof RewardAlreadyRedeemedError) {
+        return ctx.json({ code: error.code, message: error.message }, 400);
+      }
+      if (error instanceof UserNotFoundError) {
         return ctx.json({ code: error.code, message: error.message }, 400);
       }
       if (error instanceof LoyaltyCardNotFoundError) {
@@ -292,6 +304,54 @@ rewardRouter.openapi(
       if (err.code === "REWARD_NOT_FOUND") {
         return ctx.json({ code: err.code, message: err.message }, 404);
       }
+      return ctx.json({ code: err.code, message: err.message }, 400);
+    }
+
+    return ctx.json(result.unwrap(), 200);
+  },
+);
+
+rewardRouter.openapi(
+  createRoute({
+    tags: ["Reward"],
+    method: "post",
+    path: "/visit",
+    security: [{ Bearer: [] }],
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: AddVisitDto,
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "visit added successfully",
+        content: {
+          "application/json": {
+            schema: AddVisitResultSchema,
+          },
+        },
+      },
+      400: {
+        description: "invalid request or user not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const body = ctx.req.valid("json");
+
+    const result = await addVisitUseCase(body);
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
       return ctx.json({ code: err.code, message: err.message }, 400);
     }
 

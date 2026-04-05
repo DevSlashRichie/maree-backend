@@ -2,14 +2,14 @@ import type { Executor } from "@/infrastructure/db/postgres";
 import { discountsTable } from "@/infrastructure/db/schema";
 
 export class DiscountRepo {
-  constructor(private readonly conn: Executor) {}
+  constructor(private readonly conn: Executor) { }
 
   async saveDiscount(data: {
     name: string;
     type: string;
     value: bigint;
     appliesTo: string[];
-    state: string;
+    state: "active" | "inactive";
     startDate: Date;
     endDate: Date;
     code?: string;

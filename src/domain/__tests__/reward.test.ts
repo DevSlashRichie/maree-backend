@@ -5,7 +5,7 @@ import { InvalidRewardCostError } from "@/domain/value-objects/reward-cost";
 const validParams = {
   name: "Free Coffee",
   description: "Get a free coffee",
-  status: "active",
+  status: "active" as "active" | "inactive",
   cost: 100n,
   discountId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
 };

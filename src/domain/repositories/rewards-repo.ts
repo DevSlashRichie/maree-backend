@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
 import {
   loyaltyTransactionsTable,
@@ -7,12 +7,12 @@ import {
 } from "@/infrastructure/db/schema";
 
 export class RewardsRepo {
-  constructor(private readonly conn: Executor) {}
+  constructor(private readonly conn: Executor) { }
 
   async saveReward(data: {
     name: string;
     description: string;
-    status: string;
+    status: "active" | "inactive";
     cost: bigint;
     discountId: string;
     image?: string;
@@ -31,7 +31,7 @@ export class RewardsRepo {
     return result[0];
   }
 
-  async findAllRewards(status?: "enabled" | "disabled") {
+  async findAllRewards(status?: "active" | "inactive") {
     const rewards = await this.conn.query.rewardsTable.findMany({
       where: status ? { status } : undefined,
       with: {
@@ -79,7 +79,7 @@ export class RewardsRepo {
     data: {
       name?: string;
       description?: string;
-      status?: string;
+      status?: "active" | "inactive";
       cost?: bigint;
       image?: string;
     },
@@ -100,6 +100,13 @@ export class RewardsRepo {
       },
     });
     return reward;
+  }
+
+  async hasUserRedeemedReward(rewardId: string, userId: string) {
+    const redemption = await this.conn.query.rewardRedemptionsTable.findFirst({
+      where: { rewardId, userId },
+    });
+    return !!redemption;
   }
 
   async createRedemption(rewardId: string, userId: string, branchId: string) {
@@ -130,5 +137,25 @@ export class RewardsRepo {
       })
       .returning();
     return result[0];
+  }
+
+  async calculateLoyaltyBalance(userId: string): Promise<bigint> {
+    const balanceQuery = await this.conn
+      .select({
+        totalVisits: sql<string>`
+          SUM(
+            CASE 
+              WHEN ${loyaltyTransactionsTable.transactionType} = 'earned' THEN ${loyaltyTransactionsTable.value}
+              WHEN ${loyaltyTransactionsTable.transactionType} = 'redeemed' THEN -${loyaltyTransactionsTable.value}
+              ELSE 0
+            END
+          )
+        `,
+      })
+      .from(loyaltyTransactionsTable)
+      .where(eq(loyaltyTransactionsTable.userId, userId))
+      .groupBy(loyaltyTransactionsTable.userId);
+
+    return BigInt(balanceQuery[0]?.totalVisits ?? "0");
   }
 }
