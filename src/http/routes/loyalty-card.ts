@@ -1,9 +1,6 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { LoyaltyCardDetailsDto } from "@/application/dtos/reward";
-import {
-  LoyaltyCardNotFound,
-  UnknownLoyaltyCardError,
-} from "@/application/errors/get-loyalty-card";
+import { LoyaltyCardNotFound } from "@/application/errors/get-loyalty-card";
 import { getLoyaltyCardUseCase } from "@/application/use-cases/get-loyalty-card";
 import { ErrorSchema } from "@/domain/entities/error";
 import type { State } from "../state";
@@ -44,7 +41,7 @@ loyaltyRouter.openapi(
     },
   }),
   async (ctx) => {
-    const actor = ctx.get("actor");
+    const _actor = ctx.get("actor");
     const result = await getLoyaltyCardUseCase(
       "bf040102-561a-4735-a970-ff5c410167ef",
     );

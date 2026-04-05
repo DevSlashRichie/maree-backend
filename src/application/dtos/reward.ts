@@ -1,6 +1,5 @@
 import { z } from "@hono/zod-openapi";
 import { DISCOUNT_STATES } from "@/domain/entities/discount";
-import { RewardRedeemSchema } from "@/domain/entities/loyalty";
 
 export const CreateRewardDto = z
   .object({
