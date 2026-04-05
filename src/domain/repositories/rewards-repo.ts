@@ -7,7 +7,7 @@ import {
 } from "@/infrastructure/db/schema";
 
 export class RewardsRepo {
-  constructor(private readonly conn: Executor) {}
+  constructor(private readonly conn: Executor) { }
 
   async saveReward(data: {
     name: string;
@@ -57,15 +57,6 @@ export class RewardsRepo {
 
     return reedemptions;
   }
-
-  // async findLoyaltyCardByUserId(userId: string) {
-  //   const card = await this.conn.query.loyaltyCardsTable.findFirst({
-  //     where: {
-  //       userId,
-  //     },
-  //   });
-  //   return card;
-  // }
 
   async findRewardById(rewardId: string) {
     const reward = await this.conn.query.rewardsTable.findFirst({
@@ -124,7 +115,7 @@ export class RewardsRepo {
   }
 
   async createLoyaltyTransaction(
-    loyaltyCardId: string,
+    userId: string,
     value: bigint,
     transactionType: "earned" | "redeemed",
     orderId?: string,
@@ -132,20 +123,12 @@ export class RewardsRepo {
     const result = await this.conn
       .insert(loyaltyTransactionsTable)
       .values({
+        userId,
         value,
         transactionType,
         orderId,
       })
       .returning();
     return result[0];
-  }
-
-  async updateLoyaltyBalance(loyaltyCardId: string, newBalance: bigint) {
-    await this.conn
-      .update(loyaltyCardsTable)
-      .set({ currentBalance: newBalance })
-      // @ts-expect-error - drizzle beta version typing issue
-      .where({ id: loyaltyCardId })
-      .execute();
   }
 }

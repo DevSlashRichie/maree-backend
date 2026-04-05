@@ -1,5 +1,5 @@
 import { createRoute } from "@hono/zod-openapi";
-import { setCookie } from "hono/cookie";
+import { deleteCookie, setCookie } from "hono/cookie";
 import {
   LoginResultSchema,
   LoginSchema,
@@ -14,6 +14,7 @@ import { registerUserUseCase } from "@/application/use-cases/register-user.ts";
 import { ErrorSchema } from "@/domain/entities/error";
 import { UserSchema } from "@/domain/entities/user.ts";
 import { logger } from "@/lib/logger";
+import { authzMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
 
 export const authenticationRouter = createRouter();
@@ -91,7 +92,7 @@ authenticationRouter.openapi(
       setCookie(ctx, "tok", loginResult.token, {
         httpOnly: true,
         secure: true,
-        sameSite: "Lax",
+        sameSite: "None",
         path: "/",
         maxAge: 43830, // 1 day
       });
@@ -202,5 +203,24 @@ authenticationRouter.openapi(
     });
 
     return ctx.json(result.unwrap().user, 201);
+  },
+);
+
+authenticationRouter.openapi(
+  createRoute({
+    tags: ["Auth"],
+    method: "post",
+    path: "/logout",
+    middleware: [authzMiddleware(true)],
+    responses: {
+      204: {
+        description: "logged out",
+      },
+    },
+  }),
+  async (ctx) => {
+    deleteCookie(ctx, "tok", { path: "/" });
+
+    return ctx.body(null, 204);
   },
 );

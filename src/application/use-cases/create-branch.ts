@@ -1,12 +1,12 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import type z from "zod";
 import type { CreateBranchDto } from "@/application/dtos/create-branch";
-import { UnknownError } from "@/application/error";
 import {
   AlreadyExistsBranch,
+  type BranchType,
   CreateBranchError,
-} from "@/application/errors/create-branch";
-import type { BranchType } from "@/domain/entities/branch";
+  UnknownError,
+} from "@/domain/entities/branch";
 import { BranchRepo } from "@/domain/repositories/branch-repo";
 import { DB } from "@/infrastructure/db/postgres";
 

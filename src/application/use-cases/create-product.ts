@@ -27,6 +27,7 @@ export async function createProductUseCase(
       name: data.name,
       status: data.status,
       categoryId: data.categoryId,
+      type: "TODO",
     });
 
     return Ok(product);

@@ -40,6 +40,7 @@ export async function getLoyaltyCardUseCase(
       })),
     });
   } catch (error) {
-    return Err(error);
+    console.error(error);
+    return Err(new UnknownLoyaltyCardError());
   }
 }

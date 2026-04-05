@@ -33,16 +33,12 @@ else validation succeeds
         DomainCreate -->> UseCase: validatedData
         UseCase -->> UseCase: validatedData
 
-        create entity "repo/user-repo.ts" as UserRepo
-        create entity "repo/order-repo.ts" as OrderRepo
-        create entity "repo/review-repo.ts" as ReviewRepo
-        database "Postgres DB" as DB
         UseCase ->> UserRepo: <<create>>
-        UseCase ->> OrderRepo: <<create>>
-        UseCase ->> ReviewRepo: <<create>>
+        activate UserRepo
 
         UseCase ->> UserRepo: findById(userId)
 
+        create database "Postgres DB" as DB
         UserRepo ->> DB: SELECT * FROM user WHERE id
         activate DB
         DB -->> UserRepo: user
@@ -53,10 +49,13 @@ else validation succeeds
             UseCase -->> Http: Err(UserNotFoundError)
             Http -->> Component: 404 {"message": "user not found"}
         else user found
-            UseCase ->> OrderRepo: findById(orderId)
+            UseCase ->> OrderRepo: <<create>>
+            activate OrderRepo
 
             OrderRepo ->> DB: SELECT * FROM order WHERE id
+            activate DB
             DB -->> OrderRepo: order
+            deactivate DB
 
             alt order not found
                 UseCase -->> Http: Err(OrderNotFoundError)
@@ -66,10 +65,13 @@ else validation succeeds
                     UseCase -->> Http: Err(OrderNotFoundError)
                     Http -->> Component: 403 {"message": "order not found"}
                 else
-                    UseCase ->> ReviewRepo: saveReview(validatedData)
+                    UseCase ->> ReviewRepo: <<create>>
+                    activate ReviewRepo
 
                     ReviewRepo ->> DB: INSERT INTO review
+                    activate DB
                     DB -->> ReviewRepo: review
+                    deactivate DB
 
                     UseCase -->> Http: Ok(review)
                     Http -->> Component: 201 {review}
