@@ -82,7 +82,7 @@ export function createDiscount(params: CreateDiscountParams) {
   if (!DISCOUNT_STATES.includes(params.state as DiscountState)) {
     throw new InvalidDiscountStateError(params.state);
   }
-  const parsedState = params.state;
+  const parsedState = z.enum(["active", "inactive"]).parse(params.state);
 
   const parsedStartDate = z.date().parse(params.startDate);
   const parsedEndDate = z.date().parse(params.endDate);

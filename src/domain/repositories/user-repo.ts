@@ -9,7 +9,6 @@ import {
   loyaltyTransactionsTable,
   ordersTable,
   rolesTable,
-  staffTable,
   userPasswordTable,
   userRoleTable,
   userTable,
@@ -73,8 +72,8 @@ export class UserRepo {
         totalVisits: sql<bigint>`
       SUM(
         CASE 
-          WHEN ${loyaltyTransactionsTable.transactionType} = 'earned' THEN 1
-          WHEN ${loyaltyTransactionsTable.transactionType} = 'redeemed' THEN -1
+          WHEN ${loyaltyTransactionsTable.transactionType} = 'earned' THEN ${loyaltyTransactionsTable.value}
+          WHEN ${loyaltyTransactionsTable.transactionType} = 'redeemed' THEN -${loyaltyTransactionsTable.value}
           ELSE 0
         END
       )
@@ -84,7 +83,7 @@ export class UserRepo {
       .groupBy(loyaltyTransactionsTable.userId)
       .as("loyaltySubquery");
 
-    const users = await this.conn
+    const users = this.conn
       .select({
         id: userTable.id,
         firstName: userTable.firstName,
@@ -114,7 +113,7 @@ export class UserRepo {
     const total = Number(countResult[0]?.count ?? 0);
 
     return {
-      users: users.map((u) => ({
+      users: (await users).map((u) => ({
         ...u,
         totalConsumed: Number(u.totalConsumed),
         totalVisits: Number(u.totalVisits),
@@ -125,32 +124,10 @@ export class UserRepo {
     };
   }
 
-  async findAllStaff(filters?: StaffFilters, pagination?: Pagination) {
+  async findAllStaff(_filters?: StaffFilters, pagination?: Pagination) {
     const page = pagination?.page ?? 1;
     const limit = pagination?.limit ?? 20;
     const offset = (page - 1) * limit;
-
-    const branchIdValue = filters?.branchId;
-    const filterWithoutBranch = filters
-      ? Object.fromEntries(
-          Object.entries(filters).filter(([key]) => key !== "branchId"),
-        )
-      : undefined;
-
-    const userConditions = filterWithoutBranch
-      ? buildFilters(filterWithoutBranch as Record<string, unknown>, userTable)
-      : [];
-
-    const staffCondition = branchIdValue
-      ? buildFilters(
-          { branchId: branchIdValue } as Record<string, unknown>,
-          staffTable,
-        )
-      : [];
-
-    const allConditions = [...userConditions, ...staffCondition];
-    const whereClause =
-      allConditions.length > 0 ? and(...allConditions) : undefined;
 
     const users = await this.conn
       .select({
@@ -163,18 +140,15 @@ export class UserRepo {
         role: rolesTable.name,
       })
       .from(userTable)
-      .innerJoin(staffTable, eq(staffTable.userId, userTable.id))
-      .leftJoin(userRoleTable, eq(userRoleTable.userId, userTable.id))
-      .leftJoin(rolesTable, eq(rolesTable.id, userRoleTable.roleId))
-      .where(whereClause)
+      .innerJoin(userRoleTable, eq(userRoleTable.userId, userTable.id))
+      .innerJoin(rolesTable, eq(rolesTable.id, userRoleTable.roleId))
       .limit(limit)
       .offset(offset);
 
     const countResult = await this.conn
       .select({ count: sql<number>`count(*)` })
       .from(userTable)
-      .innerJoin(staffTable, eq(staffTable.userId, userTable.id))
-      .where(whereClause);
+      .innerJoin(userRoleTable, eq(userRoleTable.userId, userTable.id));
 
     const total = Number(countResult[0]?.count ?? 0);
 
@@ -209,8 +183,8 @@ export class UserRepo {
         totalVisits: sql<bigint>`
       SUM(
         CASE 
-          WHEN ${loyaltyTransactionsTable.transactionType} = 'earned' THEN 1
-          WHEN ${loyaltyTransactionsTable.transactionType} = 'redeemed' THEN -1
+          WHEN ${loyaltyTransactionsTable.transactionType} = 'earned' THEN ${loyaltyTransactionsTable.value}
+          WHEN ${loyaltyTransactionsTable.transactionType} = 'redeemed' THEN -${loyaltyTransactionsTable.value}
           ELSE 0
         END
       )
@@ -251,29 +225,45 @@ export class UserRepo {
   }
 
   async findByIdWithRole(id: string) {
-    const userAndRole = await this.conn.query.userTable.findFirst({
-      where: {
-        id,
-      },
-      with: {
-        rolesTable: true,
-      },
-    });
+    const userAndRole = await this.conn
+      .select({
+        id: userTable.id,
+        firstName: userTable.firstName,
+        lastName: userTable.lastName,
+        phone: userTable.phone,
+        email: userTable.email,
+        createdAt: userTable.createdAt,
+        roleId: userRoleTable.roleId,
+        roleName: rolesTable.name,
+      })
+      .from(userTable)
+      .leftJoin(userRoleTable, eq(userRoleTable.userId, userTable.id))
+      .leftJoin(rolesTable, eq(rolesTable.id, userRoleTable.roleId))
+      .where(eq(userTable.id, id))
+      .limit(1);
 
-    return userAndRole;
+    return userAndRole[0] || null;
   }
 
   async findStaffById(id: string) {
-    const staffMember = await this.conn.query.userTable.findFirst({
-      where: {
-        id,
-      },
-      with: {
-        rolesTable: true,
-      },
-    });
+    const staffMember = await this.conn
+      .select({
+        id: userTable.id,
+        firstName: userTable.firstName,
+        lastName: userTable.lastName,
+        phone: userTable.phone,
+        email: userTable.email,
+        createdAt: userTable.createdAt,
+        roleId: userRoleTable.roleId,
+        roleName: rolesTable.name,
+      })
+      .from(userTable)
+      .leftJoin(userRoleTable, eq(userRoleTable.userId, userTable.id))
+      .leftJoin(rolesTable, eq(rolesTable.id, userRoleTable.roleId))
+      .where(eq(userTable.id, id))
+      .limit(1);
 
-    if (!staffMember) {
+    if (!staffMember[0]) {
       return null;
     }
 
@@ -284,7 +274,7 @@ export class UserRepo {
     });
 
     return {
-      ...staffMember,
+      ...staffMember[0],
       branchId: staff?.branchId ?? null,
     };
   }
@@ -307,20 +297,22 @@ export class UserRepo {
   }
 
   async findByIdWithPassword(id: string) {
-    const userAndPassword = await this.conn.query.userTable.findFirst({
-      where: {
-        id,
-      },
-      with: {
-        userPasswordTable: {
-          columns: {
-            password: true,
-          },
-        },
-      },
-    });
+    const userAndPassword = await this.conn
+      .select({
+        id: userTable.id,
+        firstName: userTable.firstName,
+        lastName: userTable.lastName,
+        phone: userTable.phone,
+        email: userTable.email,
+        createdAt: userTable.createdAt,
+        password: userPasswordTable.password,
+      })
+      .from(userTable)
+      .leftJoin(userPasswordTable, eq(userPasswordTable.userId, userTable.id))
+      .where(eq(userTable.id, id))
+      .limit(1);
 
-    return userAndPassword;
+    return userAndPassword[0] || null;
   }
 
   async existsUser(phone: string, email?: string) {
