@@ -1,5 +1,6 @@
 import { z } from "@hono/zod-openapi";
 import { DISCOUNT_STATES } from "@/domain/entities/discount";
+import { LoyaltyTransactionSchema } from "@/domain/entities/loyalty";
 
 export const CreateRewardDto = z
   .object({
@@ -20,6 +21,7 @@ export const CreateRewardDto = z
 
 export const RedeemRewardSchema = z
   .object({
+    userId: z.string().uuid(),
     rewardId: z.string().uuid(),
     branchId: z.string().uuid(),
   })
@@ -51,16 +53,32 @@ export const UpdateRewardDto = z
   })
   .openapi("UpdateReward");
 
-export const LoyaltyCardDetailsDto = z.object({
-  currentBalance: z.number(),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  phone: z.string().min(10),
-  lastRedemptions: z.array(
-    z.object({
-      name: z.string(),
-      branch: z.string(),
-      date: z.string(),
-    }),
-  ),
-});
+export const AddVisitDto = z
+  .object({
+    userId: z.string().uuid(),
+    amount: z.coerce.number().min(1).default(1),
+  })
+  .openapi("AddVisit");
+
+export const AddVisitResultSchema = z
+  .object({
+    transaction: LoyaltyTransactionSchema,
+    newBalance: z.coerce.bigint(),
+  })
+  .openapi("AddVisitResult");
+
+export const LoyaltyCardDetailsDto = z
+  .object({
+    currentBalance: z.number(),
+    firstName: z.string().min(1),
+    lastName: z.string().min(1),
+    phone: z.string().min(10),
+    lastRedemptions: z.array(
+      z.object({
+        name: z.string(),
+        branch: z.string(),
+        date: z.string(),
+      }),
+    ),
+  })
+  .openapi("LoyaltyCardDetailsDto");

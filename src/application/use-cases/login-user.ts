@@ -60,7 +60,7 @@ async function passwordMethod(
 ) {
   const userWithPassword = await userRepo.findByIdWithPassword(user.id);
 
-  const passwordHash = userWithPassword?.userPasswordTable?.password;
+  const passwordHash = userWithPassword?.password;
 
   if (!passwordHash) {
     throw new InvalidCredentialsError();
@@ -108,7 +108,7 @@ export async function loginUserUseCase(
 
     const token = encrypt(encryptKey, {
       userId: user.id,
-      role: actor?.rolesTable?.name || null,
+      role: actor?.roleName ?? null,
     });
 
     return Ok({
@@ -116,7 +116,7 @@ export async function loginUserUseCase(
       token,
       actor: {
         ...user,
-        role: actor?.rolesTable?.name || null,
+        role: actor?.roleName ?? null,
       },
     });
   } catch (error) {
