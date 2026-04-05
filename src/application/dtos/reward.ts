@@ -67,18 +67,18 @@ export const AddVisitResultSchema = z
   })
   .openapi("AddVisitResult");
 
-export const LoyaltyCardDetailsDto = z.object({
-  currentBalance: z.number(),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  phone: z.string().min(10),
-  lastRedemptions: z.array(
-    z.object({
-      name: z.string(),
-      branch: z.string(),
-      date: z.string(),
-    }),
-  ),
-})
-.openapi("LoyaltyCardDetailsDto")
-;
+export const LoyaltyCardDetailsDto = z
+  .object({
+    currentBalance: z.number(),
+    firstName: z.string().min(1),
+    lastName: z.string().min(1),
+    phone: z.string().min(10),
+    lastRedemptions: z.array(
+      z.object({
+        name: z.string(),
+        branch: z.string(),
+        date: z.string(),
+      }),
+    ),
+  })
+  .openapi("LoyaltyCardDetailsDto");
