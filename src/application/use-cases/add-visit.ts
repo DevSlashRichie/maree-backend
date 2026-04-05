@@ -6,7 +6,7 @@ import { RewardsRepo } from "@/domain/repositories/rewards-repo";
 import { UserRepo } from "@/domain/repositories/user-repo";
 import { DB } from "@/infrastructure/db/postgres";
 
-export abstract class AddVisitError extends ApplicationError { }
+export abstract class AddVisitError extends ApplicationError {}
 
 export class UserNotFoundError extends AddVisitError {
   readonly code = "USER_NOT_FOUND";

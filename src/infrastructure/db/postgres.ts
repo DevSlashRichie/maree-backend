@@ -3,9 +3,9 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { reset, seed } from "drizzle-seed";
 import { Option } from "oxide.ts";
 import { z } from "zod";
+import { logger } from "@/lib/logger";
 import { relations } from "./relations";
 import * as schema from "./schema";
-import { logger } from "@/lib/logger";
 
 export const envDatabaseSchema = z.object({
   DB_HOST: z.string().min(1),
@@ -43,7 +43,7 @@ export type TxExecutor = Parameters<typeof DB.transaction>[0] extends (
 
 export type Executor = DbExecutor | TxExecutor;
 
-export async function runMigrationsIfRequired() { }
+export async function runMigrationsIfRequired() {}
 
 export async function seedIfRequired() {
   if (process.env.SEED === "true") {

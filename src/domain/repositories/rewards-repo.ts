@@ -7,7 +7,7 @@ import {
 } from "@/infrastructure/db/schema";
 
 export class RewardsRepo {
-  constructor(private readonly conn: Executor) { }
+  constructor(private readonly conn: Executor) {}
 
   async saveReward(data: {
     name: string;
