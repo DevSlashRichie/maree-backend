@@ -31,8 +31,8 @@ import {
   RewardSchema,
   UpdateRewardParamsSchema,
 } from "@/domain/entities/reward";
+import { authzMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
-import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 
 export const rewardRouter = createRouter();
 
