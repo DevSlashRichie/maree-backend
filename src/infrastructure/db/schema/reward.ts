@@ -10,7 +10,7 @@ export const rewardsTable = pgTable("reward", {
     .$defaultFn(() => uuidv7()),
   name: text().notNull(),
   description: text().notNull(),
-  status: text().notNull(),
+  status: text().notNull().$type<"active" | "inactive">(),
   cost: bigint({ mode: "bigint" }).notNull(),
   discountId: uuid("discount_id")
     .notNull()

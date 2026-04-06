@@ -19,7 +19,7 @@ export const discountsTable = pgTable("discount", {
   type: text().notNull(),
   value: bigint({ mode: "bigint" }).notNull(),
   appliesTo: text("applies_to").notNull().array(),
-  state: text().notNull(),
+  state: text().notNull().$type<"active" | "inactive">(),
   startDate: timestamp("started_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

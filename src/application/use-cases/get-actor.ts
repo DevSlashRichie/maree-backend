@@ -18,6 +18,6 @@ export async function getActorUseCase(userId: string): Promise<ActorType> {
     lastName: userWithActor.lastName,
     firstName: userWithActor.firstName,
     createdAt: userWithActor.createdAt,
-    role: userWithActor.rolesTable?.name,
+    role: userWithActor.roleName ?? null,
   } as ActorType;
 }

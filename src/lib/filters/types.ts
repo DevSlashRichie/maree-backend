@@ -67,7 +67,7 @@ export const NumberFilterSchema = z
 
 export const UuidFilterSchema = z
   .object({
-    eq: z.uuidv7(),
+    eq: z.uuid(),
   })
   .or(
     z.object({

@@ -1,7 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
 import {
-  loyaltyCardsTable,
   loyaltyTransactionsTable,
   rewardRedemptionsTable,
   rewardsTable,
@@ -13,7 +12,7 @@ export class RewardsRepo {
   async saveReward(data: {
     name: string;
     description: string;
-    status: string;
+    status: "active" | "inactive";
     cost: bigint;
     discountId: string;
     image?: string;
@@ -32,7 +31,7 @@ export class RewardsRepo {
     return result[0];
   }
 
-  async findAllRewards(status?: "enabled" | "disabled") {
+  async findAllRewards(status?: "active" | "inactive") {
     const rewards = await this.conn.query.rewardsTable.findMany({
       where: status ? { status } : undefined,
       with: {
@@ -59,15 +58,6 @@ export class RewardsRepo {
     return reedemptions;
   }
 
-  async findLoyaltyCardByUserId(userId: string) {
-    const card = await this.conn.query.loyaltyCardsTable.findFirst({
-      where: {
-        userId,
-      },
-    });
-    return card;
-  }
-
   async findRewardById(rewardId: string) {
     const reward = await this.conn.query.rewardsTable.findFirst({
       where: { id: rewardId },
@@ -89,7 +79,7 @@ export class RewardsRepo {
     data: {
       name?: string;
       description?: string;
-      status?: string;
+      status?: "active" | "inactive";
       cost?: bigint;
       image?: string;
     },
@@ -112,6 +102,13 @@ export class RewardsRepo {
     return reward;
   }
 
+  async hasUserRedeemedReward(rewardId: string, userId: string) {
+    const redemption = await this.conn.query.rewardRedemptionsTable.findFirst({
+      where: { rewardId, userId },
+    });
+    return !!redemption;
+  }
+
   async createRedemption(rewardId: string, userId: string, branchId: string) {
     const result = await this.conn
       .insert(rewardRedemptionsTable)
@@ -125,7 +122,7 @@ export class RewardsRepo {
   }
 
   async createLoyaltyTransaction(
-    loyaltyCardId: string,
+    userId: string,
     value: bigint,
     transactionType: "earned" | "redeemed",
     orderId?: string,
@@ -133,7 +130,7 @@ export class RewardsRepo {
     const result = await this.conn
       .insert(loyaltyTransactionsTable)
       .values({
-        loyaltyCardId,
+        userId,
         value,
         transactionType,
         orderId,
@@ -142,12 +139,23 @@ export class RewardsRepo {
     return result[0];
   }
 
-  async updateLoyaltyBalance(loyaltyCardId: string, newBalance: bigint) {
-    await this.conn
-      .update(loyaltyCardsTable)
-      .set({ currentBalance: newBalance })
-      // @ts-expect-error - drizzle beta version typing issue
-      .where({ id: loyaltyCardId })
-      .execute();
+  async calculateLoyaltyBalance(userId: string): Promise<bigint> {
+    const balanceQuery = await this.conn
+      .select({
+        totalVisits: sql<string>`
+          SUM(
+            CASE 
+              WHEN ${loyaltyTransactionsTable.transactionType} = 'earned' THEN ${loyaltyTransactionsTable.value}
+              WHEN ${loyaltyTransactionsTable.transactionType} = 'redeemed' THEN -${loyaltyTransactionsTable.value}
+              ELSE 0
+            END
+          )
+        `,
+      })
+      .from(loyaltyTransactionsTable)
+      .where(eq(loyaltyTransactionsTable.userId, userId))
+      .groupBy(loyaltyTransactionsTable.userId);
+
+    return BigInt(balanceQuery[0]?.totalVisits ?? "0");
   }
 }
