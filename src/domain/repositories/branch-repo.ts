@@ -49,10 +49,10 @@ export class BranchRepo {
       .insert(branchsTable)
       .values(data)
       .returning();
-      if (!branch) {
-        throw CreateBranchError;
-      }
-      return branch;
+    if (!branch) {
+      throw CreateBranchError;
+    }
+    return branch;
   }
 
   async saveSchedules(schedules: SaveScheduleType[]) {
