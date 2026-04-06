@@ -1,9 +1,15 @@
 import type { InferInsertModel } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
-import { branchsTable } from "@/infrastructure/db/schema";
+import { branchsTable, schedulesTable } from "@/infrastructure/db/schema";
+import { CreateBranchError } from "../entities/branch";
 
 type SaveBranchType = Omit<
   InferInsertModel<typeof branchsTable>,
+  "id" | "createdAt"
+>;
+
+type SaveScheduleType = Omit<
+  InferInsertModel<typeof schedulesTable>,
   "id" | "createdAt"
 >;
 
@@ -12,27 +18,30 @@ export class BranchRepo {
 
   async existsBranch(name: string) {
     const branch = await this.conn.query.branchsTable.findFirst({
-      where: {
-        name,
-      },
+      where: { name },
     });
 
     return !!branch;
   }
 
   async findAll() {
-    const branches = await this.conn.query.branchsTable.findMany();
-    return branches;
+    return this.conn.query.branchsTable.findMany({
+      with: { schedulesTable: true },
+    });
   }
 
   async findByName(name: string) {
-    const branch = await this.conn.query.branchsTable.findFirst({
-      where: {
-        name,
-      },
+    return this.conn.query.branchsTable.findFirst({
+      where: { name },
+      with: { schedulesTable: true },
     });
+  }
 
-    return branch;
+  async findById(id: string) {
+    return this.conn.query.branchsTable.findFirst({
+      where: { id },
+      with: { schedulesTable: true },
+    });
   }
 
   async saveBranch(data: SaveBranchType) {
@@ -40,8 +49,15 @@ export class BranchRepo {
       .insert(branchsTable)
       .values(data)
       .returning();
+    if (!branch) {
+      throw CreateBranchError;
+    }
+    return branch;
+  }
 
-    // biome-ignore lint/style/noNonNullAssertion: since we're creating a new user, it should always exist
-    return branch!;
+  async saveSchedules(schedules: SaveScheduleType[]) {
+    if (schedules.length === 0) return [];
+
+    return this.conn.insert(schedulesTable).values(schedules).returning();
   }
 }
