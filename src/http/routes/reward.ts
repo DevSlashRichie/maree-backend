@@ -32,6 +32,7 @@ import {
   UpdateRewardParamsSchema,
 } from "@/domain/entities/reward";
 import { createRouter } from "../utils";
+import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 
 export const rewardRouter = createRouter();
 
@@ -117,6 +118,7 @@ rewardRouter.openapi(
     method: "get",
     path: "/history",
     security: [{ Bearer: [] }],
+    middleware: authzMiddleware(true),
     responses: {
       200: {
         description: "list user's redemption history",
@@ -131,6 +133,48 @@ rewardRouter.openapi(
   async (ctx) => {
     const actor = ctx.get("actor");
     const history = await getRedemptionHistoryUseCase(actor.userId);
+
+    return ctx.json(history, 200);
+  },
+);
+
+rewardRouter.openapi(
+  createRoute({
+    tags: ["Reward"],
+    method: "get",
+    path: "/user/{userId}/history",
+    security: [{ Bearer: [] }],
+    middleware: [
+      authzMiddleware(true),
+      //checkPolicyMiddleware(["rewards:read"]),
+    ],
+    request: {
+      params: z.object({
+        userId: z.string().uuid(),
+      }),
+    },
+    responses: {
+      200: {
+        description: "list a specific user's redemption history (admin)",
+        content: {
+          "application/json": {
+            schema: z.array(RedemptionHistoryItemSchema),
+          },
+        },
+      },
+      400: {
+        description: "invalid user id",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const { userId } = ctx.req.valid("param");
+    const history = await getRedemptionHistoryUseCase(userId);
 
     return ctx.json(history, 200);
   },
