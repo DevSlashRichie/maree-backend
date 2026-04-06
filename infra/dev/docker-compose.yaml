@@ -1,16 +1,18 @@
 services:
   db:
-    image: postgres:18
+    image: postgres:16
     restart: always
     volumes:
-      - ./data:/var/lib/postgresql
+      - pgdata:/var/lib/postgresql/data
     ports:
       - 5433:5432
     environment:
       POSTGRES_PASSWORD: password
-
   adminer:
     image: adminer
     restart: always
     ports:
       - 8081:8080
+
+volumes:
+  pgdata:

@@ -13,6 +13,10 @@ import { DB } from "@/infrastructure/db/postgres";
 export async function getLoyaltyCardUseCase(
   userId: string,
 ): Promise<Result<z.infer<typeof LoyaltyCardDetailsDto>, GetLoyaltyCardError>> {
+  if (!userId || userId.trim() === "") {
+    return Err(new LoyaltyCardNotFound(userId));
+  }
+
   try {
     const loyaltyRepo = new LoyaltyRepo(DB);
     const userRepo = new UserRepo(DB);
@@ -21,8 +25,6 @@ export async function getLoyaltyCardUseCase(
       userRepo.findById(userId),
       loyaltyRepo.findLastRedemptions(userId, 3),
     ]);
-
-    console.log("user", user);
 
     if (!user) {
       return Err(new LoyaltyCardNotFound(userId));
@@ -40,7 +42,6 @@ export async function getLoyaltyCardUseCase(
       })),
     });
   } catch (error) {
-    console.error(error);
-    return Err(new UnknownLoyaltyCardError());
+    return Err(new UnknownLoyaltyCardError(error));
   }
 }
