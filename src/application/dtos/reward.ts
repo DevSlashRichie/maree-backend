@@ -53,7 +53,6 @@ export const UpdateRewardDto = z
   })
   .openapi("UpdateReward");
 
-
 export const AddVisitDto = z
   .object({
     userId: z.string().uuid(),
