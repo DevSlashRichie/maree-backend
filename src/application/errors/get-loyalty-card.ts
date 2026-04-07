@@ -13,8 +13,10 @@ export class LoyaltyCardNotFound extends GetLoyaltyCardError {
 
 export class UnknownLoyaltyCardError extends GetLoyaltyCardError {
   readonly code = "UNKNOWN_ERROR";
-  constructor() {
-    super("An unexpected error occurred while fetching the loyalty card");
+  constructor(cause?: unknown) {
+    super("An unexpected error occurred while fetching the loyalty card", {
+      cause,
+    });
     this.name = "UnknownLoyaltyCardError";
   }
 }
