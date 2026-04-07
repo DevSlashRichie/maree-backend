@@ -4,6 +4,7 @@ import "dotenv/config";
 import { logger } from "@/lib/logger";
 import { StateEnvSchema } from "./http/state";
 import {
+  ensureSystemSetup,
   envDatabaseSchema,
   seedIfRequired,
 } from "./infrastructure/db/postgres";
@@ -68,6 +69,7 @@ async function main() {
   }
 
   await seedIfRequired();
+  await ensureSystemSetup();
   createHttpServer(parsedHttpConf.data, parsedStateConf.data);
 
   logger.info("Server ready on port: %s", parsedHttpConf.data.PORT);

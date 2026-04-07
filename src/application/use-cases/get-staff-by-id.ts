@@ -14,7 +14,7 @@ export async function getStaffByIdUseCase(
     return null;
   }
 
-  const role = staff.rolesTable?.name ?? null;
+  const role = staff.roleName ?? null;
 
   return {
     id: staff.id,

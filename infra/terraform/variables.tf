@@ -1,7 +1,7 @@
 variable "location" {
   description = "Azure location for resources"
   type        = string
-  default     = "mexico"
+  default     = "centralus"
 }
 
 variable "environment" {
