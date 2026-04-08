@@ -1,6 +1,6 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import type z from "zod";
-import type { CreateBranchDto } from "@/domain/dtos/create-branch";
+import type { CreateBranchDto } from "@/application/dtos/create-branch";
 import {
   AlreadyExistsBranch,
   type BranchType,

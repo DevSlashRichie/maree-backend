@@ -9,6 +9,7 @@ import { DiscountSchema } from "./discount";
 
 export const RewardSchema = createSelectSchema(rewardsTable)
   .extend({
+    status: z.enum(["active", "inactive"]),
     discount: DiscountSchema,
   })
   .openapi("RewardSchema");
@@ -28,7 +29,7 @@ export type UpdateRewardParams = z.infer<typeof UpdateRewardParamsSchema>;
 export interface UpdateRewardData {
   name?: string;
   description?: string;
-  status?: string;
+  status?: "active" | "inactive";
   cost?: bigint;
   image?: string;
 }
@@ -42,7 +43,7 @@ export abstract class RewardDomainError extends Error {
 export interface CreateRewardParams {
   name: string;
   description: string;
-  status: string;
+  status: "active" | "inactive";
   cost: bigint;
   discountId: string;
   image?: string;
@@ -51,7 +52,7 @@ export interface CreateRewardParams {
 export function createReward(params: CreateRewardParams) {
   const parsedName = z.string().min(1).parse(params.name);
   const parsedDescription = z.string().min(1).parse(params.description);
-  const parsedStatus = z.string().min(1).parse(params.status);
+  const parsedStatus = z.enum(["active", "inactive"]).parse(params.status);
   const parsedCost = createRewardCost(params.cost);
   const parsedDiscountId = z.string().uuid().parse(params.discountId);
   const parsedImage = params.image

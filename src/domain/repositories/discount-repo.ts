@@ -9,7 +9,7 @@ export class DiscountRepo {
     type: string;
     value: bigint;
     appliesTo: string[];
-    state: string;
+    state: "active" | "inactive";
     startDate: Date;
     endDate: Date;
     code?: string;

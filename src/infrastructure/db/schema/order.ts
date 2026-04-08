@@ -51,3 +51,13 @@ export const orderItemsTable = pgTable("order_items", {
     .notNull()
     .defaultNow(),
 });
+
+export const orderItemsModifiersTable = pgTable("order_items_modifiers", {
+  id: uuid()
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  orderItemId: uuid("order_item_id")
+    .notNull()
+    .references(() => orderItemsTable.id),
+  quantityDelta: integer().notNull(),
+});

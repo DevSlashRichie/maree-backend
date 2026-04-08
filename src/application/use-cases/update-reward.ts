@@ -21,7 +21,7 @@ export async function updateRewardUseCase(
   data: {
     name?: string;
     description?: string;
-    status?: string;
+    status?: "active" | "inactive";
     cost?: bigint;
     image?: string;
   },
