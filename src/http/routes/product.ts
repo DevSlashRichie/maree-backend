@@ -4,7 +4,14 @@ import { CreateProductDto } from "@/application//dtos/create-product.ts";
 import { ProductListSchema } from "@/application/dtos/product";
 import { ProductAlreadyExists } from "@/application/errors/create-product";
 import { createProductUseCase } from "@/application/use-cases/create-product.ts";
+import { getCategoriesUseCase } from "@/application/use-cases/get-categories";
+import { getProductVariantsUseCase } from "@/application/use-cases/get-product-variants";
 import { getProductsUseCase } from "@/application/use-cases/get-products";
+import {
+  ProductVariantFiltersSchema,
+  ProductVariantListSchema,
+} from "@/application/dtos/product-variant";
+import { CategoryListSchema } from "@/domain/entities/category";
 import { ErrorSchema } from "@/domain/entities/error";
 import { ProductFiltersSchema, ProductSchema } from "@/domain/entities/product";
 import { logger } from "@/lib/logger";
@@ -68,6 +75,88 @@ productRouter.openapi(
     const products = await getProductsUseCase(hasFilters ? filters : undefined);
 
     return ctx.json({ products }, 200);
+  },
+);
+
+productRouter.openapi(
+  createRoute({
+    tags: ["Products"],
+    method: "get",
+    path: "/categories",
+    responses: {
+      200: {
+        description: "category list",
+        content: {
+          "application/json": {
+            schema: CategoryListSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const categories = await getCategoriesUseCase();
+
+    return ctx.json({ categories }, 200);
+  },
+);
+
+productRouter.openapi(
+  createRoute({
+    tags: ["Products"],
+    method: "get",
+    path: "/variants",
+    request: {
+      query: ProductVariantFiltersSchema,
+    },
+    responses: {
+      200: {
+        description: "product variant list",
+        content: {
+          "application/json": {
+            schema: ProductVariantListSchema,
+          },
+        },
+      },
+      400: {
+        description: "invalid filter",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const queryString = ctx.req.query();
+    const parsedQuery = qs.parse(queryString);
+
+    const filterValidation =
+      await ProductVariantFiltersSchema.safeParseAsync(parsedQuery);
+
+    if (!filterValidation.success) {
+      const invalidFields = filterValidation.error.issues.map((e) =>
+        e.path.join("."),
+      );
+
+      return ctx.json(
+        {
+          code: "invalid_filter",
+          message: `Invalid filter fields: ${invalidFields.join(", ")}`,
+        },
+        400,
+      );
+    }
+
+    const filters = filterValidation.data;
+    const hasFilters = Object.keys(filters).length > 0;
+
+    const variants = await getProductVariantsUseCase(
+      hasFilters ? filters : undefined,
+    );
+
+    return ctx.json({ variants }, 200);
   },
 );
 

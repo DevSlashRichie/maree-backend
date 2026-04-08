@@ -43,7 +43,7 @@ export type TxExecutor = Parameters<typeof DB.transaction>[0] extends (
 
 export type Executor = DbExecutor | TxExecutor;
 
-export async function runMigrationsIfRequired() {}
+export async function runMigrationsIfRequired() { }
 
 export async function seedIfRequired() {
   if (process.env.SEED === "true") {
@@ -198,16 +198,30 @@ export async function seedIfRequired() {
           status: funcs.valuesFromArray({
             values: ["active", "inactive"],
           }),
+          type: funcs.valuesFromArray({
+            values: ["complete", "component"],
+          }),
         },
       },
       productVariantsTable: {
         count: 35,
         columns: {
-          name: funcs.valuesFromArray({
-            values: ["Small", "Medium", "Large"],
-          }),
           price: funcs.int({ minValue: 5000, maxValue: 20000 }),
-          image: funcs.string({}),
+          image: funcs.valuesFromArray({
+            values: [
+              "https://placehold.co/400x300?text=Burger",
+              "https://placehold.co/400x300?text=Latte",
+              "https://placehold.co/400x300?text=Coffee",
+              "https://placehold.co/400x300?text=Capuchino",
+              "https://placehold.co/400x300?text=Crepa Dulce",
+              "https://placehold.co/400x300?text=Crepa con Platano",
+              "https://placehold.co/400x300?text=Combucha",
+              "https://placehold.co/400x300?text=Te Chai",
+            ],
+          }),
+          description: funcs.loremIpsum({
+            sentencesCount: 3,
+          }),
         },
       },
       discountsTable: {

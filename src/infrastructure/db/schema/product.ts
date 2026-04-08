@@ -32,7 +32,7 @@ export const productTable = pgTable("product", {
   categoryId: uuid("category_id")
     .notNull()
     .references(() => categoryTable.id),
-  type: text().notNull(),
+  type: text().notNull().$type<"complete" | "component">(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -43,6 +43,7 @@ export const productVariantsTable = pgTable("product_variant", {
     .primaryKey()
     .$defaultFn(() => uuidv7()),
   name: text().notNull(),
+  description: text(),
   price: bigint({ mode: "bigint" }).notNull(),
   image: text(),
   productId: uuid("product_id")

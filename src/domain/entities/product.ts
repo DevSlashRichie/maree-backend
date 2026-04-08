@@ -14,7 +14,9 @@ import {
 
 export type Product = InferSelectModel<typeof productTable>;
 
-export const ProductSchema = createSelectSchema(productTable);
+export const ProductSchema = createSelectSchema(productTable).extend({
+  type: z.enum(["complete", "component"]),
+});
 export type ProductType = z.infer<typeof ProductSchema>;
 
 export const ProductFiltersSchema = z.object({

@@ -1,8 +1,11 @@
-import type { InferInsertModel } from "drizzle-orm";
-import { and } from "drizzle-orm";
+import { and, eq, type InferInsertModel } from "drizzle-orm";
+import type {
+  ProductVariantFilters,
+  ProductVariantWithProduct,
+} from "@/application/dtos/product-variant";
 import type { Product, ProductFilters } from "@/domain/entities/product";
 import type { Executor } from "@/infrastructure/db/postgres";
-import { productTable } from "@/infrastructure/db/schema";
+import { productTable, productVariantsTable } from "@/infrastructure/db/schema";
 import { buildFilters } from "@/lib/filters";
 
 type SaveProductType = Omit<
@@ -56,5 +59,34 @@ export class ProductRepo {
       },
     });
     return !!product;
+  }
+
+  async findAllVariants(
+    filters?: ProductVariantFilters,
+  ): Promise<ProductVariantWithProduct[]> {
+    const whereConditions = filters
+      ? buildFilters(filters as Record<string, unknown>, productVariantsTable)
+      : [];
+
+    const whereClause =
+      whereConditions.length > 0 ? and(...whereConditions) : undefined;
+
+    const variants = await this.conn
+      .select({
+        variant: productVariantsTable,
+        product: productTable,
+      })
+      .from(productVariantsTable)
+      .leftJoin(
+        productTable,
+        eq(productVariantsTable.productId, productTable.id),
+      )
+      .where(whereClause);
+
+    return variants.map(({ variant, product }) => ({
+      ...variant,
+      // biome-ignore lint/style/noNonNullAssertion: a variant must always belong to a product
+      product: product!,
+    }));
   }
 }
