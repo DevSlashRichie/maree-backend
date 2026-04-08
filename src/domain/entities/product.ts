@@ -5,7 +5,10 @@ import {
   createProductStatus,
   InvalidProductStatusError,
 } from "@/domain/value-objects/product-status";
-import { productTable } from "@/infrastructure/db/schema/product";
+import {
+  productTable,
+  productVariantsTable,
+} from "@/infrastructure/db/schema/product";
 import {
   DateFilterSchema,
   StringFilterSchema,
@@ -16,6 +19,8 @@ export type Product = InferSelectModel<typeof productTable>;
 
 export const ProductSchema = createSelectSchema(productTable);
 export type ProductType = z.infer<typeof ProductSchema>;
+export const ProductVariantSchema = createSelectSchema(productVariantsTable);
+export type ProductVariantType = z.infer<typeof ProductVariantSchema>;
 
 export const ProductFiltersSchema = z.object({
   id: UuidFilterSchema.optional(),

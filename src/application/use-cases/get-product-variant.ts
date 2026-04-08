@@ -1,0 +1,61 @@
+import type { ProductVariantWithComponents } from "@/application/dtos/get-product-variant";
+import {
+  GetProductVariantError,
+  ProductVariantNotFound,
+} from "@/application/errors/get-product-variant";
+import { UnknownError } from "@/application/error";
+import { ProductRepo } from "@/domain/repositories/product-repo";
+import { DB } from "@/infrastructure/db/postgres";
+import { Err, Ok, type Result } from "oxide.ts";
+
+export async function getProductVariantUseCase(
+  variantId: string,
+): Promise<Result<ProductVariantWithComponents, GetProductVariantError>> {
+  return DB.transaction(async (txn) => {
+    try {
+      const productRepo = new ProductRepo(txn);
+      console.log("repo created");
+
+      console.log("starting query");
+      const result =
+        await productRepo.findProductVariantWithComponents(variantId);
+
+      if (!result) {
+        throw new ProductVariantNotFound();
+      }
+
+      const { variant, product, components } = result;
+
+      const variantWithComponents: ProductVariantWithComponents = {
+        id: variant.id,
+        name: variant.name,
+        image: variant.image,
+        price: variant.price,
+        productId: product.id,
+        categoryId: product.categoryId,
+        status: product.status,
+        type: product.type,
+        createdAt: variant.createdAt,
+        components: components.map((c) => ({
+          id: c.id,
+          productId: c.productId,
+          productName: c.productName || "",
+          quantity: c.quantity,
+          isRemovable: c.isRemovable,
+        })),
+      };
+
+      return Ok(variantWithComponents);
+    } catch (error) {
+      if (error instanceof GetProductVariantError) {
+        return Err(error);
+      }
+
+      return Err(
+        new UnknownError(
+          error instanceof Error ? error.message : "unknown error",
+        ),
+      );
+    }
+  });
+}
