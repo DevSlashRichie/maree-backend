@@ -28,6 +28,20 @@ CREATE TABLE "discount" (
 	"state" text NOT NULL,
 	"started_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"ended_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"code" text,
+	"max_uses" integer,
+	"current_uses" integer DEFAULT 0 NOT NULL,
+	"is_active" text DEFAULT 'true',
+	"hidden" boolean DEFAULT false NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "loyalty_transaction" (
+	"id" uuid PRIMARY KEY,
+	"user_id" uuid NOT NULL,
+	"order_id" uuid,
+	"value" bigint NOT NULL,
+	"transaction_type" text NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -63,6 +77,13 @@ CREATE TABLE "notification_table" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "order_items_modifiers" (
+	"id" uuid PRIMARY KEY,
+	"order_item_id" uuid NOT NULL,
+	"variant_id" uuid NOT NULL,
+	"quantity_delta" integer NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "order_items" (
 	"id" uuid PRIMARY KEY,
 	"order_id" uuid NOT NULL,
@@ -91,12 +112,21 @@ CREATE TABLE "policy" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "product_component" (
+	"id" uuid PRIMARY KEY,
+	"product_variant_id" uuid NOT NULL,
+	"product_id" uuid NOT NULL,
+	"quantity" integer NOT NULL,
+	"is_removable" boolean DEFAULT false NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "product" (
 	"id" uuid PRIMARY KEY,
 	"image" text,
 	"name" text NOT NULL,
 	"status" text NOT NULL,
 	"category_id" uuid NOT NULL,
+	"type" text NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -105,8 +135,8 @@ CREATE TABLE "product_variant" (
 	"name" text NOT NULL,
 	"price" bigint NOT NULL,
 	"image" text,
-	"branch_id" uuid NOT NULL,
-	"product_id" uuid NOT NULL
+	"product_id" uuid NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "review" (
@@ -117,6 +147,26 @@ CREATE TABLE "review" (
 	"satisfaction_rate" integer NOT NULL,
 	"notes" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "reward_redemption" (
+	"id" uuid PRIMARY KEY,
+	"reward_id" uuid NOT NULL,
+	"user_id" uuid NOT NULL,
+	"branch_id" uuid NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "reward" (
+	"id" uuid PRIMARY KEY,
+	"name" text NOT NULL,
+	"description" text NOT NULL,
+	"status" text NOT NULL,
+	"cost" bigint NOT NULL,
+	"discount_id" uuid NOT NULL,
+	"image" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone
 );
 --> statement-breakpoint
 CREATE TABLE "role_policy" (
@@ -173,21 +223,30 @@ CREATE TABLE "user" (
 ALTER TABLE "category" ADD CONSTRAINT "category_parent_id_category_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "category"("id");--> statement-breakpoint
 ALTER TABLE "discount_branch" ADD CONSTRAINT "discount_branch_discount_id_discount_id_fkey" FOREIGN KEY ("discount_id") REFERENCES "discount"("id");--> statement-breakpoint
 ALTER TABLE "discount_branch" ADD CONSTRAINT "discount_branch_branch_id_branch_id_fkey" FOREIGN KEY ("branch_id") REFERENCES "branch"("id");--> statement-breakpoint
+ALTER TABLE "loyalty_transaction" ADD CONSTRAINT "loyalty_transaction_user_id_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id");--> statement-breakpoint
+ALTER TABLE "loyalty_transaction" ADD CONSTRAINT "loyalty_transaction_order_id_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "order"("id");--> statement-breakpoint
 ALTER TABLE "notification" ADD CONSTRAINT "notification_template_id_notification_template_id_fkey" FOREIGN KEY ("template_id") REFERENCES "notification_template"("id");--> statement-breakpoint
 ALTER TABLE "notification" ADD CONSTRAINT "notification_user_id_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id");--> statement-breakpoint
 ALTER TABLE "notification_template_trigger" ADD CONSTRAINT "notification_template_trigger_M4GZylIozoWL_fkey" FOREIGN KEY ("template_id") REFERENCES "notification_template"("id");--> statement-breakpoint
 ALTER TABLE "notification_template_trigger" ADD CONSTRAINT "notification_template_trigger_JwNEylBOHjtJ_fkey" FOREIGN KEY ("trigger_id") REFERENCES "notification_table"("id");--> statement-breakpoint
+ALTER TABLE "order_items_modifiers" ADD CONSTRAINT "order_items_modifiers_order_item_id_order_items_id_fkey" FOREIGN KEY ("order_item_id") REFERENCES "order_items"("id");--> statement-breakpoint
+ALTER TABLE "order_items_modifiers" ADD CONSTRAINT "order_items_modifiers_variant_id_product_variant_id_fkey" FOREIGN KEY ("variant_id") REFERENCES "product_variant"("id");--> statement-breakpoint
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_order_id_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "order"("id");--> statement-breakpoint
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_variant_id_product_variant_id_fkey" FOREIGN KEY ("variant_id") REFERENCES "product_variant"("id");--> statement-breakpoint
 ALTER TABLE "order" ADD CONSTRAINT "order_user_id_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id");--> statement-breakpoint
 ALTER TABLE "order" ADD CONSTRAINT "order_branch_id_branch_id_fkey" FOREIGN KEY ("branch_id") REFERENCES "branch"("id");--> statement-breakpoint
 ALTER TABLE "order" ADD CONSTRAINT "order_discount_id_discount_id_fkey" FOREIGN KEY ("discount_id") REFERENCES "discount"("id");--> statement-breakpoint
+ALTER TABLE "product_component" ADD CONSTRAINT "product_component_product_variant_id_product_variant_id_fkey" FOREIGN KEY ("product_variant_id") REFERENCES "product_variant"("id");--> statement-breakpoint
+ALTER TABLE "product_component" ADD CONSTRAINT "product_component_product_id_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "product"("id");--> statement-breakpoint
 ALTER TABLE "product" ADD CONSTRAINT "product_category_id_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "category"("id");--> statement-breakpoint
-ALTER TABLE "product_variant" ADD CONSTRAINT "product_variant_branch_id_branch_id_fkey" FOREIGN KEY ("branch_id") REFERENCES "branch"("id");--> statement-breakpoint
 ALTER TABLE "product_variant" ADD CONSTRAINT "product_variant_product_id_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "product"("id");--> statement-breakpoint
 ALTER TABLE "review" ADD CONSTRAINT "review_order_id_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "order"("id");--> statement-breakpoint
 ALTER TABLE "review" ADD CONSTRAINT "review_user_id_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id");--> statement-breakpoint
 ALTER TABLE "review" ADD CONSTRAINT "review_branch_id_branch_id_fkey" FOREIGN KEY ("branch_id") REFERENCES "branch"("id");--> statement-breakpoint
+ALTER TABLE "reward_redemption" ADD CONSTRAINT "reward_redemption_reward_id_reward_id_fkey" FOREIGN KEY ("reward_id") REFERENCES "reward"("id");--> statement-breakpoint
+ALTER TABLE "reward_redemption" ADD CONSTRAINT "reward_redemption_user_id_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id");--> statement-breakpoint
+ALTER TABLE "reward_redemption" ADD CONSTRAINT "reward_redemption_branch_id_branch_id_fkey" FOREIGN KEY ("branch_id") REFERENCES "branch"("id");--> statement-breakpoint
+ALTER TABLE "reward" ADD CONSTRAINT "reward_discount_id_discount_id_fkey" FOREIGN KEY ("discount_id") REFERENCES "discount"("id");--> statement-breakpoint
 ALTER TABLE "role_policy" ADD CONSTRAINT "role_policy_role_id_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "role"("id");--> statement-breakpoint
 ALTER TABLE "role_policy" ADD CONSTRAINT "role_policy_policy_id_policy_id_fkey" FOREIGN KEY ("policy_id") REFERENCES "policy"("id");--> statement-breakpoint
 ALTER TABLE "schedule" ADD CONSTRAINT "schedule_branch_id_branch_id_fkey" FOREIGN KEY ("branch_id") REFERENCES "branch"("id");--> statement-breakpoint

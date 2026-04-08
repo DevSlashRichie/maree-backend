@@ -1,12 +1,26 @@
-import type { InferInsertModel } from "drizzle-orm";
-import { and } from "drizzle-orm";
+import { type InferInsertModel, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Product, ProductFilters } from "@/domain/entities/product";
 import type { Executor } from "@/infrastructure/db/postgres";
-import { productTable } from "@/infrastructure/db/schema";
+import { productTable, productVariantsTable } from "@/infrastructure/db/schema";
+import {
+  categoryTable,
+  productComponentsTable,
+} from "@/infrastructure/db/schema/product";
 import { buildFilters } from "@/lib/filters";
 
 type SaveProductType = Omit<
   InferInsertModel<typeof productTable>,
+  "id" | "createdAt"
+>;
+
+type SaveProductVariantType = Omit<
+  InferInsertModel<typeof productVariantsTable>,
+  "id" | "createdAt"
+>;
+
+type SaveProductComponentsType = Omit<
+  InferInsertModel<typeof productComponentsTable>,
   "id" | "createdAt"
 >;
 
@@ -39,10 +53,54 @@ export class ProductRepo {
     return product;
   }
 
+  async isIngredientFromCategory(id: string) {
+    const res = await this.conn.execute(sql`
+      WITH RECURSIVE category_path AS (
+        SELECT id, name, parent_id
+        FROM category
+        WHERE id = ${id}
+
+        UNION ALL
+
+        SELECT c.id, c.name, c.parent_id
+        FROM category c
+               INNER JOIN category_path cp ON c.id = cp.parent_id
+      )
+      SELECT name AS "rootName"
+      FROM category_path
+      WHERE parent_id IS NULL;
+    `);
+
+    const rootName = String(res.rows[0]?.rootName ?? "")
+      .trim()
+      .toLowerCase();
+
+    return rootName === "ingredient" || rootName === "ingrediente";
+  }
+
+  async isIngredientFromType(id: string) {
+    const [res] = await this.conn
+      .select()
+      .from(productTable)
+      .where(and(eq(productTable.id, id), eq(productTable.type, "ingredient")));
+    return !!res;
+  }
+
   async saveProduct(data: SaveProductType) {
     const [product] = await this.conn
       .insert(productTable)
       .values(data)
+      .returning();
+
+    // biome-ignore lint/style/noNonNullAssertion: since we're creating a new product, it should always exist
+    return product!;
+  }
+
+  async updateProductImage(productId: string, imageUrl: string) {
+    const [product] = await this.conn
+      .update(productTable)
+      .set({ image: imageUrl })
+      .where(eq(productTable.id, productId))
       .returning();
 
     // biome-ignore lint/style/noNonNullAssertion: since we're creating a new product, it should always exist
@@ -56,5 +114,107 @@ export class ProductRepo {
       },
     });
     return !!product;
+  }
+
+  async existsProductById(id: string) {
+    const product = await this.conn.query.productTable.findFirst({
+      where: {
+        id,
+      },
+    });
+    return !!product;
+  }
+
+  async existsProductVariant(name: string) {
+    const productVariant = await this.conn.query.productVariantsTable.findFirst(
+      {
+        where: {
+          name,
+        },
+      },
+    );
+    return !!productVariant;
+  }
+
+  async saveProductVariant(data: SaveProductVariantType) {
+    const [productVariant] = await this.conn
+      .insert(productVariantsTable)
+      .values(data)
+      .returning();
+
+    // biome-ignore lint/style/noNonNullAssertion: since we're creating a new product, it should always exist
+    return productVariant!;
+  }
+
+  async saveProductComponents(data: SaveProductComponentsType[]) {
+    return this.conn.insert(productComponentsTable).values(data).returning();
+  }
+
+  async getAllCategories() {
+    return this.conn.select().from(categoryTable);
+  }
+
+  async findProductVariantWithComponents(variantId: string) {
+    const variantWithProduct = await this.conn
+      .select({
+        variantId: productVariantsTable.id,
+        variantName: productVariantsTable.name,
+        variantPrice: productVariantsTable.price,
+        variantImage: productVariantsTable.image,
+        variantCreatedAt: productVariantsTable.createdAt,
+        productId: productTable.id,
+        productCategoryId: productTable.categoryId,
+        productStatus: productTable.status,
+        productType: productTable.type,
+      })
+      .from(productVariantsTable)
+      .innerJoin(
+        productTable,
+        eq(productVariantsTable.productId, productTable.id),
+      )
+      .where(eq(productVariantsTable.id, variantId));
+
+    if (!variantWithProduct || variantWithProduct.length === 0) {
+      return null;
+    }
+
+    const result = variantWithProduct[0];
+
+    if (!result) {
+      return null;
+    }
+
+    const components = await this.conn
+      .select({
+        id: productComponentsTable.id,
+        productId: productComponentsTable.productId,
+        productName: productTable.name,
+        quantity: productComponentsTable.quantity,
+        isRemovable: productComponentsTable.isRemovable,
+      })
+      .from(productComponentsTable)
+      .leftJoin(
+        productTable,
+        eq(productComponentsTable.productId, productTable.id),
+      )
+      .where(eq(productComponentsTable.productVariantId, variantId));
+
+    return {
+      variant: {
+        id: result.variantId,
+        name: result.variantName,
+        price: result.variantPrice,
+        image: result.variantImage,
+        productId: result.productId,
+        createdAt: result.variantCreatedAt,
+      },
+      product: {
+        id: result.productId,
+        categoryId: result.productCategoryId,
+        status: result.productStatus,
+        type: result.productType,
+      },
+      components,
+    };
   }
 }

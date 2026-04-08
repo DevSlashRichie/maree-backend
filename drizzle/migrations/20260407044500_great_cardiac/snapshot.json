@@ -1,8 +1,10 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "0d863425-5ef8-4cd2-8926-4c192534dc99",
-  "prevIds": ["dddc1c3e-2561-47c6-8bd6-a13806647d34"],
+  "id": "bd2843b6-b686-4929-beab-394407253af7",
+  "prevIds": [
+    "00000000-0000-0000-0000-000000000000"
+  ],
   "ddl": [
     {
       "isRlsEnabled": false,
@@ -25,12 +27,6 @@
     {
       "isRlsEnabled": false,
       "name": "discount",
-      "entityType": "tables",
-      "schema": "public"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "loyalty_card",
       "entityType": "tables",
       "schema": "public"
     },
@@ -66,6 +62,12 @@
     },
     {
       "isRlsEnabled": false,
+      "name": "order_items_modifiers",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
       "name": "order_items",
       "entityType": "tables",
       "schema": "public"
@@ -79,6 +81,12 @@
     {
       "isRlsEnabled": false,
       "name": "policy",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "product_component",
       "entityType": "tables",
       "schema": "public"
     },
@@ -490,58 +498,6 @@
       "name": "id",
       "entityType": "columns",
       "schema": "public",
-      "table": "loyalty_card"
-    },
-    {
-      "type": "uuid",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "user_id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "loyalty_card"
-    },
-    {
-      "type": "bigint",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "0",
-      "generated": null,
-      "identity": null,
-      "name": "current_balance",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "loyalty_card"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "loyalty_card"
-    },
-    {
-      "type": "uuid",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
       "table": "loyalty_transaction"
     },
     {
@@ -552,7 +508,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "loyalty_card_id",
+      "name": "user_id",
       "entityType": "columns",
       "schema": "public",
       "table": "loyalty_transaction"
@@ -867,6 +823,58 @@
       "name": "id",
       "entityType": "columns",
       "schema": "public",
+      "table": "order_items_modifiers"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "order_item_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "order_items_modifiers"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "variant_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "order_items_modifiers"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "quantity_delta",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "order_items_modifiers"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
       "table": "order_items"
     },
     {
@@ -1114,6 +1122,71 @@
       "name": "id",
       "entityType": "columns",
       "schema": "public",
+      "table": "product_component"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "product_variant_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "product_component"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "product_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "product_component"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "quantity",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "product_component"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "is_removable",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "product_component"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
       "table": "product"
     },
     {
@@ -1164,6 +1237,19 @@
       "generated": null,
       "identity": null,
       "name": "category_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "product"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "type",
       "entityType": "columns",
       "schema": "public",
       "table": "product"
@@ -1241,20 +1327,20 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "branch_id",
+      "name": "product_id",
       "entityType": "columns",
       "schema": "public",
       "table": "product_variant"
     },
     {
-      "type": "uuid",
+      "type": "timestamp with time zone",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
-      "default": null,
+      "default": "now()",
       "generated": null,
       "identity": null,
-      "name": "product_id",
+      "name": "created_at",
       "entityType": "columns",
       "schema": "public",
       "table": "product_variant"
@@ -1885,10 +1971,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["parent_id"],
+      "columns": [
+        "parent_id"
+      ],
       "schemaTo": "public",
       "tableTo": "category",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "category_parent_id_category_id_fkey",
@@ -1898,10 +1988,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["discount_id"],
+      "columns": [
+        "discount_id"
+      ],
       "schemaTo": "public",
       "tableTo": "discount",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "discount_branch_discount_id_discount_id_fkey",
@@ -1911,10 +2005,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["branch_id"],
+      "columns": [
+        "branch_id"
+      ],
       "schemaTo": "public",
       "tableTo": "branch",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "discount_branch_branch_id_branch_id_fkey",
@@ -1924,36 +2022,31 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
-      "name": "loyalty_card_user_id_user_id_fkey",
-      "entityType": "fks",
-      "schema": "public",
-      "table": "loyalty_card"
-    },
-    {
-      "nameExplicit": false,
-      "columns": ["loyalty_card_id"],
-      "schemaTo": "public",
-      "tableTo": "loyalty_card",
-      "columnsTo": ["id"],
-      "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
-      "name": "loyalty_transaction_loyalty_card_id_loyalty_card_id_fkey",
+      "name": "loyalty_transaction_user_id_user_id_fkey",
       "entityType": "fks",
       "schema": "public",
       "table": "loyalty_transaction"
     },
     {
       "nameExplicit": false,
-      "columns": ["order_id"],
+      "columns": [
+        "order_id"
+      ],
       "schemaTo": "public",
       "tableTo": "order",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "loyalty_transaction_order_id_order_id_fkey",
@@ -1963,10 +2056,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["template_id"],
+      "columns": [
+        "template_id"
+      ],
       "schemaTo": "public",
       "tableTo": "notification_template",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "notification_template_id_notification_template_id_fkey",
@@ -1976,10 +2073,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "notification_user_id_user_id_fkey",
@@ -1989,10 +2090,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["template_id"],
+      "columns": [
+        "template_id"
+      ],
       "schemaTo": "public",
       "tableTo": "notification_template",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "notification_template_trigger_M4GZylIozoWL_fkey",
@@ -2002,10 +2107,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["trigger_id"],
+      "columns": [
+        "trigger_id"
+      ],
       "schemaTo": "public",
       "tableTo": "notification_table",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "notification_template_trigger_JwNEylBOHjtJ_fkey",
@@ -2015,10 +2124,48 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["order_id"],
+      "columns": [
+        "order_item_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "order_items",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "order_items_modifiers_order_item_id_order_items_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "order_items_modifiers"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "variant_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "product_variant",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "order_items_modifiers_variant_id_product_variant_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "order_items_modifiers"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "order_id"
+      ],
       "schemaTo": "public",
       "tableTo": "order",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "order_items_order_id_order_id_fkey",
@@ -2028,10 +2175,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["variant_id"],
+      "columns": [
+        "variant_id"
+      ],
       "schemaTo": "public",
       "tableTo": "product_variant",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "order_items_variant_id_product_variant_id_fkey",
@@ -2041,10 +2192,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "order_user_id_user_id_fkey",
@@ -2054,10 +2209,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["branch_id"],
+      "columns": [
+        "branch_id"
+      ],
       "schemaTo": "public",
       "tableTo": "branch",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "order_branch_id_branch_id_fkey",
@@ -2067,10 +2226,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["discount_id"],
+      "columns": [
+        "discount_id"
+      ],
       "schemaTo": "public",
       "tableTo": "discount",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "order_discount_id_discount_id_fkey",
@@ -2080,10 +2243,48 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["category_id"],
+      "columns": [
+        "product_variant_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "product_variant",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "product_component_product_variant_id_product_variant_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "product_component"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "product_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "product",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "product_component_product_id_product_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "product_component"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "category_id"
+      ],
       "schemaTo": "public",
       "tableTo": "category",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "product_category_id_category_id_fkey",
@@ -2093,23 +2294,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["branch_id"],
-      "schemaTo": "public",
-      "tableTo": "branch",
-      "columnsTo": ["id"],
-      "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
-      "name": "product_variant_branch_id_branch_id_fkey",
-      "entityType": "fks",
-      "schema": "public",
-      "table": "product_variant"
-    },
-    {
-      "nameExplicit": false,
-      "columns": ["product_id"],
+      "columns": [
+        "product_id"
+      ],
       "schemaTo": "public",
       "tableTo": "product",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "product_variant_product_id_product_id_fkey",
@@ -2119,10 +2311,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["order_id"],
+      "columns": [
+        "order_id"
+      ],
       "schemaTo": "public",
       "tableTo": "order",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "review_order_id_order_id_fkey",
@@ -2132,10 +2328,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "review_user_id_user_id_fkey",
@@ -2145,10 +2345,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["branch_id"],
+      "columns": [
+        "branch_id"
+      ],
       "schemaTo": "public",
       "tableTo": "branch",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "review_branch_id_branch_id_fkey",
@@ -2158,10 +2362,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["reward_id"],
+      "columns": [
+        "reward_id"
+      ],
       "schemaTo": "public",
       "tableTo": "reward",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "reward_redemption_reward_id_reward_id_fkey",
@@ -2171,10 +2379,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "reward_redemption_user_id_user_id_fkey",
@@ -2184,10 +2396,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["branch_id"],
+      "columns": [
+        "branch_id"
+      ],
       "schemaTo": "public",
       "tableTo": "branch",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "reward_redemption_branch_id_branch_id_fkey",
@@ -2197,10 +2413,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["discount_id"],
+      "columns": [
+        "discount_id"
+      ],
       "schemaTo": "public",
       "tableTo": "discount",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "reward_discount_id_discount_id_fkey",
@@ -2210,10 +2430,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["role_id"],
+      "columns": [
+        "role_id"
+      ],
       "schemaTo": "public",
       "tableTo": "role",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "role_policy_role_id_role_id_fkey",
@@ -2223,10 +2447,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["policy_id"],
+      "columns": [
+        "policy_id"
+      ],
       "schemaTo": "public",
       "tableTo": "policy",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "role_policy_policy_id_policy_id_fkey",
@@ -2236,10 +2464,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["branch_id"],
+      "columns": [
+        "branch_id"
+      ],
       "schemaTo": "public",
       "tableTo": "branch",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "schedule_branch_id_branch_id_fkey",
@@ -2249,10 +2481,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["branch_id"],
+      "columns": [
+        "branch_id"
+      ],
       "schemaTo": "public",
       "tableTo": "branch",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "staff_branch_id_branch_id_fkey",
@@ -2262,10 +2498,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "staff_user_id_user_id_fkey",
@@ -2275,10 +2515,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "user_password_user_id_user_id_fkey",
@@ -2288,10 +2532,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["role_id"],
+      "columns": [
+        "role_id"
+      ],
       "schemaTo": "public",
       "tableTo": "role",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "user_role_role_id_role_id_fkey",
@@ -2301,10 +2549,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "user_role_user_id_user_id_fkey",
@@ -2313,7 +2565,10 @@
       "table": "user_role"
     },
     {
-      "columns": ["discount_id", "branch_id"],
+      "columns": [
+        "discount_id",
+        "branch_id"
+      ],
       "nameExplicit": false,
       "name": "discount_branch_pkey",
       "entityType": "pks",
@@ -2321,7 +2576,10 @@
       "table": "discount_branch"
     },
     {
-      "columns": ["template_id", "trigger_id"],
+      "columns": [
+        "template_id",
+        "trigger_id"
+      ],
       "nameExplicit": false,
       "name": "notification_template_trigger_pkey",
       "entityType": "pks",
@@ -2329,7 +2587,10 @@
       "table": "notification_template_trigger"
     },
     {
-      "columns": ["role_id", "policy_id"],
+      "columns": [
+        "role_id",
+        "policy_id"
+      ],
       "nameExplicit": false,
       "name": "role_policy_pkey",
       "entityType": "pks",
@@ -2337,7 +2598,10 @@
       "table": "role_policy"
     },
     {
-      "columns": ["branch_id", "user_id"],
+      "columns": [
+        "branch_id",
+        "user_id"
+      ],
       "nameExplicit": false,
       "name": "staff_pkey",
       "entityType": "pks",
@@ -2345,7 +2609,10 @@
       "table": "staff"
     },
     {
-      "columns": ["role_id", "user_id"],
+      "columns": [
+        "role_id",
+        "user_id"
+      ],
       "nameExplicit": false,
       "name": "user_role_pkey",
       "entityType": "pks",
@@ -2353,7 +2620,9 @@
       "table": "user_role"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "branch_pkey",
       "schema": "public",
@@ -2361,7 +2630,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "category_pkey",
       "schema": "public",
@@ -2369,7 +2640,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "discount_pkey",
       "schema": "public",
@@ -2377,15 +2650,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
-      "nameExplicit": false,
-      "name": "loyalty_card_pkey",
-      "schema": "public",
-      "table": "loyalty_card",
-      "entityType": "pks"
-    },
-    {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "loyalty_transaction_pkey",
       "schema": "public",
@@ -2393,7 +2660,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "notification_pkey",
       "schema": "public",
@@ -2401,7 +2670,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "notification_template_pkey",
       "schema": "public",
@@ -2409,7 +2680,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "notification_table_pkey",
       "schema": "public",
@@ -2417,7 +2690,19 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "order_items_modifiers_pkey",
+      "schema": "public",
+      "table": "order_items_modifiers",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "order_items_pkey",
       "schema": "public",
@@ -2425,7 +2710,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "order_pkey",
       "schema": "public",
@@ -2433,7 +2720,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "policy_pkey",
       "schema": "public",
@@ -2441,7 +2730,19 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "product_component_pkey",
+      "schema": "public",
+      "table": "product_component",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "product_pkey",
       "schema": "public",
@@ -2449,7 +2750,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "product_variant_pkey",
       "schema": "public",
@@ -2457,7 +2760,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "review_pkey",
       "schema": "public",
@@ -2465,7 +2770,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "reward_redemption_pkey",
       "schema": "public",
@@ -2473,7 +2780,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "reward_pkey",
       "schema": "public",
@@ -2481,7 +2790,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "role_pkey",
       "schema": "public",
@@ -2489,7 +2800,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "schedule_pkey",
       "schema": "public",
@@ -2497,7 +2810,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "nameExplicit": false,
       "name": "user_password_pkey",
       "schema": "public",
@@ -2505,7 +2820,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "user_pkey",
       "schema": "public",
@@ -2514,16 +2831,9 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
-      "nullsNotDistinct": false,
-      "name": "loyalty_card_user_id_key",
-      "schema": "public",
-      "table": "loyalty_card",
-      "entityType": "uniques"
-    },
-    {
-      "nameExplicit": false,
-      "columns": ["name"],
+      "columns": [
+        "name"
+      ],
       "nullsNotDistinct": false,
       "name": "policy_name_key",
       "schema": "public",
@@ -2532,7 +2842,9 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["name"],
+      "columns": [
+        "name"
+      ],
       "nullsNotDistinct": false,
       "name": "role_name_key",
       "schema": "public",
@@ -2541,7 +2853,9 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["phone"],
+      "columns": [
+        "phone"
+      ],
       "nullsNotDistinct": false,
       "name": "user_phone_key",
       "schema": "public",
@@ -2550,7 +2864,9 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["email"],
+      "columns": [
+        "email"
+      ],
       "nullsNotDistinct": false,
       "name": "user_email_key",
       "schema": "public",
