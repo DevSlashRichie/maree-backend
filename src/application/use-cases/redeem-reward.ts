@@ -1,3 +1,4 @@
+import type { z } from "zod";
 import {
   InsufficientPointsError,
   RewardAlreadyRedeemedError,
@@ -7,7 +8,6 @@ import { UserNotFoundError } from "@/application/use-cases/add-visit";
 import { RewardsRepo } from "@/domain/repositories/rewards-repo";
 import { UserRepo } from "@/domain/repositories/user-repo";
 import { DB } from "@/infrastructure/db/postgres";
-import { z } from "zod";
 import type { ReedemRewardDto } from "../dtos/reward";
 
 export type RedeemRewardInput = {
