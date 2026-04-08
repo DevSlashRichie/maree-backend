@@ -21,14 +21,15 @@ export const LoginSchema = z
   .openapi("Login");
 
 export const LoginResultSchema = z
-  .discriminatedUnion("success", [
+  .discriminatedUnion("type", [
     z.object({
-      success: z.literal(true),
+      type: z.literal("token"),
       token: z.string(),
+      expiresAt: z.iso.datetime(),
       actor: ActorSchema,
     }),
     z.object({
-      success: z.literal(false),
+      type: z.literal("required_action"),
       required_action: z.literal("login_with_sent_code"),
     }),
   ])

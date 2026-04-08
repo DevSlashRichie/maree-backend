@@ -7,7 +7,7 @@ import {
 } from "@/infrastructure/db/schema";
 
 export class RewardsRepo {
-  constructor(private readonly conn: Executor) {}
+  constructor(private readonly conn: Executor) { }
 
   async saveReward(data: {
     name: string;
@@ -118,7 +118,9 @@ export class RewardsRepo {
         branchId,
       })
       .returning();
-    return result[0];
+
+    // biome-ignore lint/style/noNonNullAssertion: impossible to be null otherwise throws error
+    return result[0]!;
   }
 
   async createLoyaltyTransaction(

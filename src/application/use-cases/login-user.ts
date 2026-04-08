@@ -90,7 +90,7 @@ export async function loginUserUseCase(
     if (data.method.type === "phone") {
       await phoneMethod(user, user.phone, fromNumber);
       return Ok({
-        success: false,
+        type: "required_action",
         required_action: "login_with_sent_code",
       });
     } else if (data.method.type === "password") {
@@ -106,14 +106,20 @@ export async function loginUserUseCase(
     // do rbac stuff
     const actor = await userRepo.findByIdWithRole(user.id);
 
+    const exp = new Date();
+    //const oneMonth = 2.628e6;
+    exp.setTime(exp.getTime() + 1.5e6);
+
     const token = encrypt(encryptKey, {
       userId: user.id,
       role: actor?.roleName ?? null,
+      exp: exp.toISOString(),
     });
 
     return Ok({
-      success: true,
+      type: "token",
       token,
+      expiresAt: exp.toISOString(),
       actor: {
         ...user,
         role: actor?.roleName ?? null,

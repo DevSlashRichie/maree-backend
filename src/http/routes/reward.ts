@@ -4,9 +4,9 @@ import {
   AddVisitDto,
   AddVisitResultSchema,
   CreateRewardDto,
-  RedeemResultSchema,
   RedeemRewardSchema,
   RedemptionHistoryItemSchema,
+  ReedemRewardDto,
   UpdateRewardDto,
 } from "@/application/dtos/reward";
 import {
@@ -199,7 +199,7 @@ rewardRouter.openapi(
         description: "reward redeemed successfully",
         content: {
           "application/json": {
-            schema: RedeemResultSchema,
+            schema: ReedemRewardDto,
           },
         },
       },
@@ -212,7 +212,6 @@ rewardRouter.openapi(
         },
       },
     },
-    security: [{ Bearer: [] }],
   }),
   async (ctx) => {
     const body = ctx.req.valid("json");
@@ -360,7 +359,6 @@ rewardRouter.openapi(
     tags: ["Reward"],
     method: "post",
     path: "/visit",
-    security: [{ Bearer: [] }],
     request: {
       body: {
         content: {
