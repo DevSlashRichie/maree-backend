@@ -1,7 +1,7 @@
 import type { InferInsertModel } from "drizzle-orm";
+import { CreateBranchError } from "@/application/errors/create-branch";
 import type { Executor } from "@/infrastructure/db/postgres";
 import { branchsTable, schedulesTable } from "@/infrastructure/db/schema";
-import { CreateBranchError } from "../entities/branch";
 
 type SaveBranchType = Omit<
   InferInsertModel<typeof branchsTable>,
@@ -47,6 +47,7 @@ export class BranchRepo {
   async saveBranch(data: SaveBranchType & { schedules?: SaveScheduleType[] }) {
     const { schedules = [], ...branchData } = data;
 
+    // 1. Crear branch
     const [branch] = await this.conn
       .insert(branchsTable)
       .values(branchData)
@@ -56,10 +57,11 @@ export class BranchRepo {
       throw CreateBranchError;
     }
 
+    // 2. Crear schedules si existen
     if (schedules.length > 0) {
       const schedulesWithBranch = schedules.map((s) => ({
         ...s,
-        branchId: branch.id,
+        branchId: branch.id, // 🔥 clave
       }));
 
       await this.conn.insert(schedulesTable).values(schedulesWithBranch);
