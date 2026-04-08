@@ -1,12 +1,12 @@
+import { Err, Ok, type Result } from "oxide.ts";
 import type { ProductVariantWithComponents } from "@/application/dtos/get-product-variant";
+import { UnknownError } from "@/application/error";
 import {
   GetProductVariantError,
   ProductVariantNotFound,
 } from "@/application/errors/get-product-variant";
-import { UnknownError } from "@/application/error";
 import { ProductRepo } from "@/domain/repositories/product-repo";
 import { DB } from "@/infrastructure/db/postgres";
-import { Err, Ok, type Result } from "oxide.ts";
 
 export async function getProductVariantUseCase(
   variantId: string,
