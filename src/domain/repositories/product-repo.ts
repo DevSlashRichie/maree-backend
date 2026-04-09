@@ -80,7 +80,7 @@ export class ProductRepo {
       .trim()
       .toLowerCase();
 
-    return rootName === "ingredient" || rootName === "ingrediente";
+    return rootName === "ingredient";
   }
 
   async isIngredientFromType(id: string) {

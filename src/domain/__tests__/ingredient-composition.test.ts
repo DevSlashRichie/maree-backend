@@ -20,7 +20,7 @@ describe("validateIngredientComposition", () => {
   it("should allow complete-product without ingredients", () => {
     expect(() =>
       validateIngredientComposition({
-        productType: "complete-product",
+        productType: "complete",
         productCategoryId: "cp-dulce",
         ingredientCategoryIds: [],
         categories: [...categories],
@@ -42,7 +42,7 @@ describe("validateIngredientComposition", () => {
   it("should allow dulce complete-product with dulce ingredients", () => {
     expect(() =>
       validateIngredientComposition({
-        productType: "complete-product",
+        productType: "complete",
         productCategoryId: "cp-dulce",
         ingredientCategoryIds: ["ing-dulce"],
         categories: [...categories],
@@ -53,7 +53,7 @@ describe("validateIngredientComposition", () => {
   it("should reject salado ingredient on dulce complete-product", () => {
     expect(() =>
       validateIngredientComposition({
-        productType: "complete-product",
+        productType: "complete",
         productCategoryId: "cp-dulce",
         ingredientCategoryIds: ["ing-salado"],
         categories: [...categories],
@@ -64,7 +64,7 @@ describe("validateIngredientComposition", () => {
   it("should allow any ingredient when complete-product category has no flavor", () => {
     expect(() =>
       validateIngredientComposition({
-        productType: "complete-product",
+        productType: "complete",
         productCategoryId: "cp-waffle",
         ingredientCategoryIds: ["ing-dulce", "ing-salado", "ing-neutral"],
         categories: [...categories],

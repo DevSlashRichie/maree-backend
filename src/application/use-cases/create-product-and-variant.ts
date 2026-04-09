@@ -54,7 +54,7 @@ export async function createProductAndVariantUseCase(
 
       const type = (await productRepo.isIngredientFromCategory(data.categoryId))
         ? "ingredient"
-        : "complete-product";
+        : "complete";
 
       const product = await productRepo.saveProduct({
         name: data.name,
