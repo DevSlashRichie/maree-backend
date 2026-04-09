@@ -22,22 +22,19 @@ import {
 } from "@/application/errors/create-product-variant.ts";
 import { NoCategoriesFound } from "@/application/errors/get-categories";
 import { ProductVariantNotFound } from "@/application/errors/get-product-variant";
+import { ImageIsEmpty } from "@/application/errors/upload-product-image.ts";
 import { createProductUseCase } from "@/application/use-cases/create-product.ts";
-import { getProductVariantsUseCase } from "@/application/use-cases/get-product-variants";
-import { getProductsUseCase } from "@/application/use-cases/get-products";
 import { createProductAndVariantUseCase } from "@/application/use-cases/create-product-and-variant.ts";
 import { getCategoriesUseCase } from "@/application/use-cases/get-categories";
 import { getProductVariantUseCase } from "@/application/use-cases/get-product-variant";
+import { getProductVariantsUseCase } from "@/application/use-cases/get-product-variants";
+import { getProductsUseCase } from "@/application/use-cases/get-products";
 import { uploadProductImageUseCase } from "@/application/use-cases/upload-product-image.ts";
 import { ErrorSchema } from "@/domain/entities/error";
-import {
-  ProductFiltersSchema,
-  ProductSchema,
-} from "@/domain/entities/product";
+import { ProductFiltersSchema, ProductSchema } from "@/domain/entities/product";
 import { logger } from "@/lib/logger";
 import { authzMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
-import { ImageIsEmpty } from "@/application/errors/upload-product-image.ts";
 
 export const productRouter = createRouter();
 productRouter.use(authzMiddleware(false));

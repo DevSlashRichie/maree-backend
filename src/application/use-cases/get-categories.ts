@@ -1,12 +1,12 @@
+import { Err, Ok, type Result } from "oxide.ts";
 import type { CategoryTree } from "@/application/dtos/get-categories";
+import { UnknownError } from "@/application/error";
 import {
   GetCategoriesError,
   NoCategoriesFound,
 } from "@/application/errors/get-categories";
-import { UnknownError } from "@/application/error";
 import { ProductRepo } from "@/domain/repositories/product-repo";
 import { DB } from "@/infrastructure/db/postgres";
-import { Err, Ok, type Result } from "oxide.ts";
 
 export async function getCategoriesUseCase(): Promise<
   Result<CategoryTree, GetCategoriesError>
@@ -40,7 +40,6 @@ export async function getCategoriesUseCase(): Promise<
           name: cat.name,
           children: buildTree(cat.id),
         }));
-
 
       return Ok(categoryTree);
     } catch (error) {

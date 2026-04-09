@@ -1,4 +1,4 @@
-import { and, eq, sql, type InferInsertModel } from "drizzle-orm";
+import { and, eq, type InferInsertModel, sql } from "drizzle-orm";
 import type {
   ProductVariantFilters,
   ProductVariantWithProduct,
@@ -6,10 +6,10 @@ import type {
 import type { Product, ProductFilters } from "@/domain/entities/product";
 import type { Executor } from "@/infrastructure/db/postgres";
 import {
-  productTable,
-  productVariantsTable,
   categoryTable,
   productComponentsTable,
+  productTable,
+  productVariantsTable,
 } from "@/infrastructure/db/schema";
 
 import { buildFilters } from "@/lib/filters";
