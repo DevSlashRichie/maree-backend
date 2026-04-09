@@ -15,7 +15,7 @@ export const branchsTable = pgTable("branch", {
     .primaryKey()
     .$defaultFn(() => uuidv7()),
   name: text().notNull(),
-  state: text().notNull(),
+  state: text().notNull().$type<"active" | "inactive">(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
