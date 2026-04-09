@@ -1,6 +1,9 @@
 import { z } from "@hono/zod-openapi";
 import { DISCOUNT_STATES } from "@/domain/entities/discount";
-import { LoyaltyTransactionSchema } from "@/domain/entities/loyalty";
+import {
+  LoyaltyTransactionSchema,
+  RewardRedeemSchema,
+} from "@/domain/entities/loyalty";
 
 export const CreateRewardDto = z
   .object({
@@ -82,3 +85,10 @@ export const LoyaltyCardDetailsDto = z
     ),
   })
   .openapi("LoyaltyCardDetailsDto");
+
+export const ReedemRewardDto = z
+  .object({
+    newBalance: z.coerce.bigint(),
+    redemption: RewardRedeemSchema,
+  })
+  .openapi("ReedemRewardDto");

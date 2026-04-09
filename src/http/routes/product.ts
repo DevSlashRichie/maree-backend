@@ -9,6 +9,10 @@ import {
 import { GetCategoriesDto } from "@/application/dtos/get-categories";
 import { GetProductVariantDto } from "@/application/dtos/get-product-variant";
 import { ProductListSchema } from "@/application/dtos/product";
+import {
+  ProductVariantFiltersSchema,
+  ProductVariantListSchema,
+} from "@/application/dtos/product-variant";
 import { UploadProductImageResponseDto } from "@/application/dtos/upload-product-image.ts";
 import { ProductAlreadyExists } from "@/application/errors/create-product";
 import {
@@ -18,22 +22,19 @@ import {
 } from "@/application/errors/create-product-variant.ts";
 import { NoCategoriesFound } from "@/application/errors/get-categories";
 import { ProductVariantNotFound } from "@/application/errors/get-product-variant";
+import { ImageIsEmpty } from "@/application/errors/upload-product-image.ts";
 import { createProductUseCase } from "@/application/use-cases/create-product.ts";
 import { createProductAndVariantUseCase } from "@/application/use-cases/create-product-and-variant.ts";
 import { getCategoriesUseCase } from "@/application/use-cases/get-categories";
 import { getProductVariantUseCase } from "@/application/use-cases/get-product-variant";
+import { getProductVariantsUseCase } from "@/application/use-cases/get-product-variants";
 import { getProductsUseCase } from "@/application/use-cases/get-products";
 import { uploadProductImageUseCase } from "@/application/use-cases/upload-product-image.ts";
 import { ErrorSchema } from "@/domain/entities/error";
-import {
-  ProductFiltersSchema,
-  ProductSchema,
-  ProductVariantSchema,
-} from "@/domain/entities/product";
+import { ProductFiltersSchema, ProductSchema } from "@/domain/entities/product";
 import { logger } from "@/lib/logger";
-import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
+import { authzMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
-import { ImageIsEmpty } from "@/application/errors/upload-product-image.ts";
 
 export const productRouter = createRouter();
 productRouter.use(authzMiddleware(false));
@@ -92,6 +93,65 @@ productRouter.openapi(
     const products = await getProductsUseCase(hasFilters ? filters : undefined);
 
     return ctx.json({ products }, 200);
+  },
+);
+
+productRouter.openapi(
+  createRoute({
+    tags: ["Products"],
+    method: "get",
+    path: "/variants",
+    request: {
+      query: ProductVariantFiltersSchema,
+    },
+    responses: {
+      200: {
+        description: "product variant list",
+        content: {
+          "application/json": {
+            schema: ProductVariantListSchema,
+          },
+        },
+      },
+      400: {
+        description: "invalid filter",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const queryString = ctx.req.query();
+    const parsedQuery = qs.parse(queryString);
+
+    const filterValidation =
+      await ProductVariantFiltersSchema.safeParseAsync(parsedQuery);
+
+    if (!filterValidation.success) {
+      const invalidFields = filterValidation.error.issues.map((e) =>
+        e.path.join("."),
+      );
+
+      return ctx.json(
+        {
+          code: "invalid_filter",
+          message: `Invalid filter fields: ${invalidFields.join(", ")}`,
+        },
+        400,
+      );
+    }
+
+    const filters = filterValidation.data;
+    const hasFilters = Object.keys(filters).length > 0;
+
+    const variants = await getProductVariantsUseCase(
+      hasFilters ? filters : undefined,
+    );
+
+    return ctx.json({ variants }, 200);
   },
 );
 
@@ -378,7 +438,9 @@ productRouter.openapi(
         description: "category tree",
         content: {
           "application/json": {
-            schema: GetCategoriesDto,
+            schema: z.object({
+              categories: GetCategoriesDto,
+            }),
           },
         },
       },
@@ -427,7 +489,9 @@ productRouter.openapi(
       );
     }
 
-    return ctx.json(result.unwrap(), 200);
+    const categories = result.unwrap();
+
+    return ctx.json({ categories }, 200);
   },
 );
 
