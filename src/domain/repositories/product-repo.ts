@@ -1,5 +1,4 @@
 import { and, eq, type InferInsertModel, sql } from "drizzle-orm";
-import { and, eq, type InferInsertModel, sql } from "drizzle-orm";
 import type {
   ProductVariantFilters,
   ProductVariantWithProduct,

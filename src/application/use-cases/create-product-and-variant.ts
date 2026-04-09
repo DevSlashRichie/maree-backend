@@ -15,7 +15,6 @@ import {
   ProductAlreadyExists,
   ProductVariantAlreadyExists,
 } from "@/application/errors/create-product-variant.ts";
-import { DB } from "@/infrastructure/db/postgres.ts";
 import { ProductRepo } from "@/domain/repositories/product-repo.ts";
 import {
   IncompatibleIngredientFlavorError,
