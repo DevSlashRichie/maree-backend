@@ -4,17 +4,28 @@ import type {
   CreateProductAndVariantResponseDto,
 } from "@/application/dtos/create-product-and-variant.ts";
 import { Err, Ok, type Result } from "oxide.ts";
-import type { ProductVariantType } from "@/domain/entities/product.ts";
 import {
   AddedProductDoesNotExist,
   AddedProductIsNotIngredient,
   CreateProductVariantError,
+  IncompatibleIngredientFlavor,
+  InvalidIngredientQuantity,
+  IngredientsOnlyForCompleteProduct,
   ProductAlreadyExists,
   ProductVariantAlreadyExists,
 } from "@/application/errors/create-product-variant.ts";
 import { DB } from "@/infrastructure/db/postgres.ts";
 import { ProductRepo } from "@/domain/repositories/product-repo.ts";
 import { UnknownError } from "@/application/error.ts";
+import {
+  createIngredientQuantity,
+  InvalidIngredientQuantityError,
+} from "@/domain/value-objects/ingredient-quantity";
+import {
+  IncompatibleIngredientFlavorError,
+  IngredientsOnlyForCompleteProductError,
+  validateIngredientComposition,
+} from "@/domain/value-objects/ingredient-composition";
 
 export async function createProductAndVariantUseCase(
   data: z.infer<typeof CreateProductAndVariantDto>,
@@ -63,27 +74,35 @@ export async function createProductAndVariantUseCase(
       console.log("variant saved");
 
       if (data.ingredients?.length) {
+        const ingredientCategoryIds: string[] = [];
+
         for (const ingredient of data.ingredients) {
-          const ingredientExists = await productRepo.existsProductById(
-            ingredient.id,
-          );
-          if (!ingredientExists) {
+          const ingredientProduct = await productRepo.findById(ingredient.id);
+
+          if (!ingredientProduct) {
             throw new AddedProductDoesNotExist(ingredient.id);
           }
 
-          const isIngredient = await productRepo.isIngredientFromType(
-            ingredient.id,
-          );
-          if (!isIngredient) {
+          if (ingredientProduct.type !== "ingredient") {
             throw new AddedProductIsNotIngredient();
           }
+
+          ingredientCategoryIds.push(ingredientProduct.categoryId);
         }
+
+        const categories = await productRepo.getAllCategories();
+        validateIngredientComposition({
+          productType: type,
+          productCategoryId: data.categoryId,
+          ingredientCategoryIds,
+          categories,
+        });
 
         const componentsData = data.ingredients.map(
           ({ id, quantity, isRemovable }) => ({
             productVariantId: productVariant.id,
             productId: id,
-            quantity,
+            quantity: createIngredientQuantity(quantity),
             isRemovable,
           }),
         );
@@ -96,6 +115,18 @@ export async function createProductAndVariantUseCase(
       });
     });
   } catch (error) {
+    if (error instanceof IngredientsOnlyForCompleteProductError) {
+      return Err(new IngredientsOnlyForCompleteProduct());
+    }
+
+    if (error instanceof IncompatibleIngredientFlavorError) {
+      return Err(new IncompatibleIngredientFlavor());
+    }
+
+    if (error instanceof InvalidIngredientQuantityError) {
+      return Err(new InvalidIngredientQuantity());
+    }
+
     if (error instanceof CreateProductVariantError) {
       return Err(error);
     }

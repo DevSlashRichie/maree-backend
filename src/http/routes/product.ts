@@ -7,6 +7,7 @@ import {
   CreateProductAndVariantResponseDto,
 } from "@/application/dtos/create-product-and-variant.ts";
 import { GetCategoriesDto } from "@/application/dtos/get-categories";
+import { GetIngredientsDto } from "@/application/dtos/get-ingredients";
 import { GetProductVariantDto } from "@/application/dtos/get-product-variant";
 import { ProductListSchema } from "@/application/dtos/product";
 import { UploadProductImageResponseDto } from "@/application/dtos/upload-product-image.ts";
@@ -14,6 +15,9 @@ import { ProductAlreadyExists } from "@/application/errors/create-product";
 import {
   AddedProductDoesNotExist,
   AddedProductIsNotIngredient,
+  IncompatibleIngredientFlavor,
+  InvalidIngredientQuantity,
+  IngredientsOnlyForCompleteProduct,
   ProductVariantAlreadyExists,
 } from "@/application/errors/create-product-variant.ts";
 import { NoCategoriesFound } from "@/application/errors/get-categories";
@@ -21,6 +25,7 @@ import { ProductVariantNotFound } from "@/application/errors/get-product-variant
 import { createProductUseCase } from "@/application/use-cases/create-product.ts";
 import { createProductAndVariantUseCase } from "@/application/use-cases/create-product-and-variant.ts";
 import { getCategoriesUseCase } from "@/application/use-cases/get-categories";
+import { getIngredientsUseCase } from "@/application/use-cases/get-ingredients";
 import { getProductVariantUseCase } from "@/application/use-cases/get-product-variant";
 import { getProductsUseCase } from "@/application/use-cases/get-products";
 import { uploadProductImageUseCase } from "@/application/use-cases/upload-product-image.ts";
@@ -306,6 +311,14 @@ productRouter.openapi(
           },
         },
       },
+      400: {
+        description: "invalid ingredient quantity",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
       500: {
         description: "unexpected",
         content: {
@@ -351,6 +364,36 @@ productRouter.openapi(
             message: "Added ingredients are not ingredients",
           },
           409,
+        );
+      }
+
+      if (err instanceof IngredientsOnlyForCompleteProduct) {
+        return ctx.json(
+          {
+            code: err.code,
+            message: err.message,
+          },
+          409,
+        );
+      }
+
+      if (err instanceof IncompatibleIngredientFlavor) {
+        return ctx.json(
+          {
+            code: err.code,
+            message: err.message,
+          },
+          409,
+        );
+      }
+
+      if (err instanceof InvalidIngredientQuantity) {
+        return ctx.json(
+          {
+            code: err.code,
+            message: err.message,
+          },
+          400,
         );
       }
 
@@ -484,6 +527,51 @@ productRouter.openapi(
           404,
         );
       }
+
+      logger.error("Error: %s", err);
+
+      return ctx.json(
+        {
+          code: "unexpected",
+          message: err.message,
+        },
+        500,
+      );
+    }
+
+    return ctx.json(result.unwrap(), 200);
+  },
+);
+
+productRouter.openapi(
+  createRoute({
+    tags: ["Products"],
+    method: "get",
+    path: "/ingredients",
+    responses: {
+      200: {
+        description: "ingredient tree organized by categories",
+        content: {
+          "application/json": {
+            schema: GetIngredientsDto,
+          },
+        },
+      },
+      500: {
+        description: "unexpected",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const result = await getIngredientsUseCase();
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
 
       logger.error("Error: %s", err);
 

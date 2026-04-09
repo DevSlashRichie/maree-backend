@@ -36,6 +36,30 @@ export class AddedProductIsNotIngredient extends CreateProductVariantError {
   }
 }
 
+export class InvalidIngredientQuantity extends CreateProductVariantError {
+  readonly code = "invalid_ingredient_quantity";
+
+  constructor() {
+    super("Ingredient quantity must be an integer greater than 0");
+  }
+}
+
+export class IngredientsOnlyForCompleteProduct extends CreateProductVariantError {
+  readonly code = "ingredients_only_for_complete_product";
+
+  constructor() {
+    super("Only complete-product can have ingredients");
+  }
+}
+
+export class IncompatibleIngredientFlavor extends CreateProductVariantError {
+  readonly code = "incompatible_ingredient_flavor";
+
+  constructor() {
+    super("Ingredients are incompatible with product flavor family");
+  }
+}
+
 export class UnknownError extends CreateProductVariantError {
   readonly code = "unknown";
 
