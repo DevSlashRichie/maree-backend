@@ -41,6 +41,7 @@ export async function getCategoriesUseCase(): Promise<
           children: buildTree(cat.id),
         }));
 
+
       return Ok(categoryTree);
     } catch (error) {
       if (error instanceof GetCategoriesError) {

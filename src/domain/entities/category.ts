@@ -7,7 +7,3 @@ export type Category = InferSelectModel<typeof categoryTable>;
 
 export const CategorySchema = createSelectSchema(categoryTable);
 export type CategoryType = z.infer<typeof CategorySchema>;
-
-export const CategoryListSchema = z.object({
-  categories: z.array(CategorySchema),
-});
