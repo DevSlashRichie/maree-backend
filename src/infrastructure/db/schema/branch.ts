@@ -1,6 +1,7 @@
 import { randomUUIDv7 as uuidv7 } from "bun";
 import {
   integer,
+  pgEnum,
   pgTable,
   primaryKey,
   text,
@@ -10,12 +11,14 @@ import {
 } from "drizzle-orm/pg-core";
 import { userTable } from "./user.ts";
 
+export const branchStateEnum = pgEnum("branch_state", ["active", "inactive"]);
+
 export const branchsTable = pgTable("branch", {
   id: uuid()
     .primaryKey()
     .$defaultFn(() => uuidv7()),
   name: text().notNull(),
-  state: text().notNull(),
+  state: branchStateEnum().notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

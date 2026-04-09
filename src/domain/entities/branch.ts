@@ -46,7 +46,7 @@ export interface CreateBranchParams {
 
 export function createBranch(params: CreateBranchParams) {
   const parsedName = z.string().min(1).parse(params.name);
-  const parsedState = z.string().min(1).parse(params.state);
+  const parsedState = z.enum(["active", "inactive"]).parse(params.state);
 
   return {
     name: parsedName,
