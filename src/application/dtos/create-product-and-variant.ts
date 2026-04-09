@@ -14,7 +14,7 @@ export const CreateProductAndVariantDto = z.object({
     .array(
       z.object({
         id: z.uuid(),
-        quantity: z.number(),
+        quantity: z.number().positive(),
         isRemovable: z.boolean(),
       }),
     )

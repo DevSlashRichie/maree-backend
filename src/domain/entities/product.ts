@@ -37,6 +37,7 @@ export const ProductFiltersSchema = z.object({
   id: UuidFilterSchema.optional(),
   name: StringFilterSchema.optional(),
   status: StringFilterSchema.optional(),
+  type: StringFilterSchema.optional(),
   categoryId: UuidFilterSchema.optional(),
   createdAt: DateFilterSchema.optional(),
 });
