@@ -2,15 +2,15 @@ import { createRoute } from "@hono/zod-openapi";
 import qs from "qs";
 import { CreateProductDto } from "@/application//dtos/create-product.ts";
 import { ProductListSchema } from "@/application/dtos/product";
+import {
+  ProductVariantFiltersSchema,
+  ProductVariantListSchema,
+} from "@/application/dtos/product-variant";
 import { ProductAlreadyExists } from "@/application/errors/create-product";
 import { createProductUseCase } from "@/application/use-cases/create-product.ts";
 import { getCategoriesUseCase } from "@/application/use-cases/get-categories";
 import { getProductVariantsUseCase } from "@/application/use-cases/get-product-variants";
 import { getProductsUseCase } from "@/application/use-cases/get-products";
-import {
-  ProductVariantFiltersSchema,
-  ProductVariantListSchema,
-} from "@/application/dtos/product-variant";
 import { CategoryListSchema } from "@/domain/entities/category";
 import { ErrorSchema } from "@/domain/entities/error";
 import { ProductFiltersSchema, ProductSchema } from "@/domain/entities/product";

@@ -43,7 +43,7 @@ export type TxExecutor = Parameters<typeof DB.transaction>[0] extends (
 
 export type Executor = DbExecutor | TxExecutor;
 
-export async function runMigrationsIfRequired() { }
+export async function runMigrationsIfRequired() {}
 
 export async function seedIfRequired() {
   if (process.env.SEED === "true") {
