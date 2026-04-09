@@ -32,7 +32,18 @@ export const productTable = pgTable("product", {
   categoryId: uuid("category_id")
     .notNull()
     .references(() => categoryTable.id),
-  type: text().notNull(),
+  type: text()
+    .notNull()
+    .$type<
+      | "complete"
+      | "component"
+      | "ingredient"
+      | "ingrediente"
+      | "complete-product"
+      | "crepa"
+      | "waffle"
+      | "bebida"
+    >(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -43,6 +54,7 @@ export const productVariantsTable = pgTable("product_variant", {
     .primaryKey()
     .$defaultFn(() => uuidv7()),
   name: text().notNull(),
+  description: text(),
   price: bigint({ mode: "bigint" }).notNull(),
   image: text(),
   productId: uuid("product_id")
@@ -60,6 +72,9 @@ export const productComponentsTable = pgTable("product_component", {
   productVariantId: uuid("product_variant_id")
     .notNull()
     .references(() => productVariantsTable.id),
+  productId: uuid("product_id")
+    .notNull()
+    .references(() => productTable.id),
   quantity: integer().notNull(),
   isRemovable: boolean("is_removable").notNull().default(false),
 });

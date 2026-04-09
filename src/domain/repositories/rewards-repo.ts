@@ -118,7 +118,9 @@ export class RewardsRepo {
         branchId,
       })
       .returning();
-    return result[0];
+
+    // biome-ignore lint/style/noNonNullAssertion: impossible to be null otherwise throws error
+    return result[0]!;
   }
 
   async createLoyaltyTransaction(
