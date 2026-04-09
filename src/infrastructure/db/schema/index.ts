@@ -7,8 +7,8 @@ export {
   notificationTemplateTriggerTable,
   notificationTriggerTable,
 } from "./notification";
-export { orderItemsTable, ordersTable } from "./order";
-export { categoryTable, productTable, productVariantsTable } from "./product";
+export { orderItemsTable, ordersTable, orderItemsModifiersTable } from "./order";
+export { categoryTable, productTable, productVariantsTable, productComponentsTable } from "./product";
 export {
   policyTable,
   rolePoliciesTable,

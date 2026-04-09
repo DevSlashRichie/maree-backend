@@ -1,8 +1,8 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "0d863425-5ef8-4cd2-8926-4c192534dc99",
-  "prevIds": ["dddc1c3e-2561-47c6-8bd6-a13806647d34"],
+  "id": "646d83fe-5b63-41e0-8a02-31f90f0cf502",
+  "prevIds": ["0d863425-5ef8-4cd2-8926-4c192534dc99"],
   "ddl": [
     {
       "isRlsEnabled": false,
@@ -25,12 +25,6 @@
     {
       "isRlsEnabled": false,
       "name": "discount",
-      "entityType": "tables",
-      "schema": "public"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "loyalty_card",
       "entityType": "tables",
       "schema": "public"
     },
@@ -490,58 +484,6 @@
       "name": "id",
       "entityType": "columns",
       "schema": "public",
-      "table": "loyalty_card"
-    },
-    {
-      "type": "uuid",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "user_id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "loyalty_card"
-    },
-    {
-      "type": "bigint",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "0",
-      "generated": null,
-      "identity": null,
-      "name": "current_balance",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "loyalty_card"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "loyalty_card"
-    },
-    {
-      "type": "uuid",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
       "table": "loyalty_transaction"
     },
     {
@@ -552,7 +494,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "loyalty_card_id",
+      "name": "user_id",
       "entityType": "columns",
       "schema": "public",
       "table": "loyalty_transaction"
@@ -1930,20 +1872,7 @@
       "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
-      "name": "loyalty_card_user_id_user_id_fkey",
-      "entityType": "fks",
-      "schema": "public",
-      "table": "loyalty_card"
-    },
-    {
-      "nameExplicit": false,
-      "columns": ["loyalty_card_id"],
-      "schemaTo": "public",
-      "tableTo": "loyalty_card",
-      "columnsTo": ["id"],
-      "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
-      "name": "loyalty_transaction_loyalty_card_id_loyalty_card_id_fkey",
+      "name": "loyalty_transaction_user_id_user_id_fkey",
       "entityType": "fks",
       "schema": "public",
       "table": "loyalty_transaction"
@@ -2379,14 +2308,6 @@
     {
       "columns": ["id"],
       "nameExplicit": false,
-      "name": "loyalty_card_pkey",
-      "schema": "public",
-      "table": "loyalty_card",
-      "entityType": "pks"
-    },
-    {
-      "columns": ["id"],
-      "nameExplicit": false,
       "name": "loyalty_transaction_pkey",
       "schema": "public",
       "table": "loyalty_transaction",
@@ -2511,15 +2432,6 @@
       "schema": "public",
       "table": "user",
       "entityType": "pks"
-    },
-    {
-      "nameExplicit": false,
-      "columns": ["user_id"],
-      "nullsNotDistinct": false,
-      "name": "loyalty_card_user_id_key",
-      "schema": "public",
-      "table": "loyalty_card",
-      "entityType": "uniques"
     },
     {
       "nameExplicit": false,

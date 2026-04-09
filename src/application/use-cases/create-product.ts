@@ -22,12 +22,13 @@ export async function createProductUseCase(
     }
 
     // TODO: validate categoryId
+    // TODO: handle image upload
 
     const product = await productRepo.saveProduct({
       name: data.name,
       status: data.status,
       categoryId: data.categoryId,
-      type: "TODO",
+      type: data.type,
     });
 
     return Ok(product);
