@@ -1,31 +1,31 @@
+import { Err, Ok, type Result } from "oxide.ts";
 import type z from "zod";
 import type {
   CreateProductAndVariantDto,
   CreateProductAndVariantResponseDto,
 } from "@/application/dtos/create-product-and-variant.ts";
-import { Err, Ok, type Result } from "oxide.ts";
+import { UnknownError } from "@/application/error.ts";
 import {
   AddedProductDoesNotExist,
   AddedProductIsNotIngredient,
   CreateProductVariantError,
   IncompatibleIngredientFlavor,
-  InvalidIngredientQuantity,
   IngredientsOnlyForCompleteProduct,
+  InvalidIngredientQuantity,
   ProductAlreadyExists,
   ProductVariantAlreadyExists,
 } from "@/application/errors/create-product-variant.ts";
-import { DB } from "@/infrastructure/db/postgres.ts";
 import { ProductRepo } from "@/domain/repositories/product-repo.ts";
-import { UnknownError } from "@/application/error.ts";
-import {
-  createIngredientQuantity,
-  InvalidIngredientQuantityError,
-} from "@/domain/value-objects/ingredient-quantity";
 import {
   IncompatibleIngredientFlavorError,
   IngredientsOnlyForCompleteProductError,
   validateIngredientComposition,
 } from "@/domain/value-objects/ingredient-composition";
+import {
+  createIngredientQuantity,
+  InvalidIngredientQuantityError,
+} from "@/domain/value-objects/ingredient-quantity";
+import { DB } from "@/infrastructure/db/postgres.ts";
 
 export async function createProductAndVariantUseCase(
   data: z.infer<typeof CreateProductAndVariantDto>,

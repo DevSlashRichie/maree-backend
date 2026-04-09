@@ -1,8 +1,6 @@
 export type IngredientQuantity = number & { readonly brand: unique symbol };
 
-export function createIngredientQuantity(
-  quantity: number,
-): IngredientQuantity {
+export function createIngredientQuantity(quantity: number): IngredientQuantity {
   if (!Number.isInteger(quantity) || quantity <= 0) {
     throw new InvalidIngredientQuantityError(quantity);
   }

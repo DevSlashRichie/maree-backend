@@ -1,8 +1,8 @@
+import { Err, Ok, type Result } from "oxide.ts";
 import type { GetIngredientsDtoType } from "@/application/dtos/get-ingredients";
 import { UnknownError } from "@/application/error";
 import { ProductRepo } from "@/domain/repositories/product-repo";
 import { DB } from "@/infrastructure/db/postgres";
-import { Err, Ok, type Result } from "oxide.ts";
 
 export async function getIngredientsUseCase(): Promise<
   Result<GetIngredientsDtoType, UnknownError>
@@ -13,7 +13,11 @@ export async function getIngredientsUseCase(): Promise<
       const categories = await productRepo.getAllCategories();
 
       const normalize = (value: string) =>
-        value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        value
+          .trim()
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
 
       const ingredientRootCategory = categories.find(
         (cat) => cat.parentId === null && normalize(cat.name) === "ingrediente",

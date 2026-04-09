@@ -1,5 +1,4 @@
-import { type InferInsertModel, sql } from "drizzle-orm";
-import { and, eq } from "drizzle-orm";
+import { and, eq, type InferInsertModel, sql } from "drizzle-orm";
 import type { Product, ProductFilters } from "@/domain/entities/product";
 import type { Executor } from "@/infrastructure/db/postgres";
 import { productTable, productVariantsTable } from "@/infrastructure/db/schema";

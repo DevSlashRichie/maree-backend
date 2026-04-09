@@ -72,7 +72,9 @@ function resolveFlavorFamily(
   startCategoryId: string,
   categories: CategoryNode[],
 ): FlavorFamily | null {
-  const categoryById = new Map(categories.map((category) => [category.id, category]));
+  const categoryById = new Map(
+    categories.map((category) => [category.id, category]),
+  );
   const visited = new Set<string>();
 
   let current = categoryById.get(startCategoryId);
