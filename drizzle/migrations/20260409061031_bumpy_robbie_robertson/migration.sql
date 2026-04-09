@@ -133,6 +133,7 @@ CREATE TABLE "product" (
 CREATE TABLE "product_variant" (
 	"id" uuid PRIMARY KEY,
 	"name" text NOT NULL,
+	"description" text,
 	"price" bigint NOT NULL,
 	"image" text,
 	"product_id" uuid NOT NULL,

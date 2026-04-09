@@ -88,7 +88,7 @@ authenticationRouter.openapi(
 
     const loginResult = result.unwrap();
 
-    if (loginResult.success) {
+    if (loginResult.type === "token") {
       setCookie(ctx, "tok", loginResult.token, {
         httpOnly: true,
         secure: true,

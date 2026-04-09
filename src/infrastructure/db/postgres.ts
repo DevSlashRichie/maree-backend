@@ -30,7 +30,15 @@ type ProductSeed = {
   key: string;
   name: string;
   categoryKey: string;
-  type: string;
+  type:
+    | "complete"
+    | "component"
+    | "ingredient"
+    | "ingrediente"
+    | "complete-product"
+    | "crepa"
+    | "waffle"
+    | "bebida";
   price: bigint;
   components?: Array<{
     productKey: string;
@@ -515,10 +523,22 @@ export async function seedIfRequired() {
         phone: funcs.phoneNumber(),
       },
       with: {
+        ordersTable: [
+          {
+            count: [10, 20],
+            weight: 1,
+          },
+        ],
         userRoleTable: [
           {
             weight: 1,
             count: 1,
+          },
+        ],
+        loyaltyTransactionsTable: [
+          {
+            weight: 1,
+            count: 25,
           },
         ],
       },
@@ -603,6 +623,59 @@ export async function seedIfRequired() {
             weight: 1,
           },
         ],
+      },
+    },
+    notificationTable: {
+      count: 10,
+      columns: {
+        provider: funcs.valuesFromArray({
+          values: ["kapso", "twillio"],
+        }),
+        state: funcs.valuesFromArray({
+          values: ["pending", "sent", "failed"],
+        }),
+        body: funcs.loremIpsum({ sentencesCount: 3 }),
+      },
+    },
+    ordersTable: {
+      count: 60,
+      columns: {
+        total: funcs.int({ minValue: 1000, maxValue: 10000 }),
+        status: funcs.valuesFromArray({
+          values: ["pending", "processing", "completed", "cancelled"],
+        }),
+        note: funcs.loremIpsum({ sentencesCount: 1 }),
+        orderNumber: funcs.uuid({}),
+      },
+      with: {
+        orderItemsTable: [
+          { count: [1, 3], weight: 0.5 },
+          { count: [10, 15], weight: 0.5 },
+        ],
+      },
+    },
+    orderItemsTable: {
+      count: 50,
+      columns: {
+        quantity: funcs.int({ minValue: 1, maxValue: 5 }),
+        pricingSnapshot: funcs.int({ minValue: 500, maxValue: 3000 }),
+        notes: funcs.loremIpsum({ sentencesCount: 1 }),
+      },
+    },
+    reviewsTable: {
+      count: 60,
+      columns: {
+        satisfactionRate: funcs.int({ minValue: 1, maxValue: 5 }),
+        notes: funcs.loremIpsum({ sentencesCount: 1 }),
+      },
+    },
+    loyaltyTransactionsTable: {
+      count: 25,
+      columns: {
+        transactionType: funcs.valuesFromArray({
+          values: ["earned", "redeemed"],
+        }),
+        value: funcs.int({ minValue: 1, maxValue: 2 }),
       },
     },
   }));
