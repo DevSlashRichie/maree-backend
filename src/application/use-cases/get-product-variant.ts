@@ -14,9 +14,6 @@ export async function getProductVariantUseCase(
   return DB.transaction(async (txn) => {
     try {
       const productRepo = new ProductRepo(txn);
-      console.log("repo created");
-
-      console.log("starting query");
       const result =
         await productRepo.findProductVariantWithComponents(variantId);
 
@@ -25,6 +22,23 @@ export async function getProductVariantUseCase(
       }
 
       const { variant, product, components } = result;
+      const categories = await productRepo.getAllCategories();
+
+      const categoriesById = new Map(categories.map((category) => [category.id, category]));
+      const path: string[] = [];
+
+      let currentCategoryId: string | null = product.categoryId;
+      while (currentCategoryId) {
+        const category = categoriesById.get(currentCategoryId);
+        if (!category) {
+          break;
+        }
+
+        path.push(category.name);
+        currentCategoryId = category.parentId;
+      }
+
+      path.reverse();
 
       const variantWithComponents: ProductVariantWithComponents = {
         id: variant.id,
@@ -33,6 +47,7 @@ export async function getProductVariantUseCase(
         price: variant.price,
         productId: product.id,
         categoryId: product.categoryId,
+        path,
         status: product.status,
         type: product.type,
         createdAt: variant.createdAt,

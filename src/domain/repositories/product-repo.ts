@@ -48,6 +48,31 @@ export class ProductRepo {
     return products;
   }
 
+  async findIngredientsWithVariantPrice() {
+    return this.conn
+      .select({
+        id: productTable.id,
+        name: productTable.name,
+        status: productTable.status,
+        image: productTable.image,
+        categoryId: productTable.categoryId,
+        price: sql<bigint | null>`min(${productVariantsTable.price})`,
+      })
+      .from(productTable)
+      .leftJoin(
+        productVariantsTable,
+        eq(productVariantsTable.productId, productTable.id),
+      )
+      .where(eq(productTable.type, "ingredient"))
+      .groupBy(
+        productTable.id,
+        productTable.name,
+        productTable.status,
+        productTable.image,
+        productTable.categoryId,
+      );
+  }
+
   async findById(id: string) {
     const product = await this.conn.query.productTable.findFirst({
       where: {

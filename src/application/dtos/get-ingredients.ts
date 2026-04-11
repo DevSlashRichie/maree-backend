@@ -6,6 +6,7 @@ const IngredientItemSchema = z.object({
   status: z.string(),
   image: z.string().url().optional(),
   categoryId: z.string().uuid(),
+  price: z.bigint(),
 });
 
 export const GetIngredientsDto = z.array(
