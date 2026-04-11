@@ -24,7 +24,9 @@ export async function getProductVariantUseCase(
       const { variant, product, components } = result;
       const categories = await productRepo.getAllCategories();
 
-      const categoriesById = new Map(categories.map((category) => [category.id, category]));
+      const categoriesById = new Map(
+        categories.map((category) => [category.id, category]),
+      );
       const path: string[] = [];
 
       let currentCategoryId: string | null = product.categoryId;
