@@ -1,4 +1,4 @@
-import { and, eq, type InferInsertModel, sql } from "drizzle-orm";
+import { and, eq, type InferInsertModel, inArray, sql } from "drizzle-orm";
 import type {
   ProductVariantFilters,
   ProductVariantWithProduct,
@@ -28,6 +28,15 @@ type SaveProductComponentsType = Omit<
   InferInsertModel<typeof productComponentsTable>,
   "id" | "createdAt"
 >;
+
+export type ProductVariantSnapshot = {
+  id: string;
+  name: string;
+  price: bigint;
+  productId: string;
+  productName: string;
+  productType: "complete" | "ingredient";
+};
 
 export class ProductRepo {
   constructor(private readonly conn: Executor) {}
@@ -212,6 +221,27 @@ export class ProductRepo {
 
   async getAllCategories() {
     return this.conn.select().from(categoryTable);
+  }
+
+  async findProductVariantSnapshotsByIds(
+    variantIds: string[],
+  ): Promise<ProductVariantSnapshot[]> {
+    if (variantIds.length === 0) {
+      return [];
+    }
+
+    return this.conn
+      .select({
+        id: productVariantsTable.id,
+        name: productVariantsTable.name,
+        price: productVariantsTable.price,
+        productId: productTable.id,
+        productName: productTable.name,
+        productType: productTable.type,
+      })
+      .from(productVariantsTable)
+      .innerJoin(productTable, eq(productVariantsTable.productId, productTable.id))
+      .where(inArray(productVariantsTable.id, variantIds));
   }
 
   async findProductVariantWithComponents(variantId: string) {

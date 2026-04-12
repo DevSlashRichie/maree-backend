@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, type InferInsertModel, type InferSelectModel } from "drizzle-orm";
 import {
   type Order,
   type OrderFilters,
@@ -6,8 +6,18 @@ import {
   type OrderWithUser,
 } from "@/domain/entities/order.ts";
 import type { Executor } from "@/infrastructure/db/postgres.ts";
-import { ordersTable, userTable } from "@/infrastructure/db/schema";
+import { orderItemsTable, ordersTable, userTable } from "@/infrastructure/db/schema";
 import { buildFilters } from "@/lib/filters";
+
+type SaveOrderType = Omit<
+  InferSelectModel<typeof ordersTable>,
+  "id" | "createdAt"
+>;
+
+type SaveOrderItemType = Omit<
+  InferInsertModel<typeof orderItemsTable>,
+  "id" | "createdAt"
+>;
 
 export class OrderRepo {
   constructor(private readonly conn: Executor) {}
@@ -80,5 +90,22 @@ export class OrderRepo {
     }
 
     return order;
+  }
+
+  async saveOrder(data: SaveOrderType) {
+    const [order] = await this.conn
+      .insert(ordersTable)
+      .values(data)
+      .returning();
+
+    return order!;
+  }
+
+  async saveOrderItems(items: SaveOrderItemType[]) {
+    if (items.length === 0) {
+      return [];
+    }
+
+    return this.conn.insert(orderItemsTable).values(items).returning();
   }
 }
