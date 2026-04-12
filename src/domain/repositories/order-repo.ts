@@ -1,4 +1,9 @@
-import { and, eq, type InferInsertModel, type InferSelectModel } from "drizzle-orm";
+import {
+  and,
+  eq,
+  type InferInsertModel,
+  type InferSelectModel,
+} from "drizzle-orm";
 import {
   type Order,
   type OrderFilters,
@@ -6,7 +11,11 @@ import {
   type OrderWithUser,
 } from "@/domain/entities/order.ts";
 import type { Executor } from "@/infrastructure/db/postgres.ts";
-import { orderItemsTable, ordersTable, userTable } from "@/infrastructure/db/schema";
+import {
+  orderItemsTable,
+  ordersTable,
+  userTable,
+} from "@/infrastructure/db/schema";
 import { buildFilters } from "@/lib/filters";
 
 type SaveOrderType = Omit<
@@ -98,6 +107,7 @@ export class OrderRepo {
       .values(data)
       .returning();
 
+    // biome-ignore lint/style/noNonNullAssertion: since we're creating a new user, it should always exist
     return order!;
   }
 

@@ -24,7 +24,9 @@ export class ModifierMustBeIngredientError extends CreateOrderError {
   readonly code = "modifier_must_be_ingredient";
 
   constructor(variantId: string) {
-    super(`Modifier variant must belong to an ingredient product: ${variantId}`);
+    super(
+      `Modifier variant must belong to an ingredient product: ${variantId}`,
+    );
   }
 }
 

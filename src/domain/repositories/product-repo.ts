@@ -240,7 +240,10 @@ export class ProductRepo {
         productType: productTable.type,
       })
       .from(productVariantsTable)
-      .innerJoin(productTable, eq(productVariantsTable.productId, productTable.id))
+      .innerJoin(
+        productTable,
+        eq(productVariantsTable.productId, productTable.id),
+      )
       .where(inArray(productVariantsTable.id, variantIds));
   }
 

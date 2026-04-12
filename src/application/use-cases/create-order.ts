@@ -31,9 +31,10 @@ export async function createOrderUseCase(
         (variantId, index, arr) => arr.indexOf(variantId) === index,
       );
 
-      const variantSnapshots = await productRepo.findProductVariantSnapshotsByIds([
-        ...uniqueVariantIds,
-      ]);
+      const variantSnapshots =
+        await productRepo.findProductVariantSnapshotsByIds([
+          ...uniqueVariantIds,
+        ]);
 
       const variantsById = new Map(
         variantSnapshots.map((snapshot) => [snapshot.id, snapshot]),
