@@ -1,7 +1,7 @@
+import { eq, type InferInsertModel } from "drizzle-orm";
 import { CreateBranchError } from "@/application/errors/create-branch";
 import type { Executor } from "@/infrastructure/db/postgres";
 import { branchsTable, schedulesTable } from "@/infrastructure/db/schema";
-import { eq, type InferInsertModel } from "drizzle-orm";
 
 type SaveBranchType = Omit<
   InferInsertModel<typeof branchsTable>,
@@ -67,36 +67,44 @@ export class BranchRepo {
     return branch;
   }
 
-  async updateBranch(id: string, data: {
-  name?: string;
-  state?: "active" | "inactive";
-  schedules?: { weekday: number; fromTime: string; toTime: string; timezone: string }[];
-}) {
-  if (data.name !== undefined || data.state !== undefined) {
-    await this.conn
-      .update(branchsTable)
-      .set({
-        ...(data.name ? { name: data.name } : {}),
-        ...(data.state ? { state: data.state } : {}),
-      })
-      .where(eq(branchsTable.id, id));
-  }
-
-  if (data.schedules !== undefined) {
-    await this.conn
-      .delete(schedulesTable)
-      .where(eq(schedulesTable.branchId, id));
-
-    if (data.schedules.length > 0) {
-      await this.conn.insert(schedulesTable).values(
-        data.schedules.map((s) => ({ ...s, branchId: id }))
-      );
+  async updateBranch(
+    id: string,
+    data: {
+      name?: string;
+      state?: "active" | "inactive";
+      schedules?: {
+        weekday: number;
+        fromTime: string;
+        toTime: string;
+        timezone: string;
+      }[];
+    },
+  ) {
+    if (data.name !== undefined || data.state !== undefined) {
+      await this.conn
+        .update(branchsTable)
+        .set({
+          ...(data.name ? { name: data.name } : {}),
+          ...(data.state ? { state: data.state } : {}),
+        })
+        .where(eq(branchsTable.id, id));
     }
-  }
 
-  return this.conn.query.branchsTable.findFirst({
-    where: { id },
-    with: { schedulesTable: true },
-  });
-}
+    if (data.schedules !== undefined) {
+      await this.conn
+        .delete(schedulesTable)
+        .where(eq(schedulesTable.branchId, id));
+
+      if (data.schedules.length > 0) {
+        await this.conn
+          .insert(schedulesTable)
+          .values(data.schedules.map((s) => ({ ...s, branchId: id })));
+      }
+    }
+
+    return this.conn.query.branchsTable.findFirst({
+      where: { id },
+      with: { schedulesTable: true },
+    });
+  }
 }

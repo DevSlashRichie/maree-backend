@@ -1,6 +1,6 @@
 import { Err, Ok, type Result } from "oxide.ts";
-import { BranchDomainError, BranchNotFound } from "@/domain/entities/branch";
 import { UnknownError } from "@/application/error";
+import { BranchDomainError, BranchNotFound } from "@/domain/entities/branch";
 import { BranchRepo } from "@/domain/repositories/branch-repo";
 import { DB } from "@/infrastructure/db/postgres";
 
@@ -9,7 +9,12 @@ export async function updateBranchUseCase(
   data: {
     name?: string;
     state?: "active" | "inactive";
-    schedules?: { weekday: number; fromTime: string; toTime: string; timezone: string }[];
+    schedules?: {
+      weekday: number;
+      fromTime: string;
+      toTime: string;
+      timezone: string;
+    }[];
   },
 ): Promise<Result<any, BranchDomainError>> {
   try {

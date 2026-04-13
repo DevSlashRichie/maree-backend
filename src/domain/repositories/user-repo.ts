@@ -157,24 +157,24 @@ export class UserRepo {
   }
 
   async findStaffByBranch(branchId: string) {
-  const users = await this.conn
-    .select({
-      id: userTable.id,
-      firstName: userTable.firstName,
-      lastName: userTable.lastName,
-      phone: userTable.phone,
-      email: userTable.email,
-      createdAt: userTable.createdAt,
-      role: rolesTable.name,
-    })
-    .from(userTable)
-    .innerJoin(userRoleTable, eq(userRoleTable.userId, userTable.id))
-    .innerJoin(rolesTable, eq(rolesTable.id, userRoleTable.roleId))
-    .innerJoin(staffTable, eq(staffTable.userId, userTable.id))
-    .where(eq(staffTable.branchId, branchId));
+    const users = await this.conn
+      .select({
+        id: userTable.id,
+        firstName: userTable.firstName,
+        lastName: userTable.lastName,
+        phone: userTable.phone,
+        email: userTable.email,
+        createdAt: userTable.createdAt,
+        role: rolesTable.name,
+      })
+      .from(userTable)
+      .innerJoin(userRoleTable, eq(userRoleTable.userId, userTable.id))
+      .innerJoin(rolesTable, eq(rolesTable.id, userRoleTable.roleId))
+      .innerJoin(staffTable, eq(staffTable.userId, userTable.id))
+      .where(eq(staffTable.branchId, branchId));
 
-  return { users };
-}
+    return { users };
+  }
 
   async findById(id: string) {
     const user = await this.conn.query.userTable.findFirst({
@@ -380,9 +380,6 @@ export class UserRepo {
   }
 
   async saveStaff(data: { userId: string; branchId: string; role: string }) {
-    await this.conn
-      .insert(staffTable)
-      .values(data)
-      .onConflictDoNothing();
+    await this.conn.insert(staffTable).values(data).onConflictDoNothing();
   }
 }

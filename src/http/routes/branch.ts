@@ -1,4 +1,10 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import {
+  BranchDiscountSchema,
+  BranchStaffSchema,
+} from "@/application/dtos/branch-response";
+import { CreateBranchDto } from "@/application/dtos/create-branch";
+import { UpdateBranchDto } from "@/application/dtos/update-branch";
 import { createBranchUseCase } from "@/application/use-cases/create-branch";
 import {
   getBranchByIdUseCase,
@@ -6,6 +12,7 @@ import {
   getRewardsByBranchUseCase,
   getStaffByBranchUseCase,
 } from "@/application/use-cases/get-branch";
+import { updateBranchUseCase } from "@/application/use-cases/update-branch";
 import {
   AlreadyExistsBranch,
   BranchNotFound,
@@ -15,10 +22,6 @@ import {
 import { ErrorSchema } from "@/domain/entities/error";
 import { logger } from "@/lib/logger";
 import type { State } from "../state";
-import { UpdateBranchDto } from "@/application/dtos/update-branch";
-import { updateBranchUseCase } from "@/application/use-cases/update-branch";
-import { BranchDiscountSchema, BranchStaffSchema } from "@/application/dtos/branch-response";
-import { CreateBranchDto } from "@/application/dtos/create-branch";
 
 export const branchRouter = new OpenAPIHono<State>();
 

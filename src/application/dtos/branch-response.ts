@@ -1,19 +1,22 @@
-import { discountsTable, userTable } from "@/infrastructure/db/schema";
 import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
+import { discountsTable, userTable } from "@/infrastructure/db/schema";
 
 export const BranchStaffSchema = createSelectSchema(userTable, {
   createdAt: z.string(),
-}).pick({
-  id: true,
-  firstName: true,
-  lastName: true,
-  phone: true,
-  email: true,
-  createdAt: true,
-}).extend({
-  role: z.string().nullable(),
-}).openapi("BranchStaff");
+})
+  .pick({
+    id: true,
+    firstName: true,
+    lastName: true,
+    phone: true,
+    email: true,
+    createdAt: true,
+  })
+  .extend({
+    role: z.string().nullable(),
+  })
+  .openapi("BranchStaff");
 
 export const BranchDiscountSchema = createSelectSchema(discountsTable, {
   startDate: z.string(),

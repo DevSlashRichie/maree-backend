@@ -1,6 +1,9 @@
 import { eq } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
-import { discountBranchesTable, discountsTable } from "@/infrastructure/db/schema";
+import {
+  discountBranchesTable,
+  discountsTable,
+} from "@/infrastructure/db/schema";
 
 export class DiscountRepo {
   constructor(private readonly conn: Executor) {}
@@ -46,7 +49,10 @@ export class DiscountRepo {
     const result = await this.conn
       .select()
       .from(discountsTable)
-      .innerJoin(discountBranchesTable, eq(discountBranchesTable.discountId, discountsTable.id))
+      .innerJoin(
+        discountBranchesTable,
+        eq(discountBranchesTable.discountId, discountsTable.id),
+      )
       .where(eq(discountBranchesTable.branchId, branchId));
 
     return result.map((r) => r.discount);
