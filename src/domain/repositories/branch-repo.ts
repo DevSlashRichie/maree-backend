@@ -10,7 +10,7 @@ type SaveBranchType = Omit<
 
 type SaveScheduleType = Omit<
   InferInsertModel<typeof schedulesTable>,
-  "id" | "createdAt"
+  "id" | "createdAt" | "branchId"
 >;
 
 export class BranchRepo {
