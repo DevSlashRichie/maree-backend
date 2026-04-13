@@ -70,6 +70,7 @@ export async function createProductAndVariantUseCase(
         price: BigInt(data.price),
         image: data.imageUrl,
         productId: product.id,
+        description: data.description,
       });
       console.log("variant saved");
 
