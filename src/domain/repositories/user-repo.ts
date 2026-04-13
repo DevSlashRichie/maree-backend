@@ -9,6 +9,7 @@ import {
   loyaltyTransactionsTable,
   ordersTable,
   rolesTable,
+  staffTable,
   userPasswordTable,
   userRoleTable,
   userTable,
@@ -153,6 +154,26 @@ export class UserRepo {
     const total = Number(countResult[0]?.count ?? 0);
 
     return { users, total, page, limit };
+  }
+
+  async findStaffByBranch(branchId: string) {
+    const users = await this.conn
+      .select({
+        id: userTable.id,
+        firstName: userTable.firstName,
+        lastName: userTable.lastName,
+        phone: userTable.phone,
+        email: userTable.email,
+        createdAt: userTable.createdAt,
+        role: rolesTable.name,
+      })
+      .from(userTable)
+      .innerJoin(userRoleTable, eq(userRoleTable.userId, userTable.id))
+      .innerJoin(rolesTable, eq(rolesTable.id, userRoleTable.roleId))
+      .innerJoin(staffTable, eq(staffTable.userId, userTable.id))
+      .where(eq(staffTable.branchId, branchId));
+
+    return { users };
   }
 
   async findById(id: string) {
@@ -356,5 +377,9 @@ export class UserRepo {
       .values(data)
       .returning();
     return userPassword;
+  }
+
+  async saveStaff(data: { userId: string; branchId: string; role: string }) {
+    await this.conn.insert(staffTable).values(data).onConflictDoNothing();
   }
 }
