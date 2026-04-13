@@ -42,9 +42,7 @@ loyaltyRouter.openapi(
   }),
   async (ctx) => {
     const actor = ctx.get("actor");
-    const result = await getLoyaltyCardUseCase(
-      actor.userId,
-    );
+    const result = await getLoyaltyCardUseCase(actor.userId);
 
     if (result.isErr()) {
       const error = result.unwrapErr();

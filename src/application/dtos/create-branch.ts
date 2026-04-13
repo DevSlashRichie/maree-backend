@@ -12,7 +12,7 @@ export const CreateScheduleDto = z
 export const CreateBranchDto = z
   .object({
     name: z.string(),
-    state: z.string(),
+    state: z.enum(["active", "inactive"]),
     schedules: z.array(CreateScheduleDto).default([]),
   })
   .openapi("CreateBranchDto");
