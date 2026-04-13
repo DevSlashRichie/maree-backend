@@ -97,6 +97,13 @@ export async function createRewardUseCase(
         reward.id,
       );
 
+      if (data.branchId) {
+        await discountRepo.saveBranchDiscount({
+          discountId: discount.id,
+          branchId: data.branchId,
+        });
+      }
+
       return Ok({
         id: reward.id,
         name: reward.name,

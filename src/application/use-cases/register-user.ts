@@ -3,7 +3,6 @@ import { encrypt } from "paseto-ts/v4";
 import type { z } from "zod";
 import { UnknownError } from "@/application/error";
 import {
-  PasswordIsRequired,
   RegisterUserError,
   UserAlreadyExistsError,
 } from "@/application/errors/register-user";
@@ -38,15 +37,11 @@ export async function registerUserUseCase(
         phone: data.phone,
       });
 
-      if (data.role && !data.password) {
-        throw new PasswordIsRequired();
-      }
-
-      if (data.password) {
-        const hashedPassword = await Bun.password.hash(data.password);
-        await userRepo.savePassword({
+      if (data.branchId) {
+        await userRepo.saveStaff({
           userId: user.id,
-          password: hashedPassword,
+          branchId: data.branchId,
+          role: data.role ?? "barista",
         });
       }
 

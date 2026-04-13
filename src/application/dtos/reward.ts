@@ -19,6 +19,7 @@ export const CreateRewardDto = z
         appliesTo: z.array(z.string()).min(0),
       })
       .optional(),
+    branchId: z.string().optional(),
   })
   .openapi("CreateReward");
 

@@ -53,3 +53,34 @@ export function createBranch(params: CreateBranchParams) {
     state: parsedState,
   };
 }
+
+export abstract class BranchStaffError extends Error {
+  abstract readonly code: string;
+}
+
+export class BranchStaffNotFound extends BranchStaffError {
+  readonly code = "branch_staff_not_found";
+
+  constructor() {
+    super("Branch staff not found");
+  }
+}
+
+export abstract class BranchRewardsError extends Error {
+  abstract readonly code: string;
+}
+
+export class BranchRewardsNotFound extends BranchRewardsError {
+  readonly code = "branch_rewards_not_found";
+
+  constructor() {
+    super("Branch rewards not found");
+  }
+}
+
+export class BranchNotFound extends BranchDomainError {
+  readonly code = "branch_not_found";
+  constructor() {
+    super("Branch not found");
+  }
+}
