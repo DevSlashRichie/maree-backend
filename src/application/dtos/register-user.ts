@@ -9,6 +9,7 @@ export const RegisterUserDto = z
     email: z.email().optional(),
     password: z.string().min(6).optional(),
     role: z.string().optional(),
+    branchId: z.string().optional(),
   })
   .openapi("RegisterUserRequest");
 

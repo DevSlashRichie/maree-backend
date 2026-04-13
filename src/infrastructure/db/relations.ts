@@ -50,10 +50,32 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.discountsTable.id,
     }),
   },
+
   branchsTable: {
     schedulesTable: r.many.schedulesTable({
       from: r.branchsTable.id,
       to: r.schedulesTable.branchId,
+    }),
+
+    staffTable: r.many.staffTable({
+      from: r.branchsTable.id,
+      to: r.staffTable.branchId,
+    }),
+    discountBranchesTable: r.many.discountBranchesTable({
+      from: r.branchsTable.id,
+      to: r.discountBranchesTable.branchId,
+    }),
+  },
+  staffTable: {
+    userTable: r.one.userTable({
+      from: r.staffTable.userId,
+      to: r.userTable.id,
+    }),
+  },
+  discountBranchesTable: {
+    discountsTable: r.one.discountsTable({
+      from: r.discountBranchesTable.discountId,
+      to: r.discountsTable.id,
     }),
   },
 }));
