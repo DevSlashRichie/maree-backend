@@ -39,7 +39,7 @@ export type ProductVariantSnapshot = {
 };
 
 export class ProductRepo {
-  constructor(private readonly conn: Executor) { }
+  constructor(private readonly conn: Executor) {}
 
   async findAll(filters?: ProductFilters): Promise<Product[]> {
     const whereConditions = filters
@@ -268,9 +268,9 @@ export class ProductRepo {
       )
       .where(eq(productVariantsTable.id, variantId));
 
-    console.log("----------------------------------------------")
+    console.log("----------------------------------------------");
     console.log(variantWithProduct);
-    console.log("----------------------------------------------")
+    console.log("----------------------------------------------");
 
     if (!variantWithProduct || variantWithProduct.length === 0) {
       return null;
