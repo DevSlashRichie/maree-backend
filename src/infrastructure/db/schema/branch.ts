@@ -49,6 +49,7 @@ export const staffTable = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
+    role: text("role").notNull(),
   },
   (table) => [
     primaryKey({

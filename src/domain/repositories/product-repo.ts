@@ -1,4 +1,4 @@
-import { and, eq, type InferInsertModel, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, type InferInsertModel, inArray, sql } from "drizzle-orm";
 import type {
   ProductVariantFilters,
   ProductVariantWithProduct,
@@ -37,6 +37,12 @@ export type ProductVariantSnapshot = {
   productName: string;
   productType: "complete" | "ingredient";
 };
+type SaveCategoryType = Omit<
+  InferInsertModel<typeof categoryTable>,
+  "id" | "createdAt"
+>;
+
+type UpdateCategoryType = Partial<SaveCategoryType>;
 
 export class ProductRepo {
   constructor(private readonly conn: Executor) {}
@@ -221,7 +227,49 @@ export class ProductRepo {
   }
 
   async getAllCategories() {
-    return this.conn.select().from(categoryTable);
+    return this.conn
+      .select()
+      .from(categoryTable)
+      .orderBy(desc(categoryTable.createdAt));
+  }
+
+  async findCategoryById(id: string) {
+    const category = await this.conn.query.categoryTable.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    return category;
+  }
+
+  async findCategoryByName(name: string) {
+    const category = await this.conn.query.categoryTable.findFirst({
+      where: {
+        name,
+      },
+    });
+
+    return category;
+  }
+
+  async saveCategory(data: SaveCategoryType) {
+    const [category] = await this.conn
+      .insert(categoryTable)
+      .values(data)
+      .returning();
+
+    return category!;
+  }
+
+  async updateCategory(id: string, data: UpdateCategoryType) {
+    const [category] = await this.conn
+      .update(categoryTable)
+      .set(data)
+      .where(eq(categoryTable.id, id))
+      .returning();
+
+    return category;
   }
 
   async findProductVariantSnapshotsByIds(
