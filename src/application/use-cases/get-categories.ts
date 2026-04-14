@@ -1,10 +1,7 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import type { CategoryTree } from "@/application/dtos/get-categories";
 import { UnknownError } from "@/application/error";
-import {
-  GetCategoriesError,
-  NoCategoriesFound,
-} from "@/application/errors/get-categories";
+import { GetCategoriesError } from "@/application/errors/get-categories";
 import { ProductRepo } from "@/domain/repositories/product-repo";
 import { DB } from "@/infrastructure/db/postgres";
 
@@ -16,10 +13,6 @@ export async function getCategoriesUseCase(): Promise<
       const productRepo = new ProductRepo(txn);
 
       const categories = await productRepo.getAllCategories();
-
-      if (categories.length === 0) {
-        throw new NoCategoriesFound();
-      }
 
       const buildTree = (parentId: string | null): any => {
         const children = categories
