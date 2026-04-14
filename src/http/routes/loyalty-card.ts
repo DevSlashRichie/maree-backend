@@ -1,12 +1,11 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { LoyaltyCardDetailsDto } from "@/application/dtos/reward";
 import { GoogleWalletPassDto } from "@/application/dtos/google-wallet";
+import { LoyaltyCardDetailsDto } from "@/application/dtos/reward";
 import { LoyaltyCardNotFound } from "@/application/errors/get-loyalty-card";
 import { getLoyaltyCardUseCase } from "@/application/use-cases/get-loyalty-card";
 import { getLoyaltyGoogleWalletUseCase } from "@/application/use-cases/get-loyalty-google-wallet";
 import { ErrorSchema } from "@/domain/entities/error";
-// 1. Asegúrate de importar la clase correctamente
-import { GoogleWalletClient } from "@/infrastructure/google-wallet/google-wallet"; 
+import { GoogleWalletClient } from "@/infrastructure/google-wallet/google-wallet";
 import type { State } from "../state";
 
 export const loyaltyRouter = new OpenAPIHono<State>();
@@ -79,17 +78,19 @@ loyaltyRouter.openapi(
   }),
   async (ctx) => {
     const actor = ctx.get("actor");
-    
-    const state = ctx.get("state") as any; 
 
+    const state = ctx.get("state") as any;
 
     const walletClient = new GoogleWalletClient(
       state.GOOGLE_WALLET_ISSUER_ID,
-      "loyalty_class", 
-      state.GOOGLE_WALLET_CREDENTIALS
+      "loyalty_class",
+      state.GOOGLE_WALLET_CREDENTIALS,
     );
 
-    const result = await getLoyaltyGoogleWalletUseCase(actor.userId, walletClient);
+    const result = await getLoyaltyGoogleWalletUseCase(
+      actor.userId,
+      walletClient,
+    );
 
     if (result.isErr()) {
       const error = result.unwrapErr();

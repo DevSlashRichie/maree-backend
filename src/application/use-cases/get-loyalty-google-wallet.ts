@@ -1,17 +1,20 @@
-import type { WalletPassPort } from "@/domain/ports/google-wallet-pass";
-import { z } from "@hono/zod-openapi";
-import type { GoogleWalletPassDto } from "../dtos/google-wallet";
-import { LoyaltyCardNotFound, UnknownLoyaltyCardError, type GetLoyaltyCardError } from "../errors/get-loyalty-card";
+import type { z } from "@hono/zod-openapi";
 import { Err, Ok, type Result } from "oxide.ts";
+import type { WalletPassPort } from "@/domain/ports/google-wallet-pass";
 import { LoyaltyRepo } from "@/domain/repositories/loyalty-repo";
 import { UserRepo } from "@/domain/repositories/user-repo";
 import { DB } from "@/infrastructure/db/postgres";
-
+import type { GoogleWalletPassDto } from "../dtos/google-wallet";
+import {
+  type GetLoyaltyCardError,
+  LoyaltyCardNotFound,
+  UnknownLoyaltyCardError,
+} from "../errors/get-loyalty-card";
 
 export async function getLoyaltyGoogleWalletUseCase(
-  userId:string, 
+  userId: string,
   WalletClient: WalletPassPort,
-): Promise <Result<z.infer<typeof GoogleWalletPassDto>, GetLoyaltyCardError>> {
+): Promise<Result<z.infer<typeof GoogleWalletPassDto>, GetLoyaltyCardError>> {
   if (!userId?.trim()) {
     return Err(new LoyaltyCardNotFound(userId));
   }
@@ -40,9 +43,7 @@ export async function getLoyaltyGoogleWalletUseCase(
     });
 
     return Ok(result);
-
-  } catch(error) {
-    return Err(new UnknownLoyaltyCardError(error))
+  } catch (error) {
+    return Err(new UnknownLoyaltyCardError(error));
   }
-  
 }
