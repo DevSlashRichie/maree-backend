@@ -1,21 +1,17 @@
-// application/use-cases/get-loyalty-google-wallet.ts
+import type { WalletPassPort } from "@/domain/ports/google-wallet-pass";
+import { z } from "@hono/zod-openapi";
+import type { GoogleWalletPassDto } from "../dtos/google-wallet";
+import { LoyaltyCardNotFound, UnknownLoyaltyCardError, type GetLoyaltyCardError } from "../errors/get-loyalty-card";
 import { Err, Ok, type Result } from "oxide.ts";
-import type { z } from "zod";
-import type { GoogleWalletPassDto } from "@/application/dtos/google-wallet";
-import type { GetLoyaltyCardError } from "@/application/errors/get-loyalty-card";
-import {
-  LoyaltyCardNotFound,
-  UnknownLoyaltyCardError,
-} from "@/application/errors/get-loyalty-card";
-import type { WalletPassPort } from "@/domain/ports/wallet-pass";
 import { LoyaltyRepo } from "@/domain/repositories/loyalty-repo";
 import { UserRepo } from "@/domain/repositories/user-repo";
 import { DB } from "@/infrastructure/db/postgres";
 
+
 export async function getLoyaltyGoogleWalletUseCase(
-  userId: string,
-  walletClient: WalletPassPort, // inyectado desde la route, igual que el encryptKey en login
-): Promise<Result<z.infer<typeof GoogleWalletPassDto>, GetLoyaltyCardError>> {
+  userId:string, 
+  WalletClient: WalletPassPort,
+): Promise <Result<z.infer<typeof GoogleWalletPassDto>, GetLoyaltyCardError>> {
   if (!userId?.trim()) {
     return Err(new LoyaltyCardNotFound(userId));
   }
@@ -24,6 +20,7 @@ export async function getLoyaltyGoogleWalletUseCase(
     const loyaltyRepo = new LoyaltyRepo(DB);
     const userRepo = new UserRepo(DB);
 
+    // Fetch user data and balance
     const [balance, user] = await Promise.all([
       loyaltyRepo.findCurrentBalance(userId),
       userRepo.findById(userId),
@@ -33,7 +30,8 @@ export async function getLoyaltyGoogleWalletUseCase(
       return Err(new LoyaltyCardNotFound(userId));
     }
 
-    const result = await walletClient.generateLoyaltyPass({
+    // Delegate pass generation to the Google Wallet provider
+    const result = await WalletClient.generateLoyaltyPass({
       userId,
       firstName: user.firstName,
       lastName: user.lastName,
@@ -42,7 +40,9 @@ export async function getLoyaltyGoogleWalletUseCase(
     });
 
     return Ok(result);
-  } catch (error) {
-    return Err(new UnknownLoyaltyCardError(error));
+
+  } catch(error) {
+    return Err(new UnknownLoyaltyCardError(error))
   }
+  
 }

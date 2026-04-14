@@ -8,7 +8,7 @@ export interface WalletPassData {
 
 export interface WalletPassResult {
   signedJWT: string;
-  savedURL: string;
+  saveURL: string;
 }
 
 export interface WalletPassPort {

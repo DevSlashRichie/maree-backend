@@ -32,9 +32,9 @@ export class GoogleWalletClient implements WalletPassPort {
   async generateLoyaltyPass(data: WalletPassData): Promise<WalletPassResult> {
     await this.ensureClassExists();
     await this.upsertObject(data);
-    const savedURL = this.createJWT(data.userId);
+    const saveURL = this.createJWT(data.userId);
 
-    return { savedURL, signedJWT: savedURL.split("/save/")[1] ?? "" };
+    return { saveURL, signedJWT: saveURL.split("/save/")[1] ?? "" };
   }
 
   private async ensureClassExists(): Promise<void> {
