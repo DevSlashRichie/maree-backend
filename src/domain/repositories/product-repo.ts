@@ -39,7 +39,7 @@ export type ProductVariantSnapshot = {
 };
 
 export class ProductRepo {
-  constructor(private readonly conn: Executor) {}
+  constructor(private readonly conn: Executor) { }
 
   async findAll(filters?: ProductFilters): Promise<Product[]> {
     const whereConditions = filters
@@ -110,11 +110,12 @@ export class ProductRepo {
       WHERE parent_id IS NULL;
     `);
 
+    console.log(res.rows[0]?.rootName);
     const rootName = String(res.rows[0]?.rootName ?? "")
       .trim()
       .toLowerCase();
 
-    return rootName === "ingredient";
+    return rootName === "ingrediente";
   }
 
   async isIngredientFromType(id: string) {
@@ -267,6 +268,10 @@ export class ProductRepo {
       )
       .where(eq(productVariantsTable.id, variantId));
 
+    console.log("----------------------------------------------")
+    console.log(variantWithProduct);
+    console.log("----------------------------------------------")
+
     if (!variantWithProduct || variantWithProduct.length === 0) {
       return null;
     }
@@ -291,6 +296,10 @@ export class ProductRepo {
         eq(productComponentsTable.productId, productTable.id),
       )
       .where(eq(productComponentsTable.productVariantId, variantId));
+
+    console.log("this is what i found");
+    console.log(variantWithProduct);
+    console.log(components);
 
     return {
       variant: {

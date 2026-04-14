@@ -14,8 +14,10 @@ export async function getProductVariantUseCase(
   return DB.transaction(async (txn) => {
     try {
       const productRepo = new ProductRepo(txn);
+      console.log("lets make thhe repo");
       const result =
         await productRepo.findProductVariantWithComponents(variantId);
+      console.log(result);
 
       if (!result) {
         throw new ProductVariantNotFound();

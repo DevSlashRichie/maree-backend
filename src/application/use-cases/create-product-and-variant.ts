@@ -110,6 +110,9 @@ export async function createProductAndVariantUseCase(
         await productRepo.saveProductComponents(componentsData);
       }
 
+      console.log(product);
+      console.log(productVariant);
+
       return Ok({
         product,
         variant: productVariant,
