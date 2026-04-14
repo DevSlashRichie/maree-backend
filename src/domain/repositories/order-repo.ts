@@ -101,7 +101,6 @@ export class OrderRepo {
     return order;
   }
 
-
   async saveOrder(data: SaveOrderType) {
     const [order] = await this.conn
       .insert(ordersTable)
