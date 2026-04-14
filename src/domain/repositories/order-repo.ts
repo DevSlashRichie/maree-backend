@@ -101,6 +101,7 @@ export class OrderRepo {
     return order;
   }
 
+
   async saveOrder(data: SaveOrderType) {
     const [order] = await this.conn
       .insert(ordersTable)
@@ -117,5 +118,19 @@ export class OrderRepo {
     }
 
     return this.conn.insert(orderItemsTable).values(items).returning();
+  }
+
+  async updateStatus(id: string, status: string) {
+    const [order] = await this.conn
+      .update(ordersTable)
+      .set({ status })
+      .where(eq(ordersTable.id, id))
+      .returning();
+
+    if (!order) {
+      throw new OrderNotFound();
+    }
+
+    return order;
   }
 }
