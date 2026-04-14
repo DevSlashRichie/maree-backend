@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { GoogleWalletPassDto } from "@/application/dtos/google-wallet";
 import { LoyaltyCardDetailsDto } from "@/application/dtos/reward";
@@ -6,10 +7,11 @@ import { getLoyaltyCardUseCase } from "@/application/use-cases/get-loyalty-card"
 import { getLoyaltyGoogleWalletUseCase } from "@/application/use-cases/get-loyalty-google-wallet";
 import { ErrorSchema } from "@/domain/entities/error";
 import { GoogleWalletClient } from "@/infrastructure/google-wallet/google-wallet";
+import { authzMiddleware } from "../middleware/authz";
 import type { State } from "../state";
 
 export const loyaltyRouter = new OpenAPIHono<State>();
-
+loyaltyRouter.use(authzMiddleware(false));
 /**
  * GET /
  * Returns basic loyalty card details
@@ -78,13 +80,34 @@ loyaltyRouter.openapi(
   }),
   async (ctx) => {
     const actor = ctx.get("actor");
-
     const state = ctx.get("state") as any;
+
+    const keyPath = process.env.GOOGLE_WALLET_CREDENTIALS_PATH;
+
+    if (!keyPath) {
+      console.error(
+        "ERROR: La variable GOOGLE_WALLET_CREDENTIALS_PATH no existe en el .env",
+      );
+      return ctx.json({ code: "CONFIG_ERROR", message: "Path missing" }, 500);
+    }
+
+    let credentialsStr: string;
+    try {
+      credentialsStr = readFileSync(keyPath, "utf8");
+    } catch (e: any) {
+      console.error(
+        `ERROR AL LEER: ${keyPath}. Asegúrate de que el archivo existe en la raíz.`,
+      );
+      return ctx.json(
+        { code: "CONFIG_ERROR", message: "Key file unreadable" },
+        500,
+      );
+    }
 
     const walletClient = new GoogleWalletClient(
       state.GOOGLE_WALLET_ISSUER_ID,
-      "loyalty_class",
-      state.GOOGLE_WALLET_CREDENTIALS,
+      state.GOOGLE_WALLET_CLASS_SUFFIX || "class_maree",
+      credentialsStr,
     );
 
     const result = await getLoyaltyGoogleWalletUseCase(

@@ -43,7 +43,11 @@ export class GoogleWalletClient implements WalletPassPort {
     try {
       await this.client.loyaltyclass.get({ resourceId });
       return;
-    } catch (err: unknown) {
+    } catch (err: any) {
+      console.error(
+        "Google API Error (Class):",
+        err.response?.data || err.message,
+      );
       const isNotFound =
         err instanceof Error &&
         "response" in err &&
