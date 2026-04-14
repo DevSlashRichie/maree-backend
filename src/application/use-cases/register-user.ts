@@ -65,7 +65,6 @@ export async function registerUserUseCase(
         return Err(error);
       }
 
-      // Temporal para debug — ver el error real
       console.error("RAW ERROR:", error);
       console.error("ERROR TYPE:", typeof error);
       console.error("ERROR KEYS:", error ? Object.keys(error as object) : null);
