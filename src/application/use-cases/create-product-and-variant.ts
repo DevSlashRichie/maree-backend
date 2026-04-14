@@ -91,14 +91,6 @@ export async function createProductAndVariantUseCase(
           ingredientCategoryIds.push(ingredientProduct.categoryId);
         }
 
-        const categories = await productRepo.getAllCategories();
-        validateIngredientComposition({
-          productType: type,
-          productCategoryId: data.categoryId,
-          ingredientCategoryIds,
-          categories,
-        });
-
         const componentsData = data.ingredients.map(
           ({ id, quantity, isRemovable }) => ({
             productVariantId: productVariant.id,
