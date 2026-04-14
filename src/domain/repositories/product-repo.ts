@@ -265,6 +265,7 @@ export class ProductRepo {
       .values(data)
       .returning();
 
+    // biome-ignore lint/style/noNonNullAssertion: since we're creating a new category, it should always exist
     return category!;
   }
 
