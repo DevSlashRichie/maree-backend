@@ -11,6 +11,15 @@ describe("createBranch", () => {
     expect(branch.state).toBe("active");
   });
 
+  it("should create branch with valid params and set it to inactive", () => {
+    const branch = createBranch({
+      name: "Uptown",
+      state: "inactive",
+    });
+    expect(branch.name).toBe("Uptown");
+    expect(branch.state).toBe("inactive");
+  });
+
   it("should throw for empty name", () => {
     expect(() =>
       createBranch({
@@ -25,6 +34,15 @@ describe("createBranch", () => {
       createBranch({
         name: "Downtown",
         state: "",
+      }),
+    ).toThrow();
+  });
+
+  it("should throw for invalid state", () => {
+    expect(() =>
+      createBranch({
+        name: "Downtown",
+        state: "idk",
       }),
     ).toThrow();
   });

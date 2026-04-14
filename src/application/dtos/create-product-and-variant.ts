@@ -9,6 +9,7 @@ export const CreateProductAndVariantDto = z.object({
   status: z.enum(["active", "inactive"]),
   categoryId: z.uuid(),
   price: z.number(),
+  description: z.string(),
   imageUrl: z.string(),
   ingredients: z
     .array(

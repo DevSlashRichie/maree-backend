@@ -765,7 +765,9 @@ productRouter.openapi(
     },
   }),
   async (ctx) => {
+    console.log("at least got here");
     const { id } = ctx.req.valid("param");
+    console.log("got id", id);
     const result = await getProductVariantUseCase(id);
 
     if (result.isErr()) {

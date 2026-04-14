@@ -1,9 +1,15 @@
 import { createRoute, z } from "@hono/zod-openapi";
 import qs from "qs";
+import { CreateOrderDto } from "@/application/dtos/create-order.ts";
 import {
   IncomingOrdersDto,
   OrderHistoryDto,
 } from "@/application/dtos/order.ts";
+import {
+  ModifierMustBeIngredientError,
+  ProductVariantNotFoundError,
+  TotalMismatchError,
+} from "@/application/errors/create-order.ts";
 import {
   OrderAlreadyClosed,
   OrderAlreadyMark,
@@ -11,6 +17,7 @@ import {
   OrderNotFound,
 } from "@/application/errors/order";
 import { closeOrderUseCase } from "@/application/use-cases/close-order";
+import { createOrderUseCase } from "@/application/use-cases/create-order.ts";
 import { getIncomingOrdersUseCase } from "@/application/use-cases/get-incoming-orders.ts";
 import { getOderHistoryUseCase } from "@/application/use-cases/get-oder-history.ts";
 import { getOrdersUseCase } from "@/application/use-cases/get-orders.ts";
@@ -23,9 +30,91 @@ import {
   OrderWithUserSchema,
 } from "@/domain/entities/order";
 import { logger } from "@/lib/logger.ts";
+import { authzMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
 
 export const orderRouter = createRouter();
+
+orderRouter.openapi(
+  createRoute({
+    tags: ["Order"],
+    method: "post",
+    path: "/",
+    security: [{ Bearer: [] }],
+    middleware: [authzMiddleware(true)],
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: CreateOrderDto,
+          },
+        },
+      },
+    },
+    responses: {
+      201: {
+        description: "order created",
+        content: {
+          "application/json": {
+            schema: OrderSchema,
+          },
+        },
+      },
+      400: {
+        description: "invalid order payload",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      404: {
+        description: "product variant not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "internal server error",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const body = ctx.req.valid("json");
+    const actor = ctx.get("actor");
+
+    const result = await createOrderUseCase(actor.userId, body);
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+
+      const statusCode =
+        err instanceof TotalMismatchError ||
+        err instanceof ModifierMustBeIngredientError
+          ? 400
+          : err instanceof ProductVariantNotFoundError
+            ? 404
+            : 500;
+
+      return ctx.json(
+        {
+          code: err.code,
+          message: err.message,
+        },
+        statusCode,
+      );
+    }
+
+    return ctx.json(result.unwrap(), 201);
+  },
+);
 
 orderRouter.openapi(
   createRoute({

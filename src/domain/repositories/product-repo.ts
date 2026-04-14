@@ -1,4 +1,4 @@
-import { and, desc, eq, type InferInsertModel, sql } from "drizzle-orm";
+import { and, desc, eq, type InferInsertModel, inArray, sql } from "drizzle-orm";
 import type {
   ProductVariantFilters,
   ProductVariantWithProduct,
@@ -29,6 +29,14 @@ type SaveProductComponentsType = Omit<
   "id" | "createdAt"
 >;
 
+export type ProductVariantSnapshot = {
+  id: string;
+  name: string;
+  price: bigint;
+  productId: string;
+  productName: string;
+  productType: "complete" | "ingredient";
+};
 type SaveCategoryType = Omit<
   InferInsertModel<typeof categoryTable>,
   "id" | "createdAt"
@@ -53,6 +61,31 @@ export class ProductRepo {
       .where(whereClause);
 
     return products;
+  }
+
+  async findIngredientsWithVariantPrice() {
+    return this.conn
+      .select({
+        id: productTable.id,
+        name: productTable.name,
+        status: productTable.status,
+        image: productTable.image,
+        categoryId: productTable.categoryId,
+        price: sql<bigint | null>`min(${productVariantsTable.price})`,
+      })
+      .from(productTable)
+      .leftJoin(
+        productVariantsTable,
+        eq(productVariantsTable.productId, productTable.id),
+      )
+      .where(eq(productTable.type, "ingredient"))
+      .groupBy(
+        productTable.id,
+        productTable.name,
+        productTable.status,
+        productTable.image,
+        productTable.categoryId,
+      );
   }
 
   async findById(id: string) {
@@ -87,7 +120,7 @@ export class ProductRepo {
       .trim()
       .toLowerCase();
 
-    return rootName === "ingredient" || rootName === "ingrediente";
+    return rootName === "ingrediente";
   }
 
   async isIngredientFromType(id: string) {
@@ -236,6 +269,30 @@ export class ProductRepo {
       .returning();
 
     return category;
+  }
+
+  async findProductVariantSnapshotsByIds(
+    variantIds: string[],
+  ): Promise<ProductVariantSnapshot[]> {
+    if (variantIds.length === 0) {
+      return [];
+    }
+
+    return this.conn
+      .select({
+        id: productVariantsTable.id,
+        name: productVariantsTable.name,
+        price: productVariantsTable.price,
+        productId: productTable.id,
+        productName: productTable.name,
+        productType: productTable.type,
+      })
+      .from(productVariantsTable)
+      .innerJoin(
+        productTable,
+        eq(productVariantsTable.productId, productTable.id),
+      )
+      .where(inArray(productVariantsTable.id, variantIds));
   }
 
   async findProductVariantWithComponents(variantId: string) {
