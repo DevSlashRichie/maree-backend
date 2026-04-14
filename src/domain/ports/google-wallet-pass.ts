@@ -1,16 +1,16 @@
 export interface WalletPassData {
-    userId: string;
-    firstName: string;
-    lastName: string;
-    phone: string;
-    points: number;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  points: number;
 }
 
 export interface WalletPassResult {
-    signedJWT: string;
-    savedURL: string;
+  signedJWT: string;
+  savedURL: string;
 }
 
 export interface WalletPassPort {
-    generateLoyaltyPass(data: WalletPassData): Promise<WalletPassResult>
+  generateLoyaltyPass(data: WalletPassData): Promise<WalletPassResult>;
 }

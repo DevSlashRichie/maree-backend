@@ -7,6 +7,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.2",
     "@types/bun": "latest",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/pg": "^8.18.0",
     "@types/qs": "^6.15.0",
     "drizzle-kit": "1.0.0-beta.16-ea816b6",
@@ -29,8 +30,10 @@
     "drizzle-orm": "1.0.0-beta.16-ea816b6",
     "drizzle-seed": "1.0.0-beta.16-ea816b6",
     "drizzle-zod": "^1.0.0-beta.16-ea816b6",
+    "googleapis": "^171.4.0",
     "hono": "^4.12.3",
     "hono-pino": "^0.10.3",
+    "jsonwebtoken": "^9.0.3",
     "orval": "^8.6.2",
     "oxide.ts": "^1.1.0",
     "paseto-ts": "^2.0.5",
