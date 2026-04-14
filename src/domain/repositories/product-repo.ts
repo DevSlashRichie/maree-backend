@@ -116,7 +116,6 @@ export class ProductRepo {
       WHERE parent_id IS NULL;
     `);
 
-    console.log(res.rows[0]?.rootName);
     const rootName = String(res.rows[0]?.rootName ?? "")
       .trim()
       .toLowerCase();
@@ -316,10 +315,6 @@ export class ProductRepo {
       )
       .where(eq(productVariantsTable.id, variantId));
 
-    console.log("----------------------------------------------");
-    console.log(variantWithProduct);
-    console.log("----------------------------------------------");
-
     if (!variantWithProduct || variantWithProduct.length === 0) {
       return null;
     }
@@ -344,10 +339,6 @@ export class ProductRepo {
         eq(productComponentsTable.productId, productTable.id),
       )
       .where(eq(productComponentsTable.productVariantId, variantId));
-
-    console.log("this is what i found");
-    console.log(variantWithProduct);
-    console.log(components);
 
     return {
       variant: {
