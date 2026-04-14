@@ -32,7 +32,6 @@ import {
   InvalidIngredientQuantity,
   ProductVariantAlreadyExists,
 } from "@/application/errors/create-product-variant.ts";
-import { NoCategoriesFound } from "@/application/errors/get-categories";
 import { ProductVariantNotFound } from "@/application/errors/get-product-variant";
 import { ImageIsEmpty } from "@/application/errors/upload-product-image.ts";
 import { createCategoryUseCase } from "@/application/use-cases/create-category.ts";
@@ -521,16 +520,6 @@ productRouter.openapi(
 
     if (result.isErr()) {
       const err = result.unwrapErr();
-
-      if (err instanceof NoCategoriesFound) {
-        return ctx.json(
-          {
-            code: err.code,
-            message: err.message,
-          },
-          404,
-        );
-      }
 
       logger.error("Error: %s", err);
 
