@@ -27,9 +27,7 @@ export async function getIngredientsUseCase(): Promise<
         return Ok([]);
       }
 
-      const ingredients = await productRepo.findAll({
-        type: { eq: "ingredient" },
-      });
+      const ingredients = await productRepo.findIngredientsWithVariantPrice();
 
       const childrenByParent = new Map<string, typeof categories>();
       for (const category of categories) {
@@ -79,6 +77,7 @@ export async function getIngredientsUseCase(): Promise<
                 status: prod.status,
                 image: prod.image ?? undefined,
                 categoryId: prod.categoryId,
+                price: prod.price ?? BigInt(0),
               })),
             });
           }

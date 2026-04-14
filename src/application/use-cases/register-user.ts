@@ -6,12 +6,14 @@ import {
   RegisterUserError,
   UserAlreadyExistsError,
 } from "@/application/errors/register-user";
+import { RbacRepo } from "@/domain/repositories/rbac-repo";
 import { UserRepo } from "@/domain/repositories/user-repo.ts";
 import { DB } from "@/infrastructure/db/postgres.ts";
 import type {
   RegisterUserDto,
   RegisterUserResponseDto,
 } from "../dtos/register-user";
+import { RoleNotFoundError } from "../errors/rbac";
 
 export async function registerUserUseCase(
   data: z.infer<typeof RegisterUserDto>,
@@ -20,6 +22,7 @@ export async function registerUserUseCase(
   return DB.transaction(async (txn) => {
     try {
       const userRepo = new UserRepo(txn);
+      const rbacRepo = new RbacRepo(txn);
 
       const userAlreadyExists = await userRepo.existsUser(
         data.phone,
@@ -38,11 +41,22 @@ export async function registerUserUseCase(
       });
 
       if (data.branchId) {
+        const roleName = data.role ?? "waiter";
+
         await userRepo.saveStaff({
           userId: user.id,
           branchId: data.branchId,
-          role: data.role ?? "barista",
+          role: roleName,
         });
+
+        const role = await rbacRepo.findRoleByName(roleName);
+
+        if (!role) {
+          throw new RoleNotFoundError();
+        }
+
+        await rbacRepo.deleteAllUserRoles(user.id);
+        await rbacRepo.assignRoleToUser(user.id, role.id);
       }
 
       const token = encrypt(encryptKey, { userId: user.id });
@@ -53,9 +67,13 @@ export async function registerUserUseCase(
         return Err(error);
       }
 
+      console.error("RAW ERROR:", error);
+      console.error("ERROR TYPE:", typeof error);
+      console.error("ERROR KEYS:", error ? Object.keys(error as object) : null);
+
       return Err(
         new UnknownError(
-          error instanceof Error ? error.message : "unknown error",
+          error instanceof Error ? error.message : JSON.stringify(error),
         ),
       );
     }
