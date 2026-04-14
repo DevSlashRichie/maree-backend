@@ -9,6 +9,7 @@ export const UpdateCategoryDto = createInsertSchema(categoryTable)
     name: z.string().min(1).optional(),
     description: z.string().optional().nullable(),
     parentId: z.string().uuid().optional().nullable(),
+    public: z.boolean().optional(),
   })
   .openapi("UpdateCategoryDto");
 

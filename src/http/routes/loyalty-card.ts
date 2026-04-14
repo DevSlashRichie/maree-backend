@@ -3,9 +3,11 @@ import { LoyaltyCardDetailsDto } from "@/application/dtos/reward";
 import { LoyaltyCardNotFound } from "@/application/errors/get-loyalty-card";
 import { getLoyaltyCardUseCase } from "@/application/use-cases/get-loyalty-card";
 import { ErrorSchema } from "@/domain/entities/error";
+import { authzMiddleware } from "../middleware/authz";
 import type { State } from "../state";
 
 export const loyaltyRouter = new OpenAPIHono<State>();
+loyaltyRouter.use(authzMiddleware(false));
 
 loyaltyRouter.openapi(
   createRoute({
