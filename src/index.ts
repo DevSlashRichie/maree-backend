@@ -63,10 +63,10 @@ async function main() {
     throw new Error("Invalid environment variables");
   }
 
-  if (process.env.NODE_ENV === "production") {
-    logger.info("Running database migrations...");
-    execSync("bun run drizzle:migrate", { stdio: "inherit" });
-  }
+  //if (process.env.NODE_ENV === "production") {
+  //  logger.info("Running database migrations...");
+  //  execSync("bun run drizzle:migrate", { stdio: "inherit" });
+  //}
 
   await seedIfRequired();
   await ensureSystemSetup();
