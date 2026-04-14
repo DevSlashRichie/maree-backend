@@ -30,15 +30,7 @@ type ProductSeed = {
   key: string;
   name: string;
   categoryKey: string;
-  type:
-    | "complete"
-    | "component"
-    | "ingredient"
-    | "ingrediente"
-    | "complete-product"
-    | "crepa"
-    | "waffle"
-    | "bebida";
+  type: "complete" | "ingredient";
   price: bigint;
   components?: Array<{
     productKey: string;
@@ -117,98 +109,98 @@ const crepeStoreProducts: ProductSeed[] = [
     key: "chocolate",
     name: "Chocolate",
     categoryKey: "ingrediente-dulce-topping",
-    type: "ingrediente",
+    type: "ingredient",
     price: BigInt(1200),
   },
   {
     key: "coco-rallado",
     name: "Coco rallado",
     categoryKey: "ingrediente-dulce-topping",
-    type: "ingrediente",
+    type: "ingredient",
     price: BigInt(1000),
   },
   {
     key: "nutella",
     name: "Nutella",
     categoryKey: "ingrediente-dulce-untable",
-    type: "ingrediente",
+    type: "ingredient",
     price: BigInt(1800),
   },
   {
     key: "cajeta",
     name: "Cajeta",
     categoryKey: "ingrediente-dulce-untable",
-    type: "ingrediente",
+    type: "ingredient",
     price: BigInt(1700),
   },
   {
     key: "fresa",
     name: "Fresa",
     categoryKey: "ingrediente-dulce-fruta",
-    type: "ingrediente",
+    type: "ingredient",
     price: BigInt(1400),
   },
   {
     key: "platano",
     name: "Plátano",
     categoryKey: "ingrediente-dulce-fruta",
-    type: "ingrediente",
+    type: "ingredient",
     price: BigInt(1300),
   },
   {
     key: "limon",
     name: "Limón",
     categoryKey: "ingrediente-dulce-fruta",
-    type: "ingrediente",
+    type: "ingredient",
     price: BigInt(1100),
   },
   {
     key: "jamon",
     name: "Jamón",
     categoryKey: "ingrediente-salada-topping",
-    type: "ingrediente",
+    type: "ingredient",
     price: BigInt(1500),
   },
   {
     key: "queso-oaxaca",
     name: "Queso Oaxaca",
     categoryKey: "ingrediente-salada-topping",
-    type: "ingrediente",
+    type: "ingredient",
     price: BigInt(1600),
   },
   {
     key: "pollo-deshebrado",
     name: "Pollo deshebrado",
     categoryKey: "ingrediente-salada-topping",
-    type: "ingrediente",
+    type: "ingredient",
     price: BigInt(1900),
   },
   {
     key: "mayonesa-chipotle",
     name: "Mayonesa chipotle",
     categoryKey: "ingrediente-salada-untable",
-    type: "ingrediente",
+    type: "ingredient",
     price: BigInt(900),
   },
   {
     key: "aguacate",
     name: "Aguacate",
     categoryKey: "ingrediente-salada-fruta",
-    type: "ingrediente",
+    type: "ingredient",
     price: BigInt(1500),
   },
   {
     key: "jitomate",
     name: "Jitomate",
     categoryKey: "ingrediente-salada-fruta",
-    type: "ingrediente",
+    type: "ingredient",
     price: BigInt(1000),
   },
   {
     key: "crepa-nutella-fresa",
     name: "Crepa de Nutella y Fresa",
     categoryKey: "crepa-dulce-artesanal",
-    type: "crepa",
+    type: "complete",
     price: BigInt(9500),
     components: [
       { productKey: "nutella", quantity: 1, isRemovable: true },
@@ -219,7 +211,7 @@ const crepeStoreProducts: ProductSeed[] = [
     key: "crepa-cajeta-platano",
     name: "Crepa de Cajeta y Plátano",
     categoryKey: "crepa-dulce-artesanal",
-    type: "crepa",
+    type: "complete",
     price: BigInt(9800),
     components: [
       { productKey: "cajeta", quantity: 1, isRemovable: true },
@@ -230,7 +222,7 @@ const crepeStoreProducts: ProductSeed[] = [
     key: "crepa-kinder",
     name: "Crepa Kinder",
     categoryKey: "crepa-dulce-especial",
-    type: "crepa",
+    type: "complete",
     price: BigInt(10500),
     components: [
       { productKey: "chocolate", quantity: 1, isRemovable: true },
@@ -241,7 +233,7 @@ const crepeStoreProducts: ProductSeed[] = [
     key: "crepa-oreo",
     name: "Crepa Oreo",
     categoryKey: "crepa-dulce-especial",
-    type: "crepa",
+    type: "complete",
     price: BigInt(10400),
     components: [
       { productKey: "chocolate", quantity: 1, isRemovable: true },
@@ -252,7 +244,7 @@ const crepeStoreProducts: ProductSeed[] = [
     key: "crepa-dulce-personalizada",
     name: "Crepa Dulce Personalizada",
     categoryKey: "crepa-dulce-custom",
-    type: "crepa",
+    type: "complete",
     price: BigInt(11200),
     components: [
       { productKey: "nutella", quantity: 1, isRemovable: true },
@@ -264,7 +256,7 @@ const crepeStoreProducts: ProductSeed[] = [
     key: "crepa-jamon-queso",
     name: "Crepa de Jamón y Queso",
     categoryKey: "crepa-salada-custom",
-    type: "crepa",
+    type: "complete",
     price: BigInt(9900),
     components: [
       { productKey: "jamon", quantity: 1, isRemovable: true },
@@ -276,7 +268,7 @@ const crepeStoreProducts: ProductSeed[] = [
     key: "crepa-salada-personalizada",
     name: "Crepa Salada Personalizada",
     categoryKey: "crepa-salada-custom",
-    type: "crepa",
+    type: "complete",
     price: BigInt(11500),
     components: [
       { productKey: "pollo-deshebrado", quantity: 1, isRemovable: true },
@@ -288,7 +280,7 @@ const crepeStoreProducts: ProductSeed[] = [
     key: "waffle-clasico",
     name: "Waffle Clásico",
     categoryKey: "waffle-artesanal",
-    type: "waffle",
+    type: "complete",
     price: BigInt(8500),
     components: [
       { productKey: "nutella", quantity: 1, isRemovable: true },
@@ -299,7 +291,7 @@ const crepeStoreProducts: ProductSeed[] = [
     key: "waffle-fresa",
     name: "Waffle de Fresa",
     categoryKey: "waffle-artesanal",
-    type: "waffle",
+    type: "complete",
     price: BigInt(8900),
     components: [
       { productKey: "fresa", quantity: 3, isRemovable: true },
@@ -310,7 +302,7 @@ const crepeStoreProducts: ProductSeed[] = [
     key: "waffle-especial-nutella",
     name: "Waffle Especial de Nutella",
     categoryKey: "waffle-especial",
-    type: "waffle",
+    type: "complete",
     price: BigInt(9400),
     components: [
       { productKey: "nutella", quantity: 2, isRemovable: true },
@@ -321,7 +313,7 @@ const crepeStoreProducts: ProductSeed[] = [
     key: "chocolate-caliente",
     name: "Chocolate Caliente",
     categoryKey: "bebida-caliente",
-    type: "bebida",
+    type: "complete",
     price: BigInt(4500),
     components: [{ productKey: "chocolate", quantity: 2, isRemovable: true }],
   },
@@ -329,14 +321,14 @@ const crepeStoreProducts: ProductSeed[] = [
     key: "cafe-de-olla",
     name: "Café de Olla",
     categoryKey: "bebida-caliente",
-    type: "bebida",
+    type: "complete",
     price: BigInt(4200),
   },
   {
     key: "te-helado-limon",
     name: "Té Helado de Limón",
     categoryKey: "bebida-fria",
-    type: "bebida",
+    type: "complete",
     price: BigInt(3900),
     components: [{ productKey: "limon", quantity: 2, isRemovable: true }],
   },
@@ -399,7 +391,9 @@ async function seedCrepeCatalog(tx: DbExecutor | TxExecutor) {
       .insert(productVariantsTable)
       .values({
         name: product.name,
+        description: `${product.name} (${product.type})`,
         price: product.price,
+        image: null,
         productId,
       })
       .returning();
@@ -523,22 +517,10 @@ export async function seedIfRequired() {
         phone: funcs.phoneNumber(),
       },
       with: {
-        ordersTable: [
-          {
-            count: [10, 20],
-            weight: 1,
-          },
-        ],
         userRoleTable: [
           {
             weight: 1,
             count: 1,
-          },
-        ],
-        loyaltyTransactionsTable: [
-          {
-            weight: 1,
-            count: 25,
           },
         ],
       },
@@ -635,47 +617,6 @@ export async function seedIfRequired() {
           values: ["pending", "sent", "failed"],
         }),
         body: funcs.loremIpsum({ sentencesCount: 3 }),
-      },
-    },
-    ordersTable: {
-      count: 60,
-      columns: {
-        total: funcs.int({ minValue: 1000, maxValue: 10000 }),
-        status: funcs.valuesFromArray({
-          values: ["pending", "processing", "completed", "cancelled"],
-        }),
-        note: funcs.loremIpsum({ sentencesCount: 1 }),
-        orderNumber: funcs.uuid({}),
-      },
-      with: {
-        orderItemsTable: [
-          { count: [1, 3], weight: 0.5 },
-          { count: [10, 15], weight: 0.5 },
-        ],
-      },
-    },
-    orderItemsTable: {
-      count: 50,
-      columns: {
-        quantity: funcs.int({ minValue: 1, maxValue: 5 }),
-        pricingSnapshot: funcs.int({ minValue: 500, maxValue: 3000 }),
-        notes: funcs.loremIpsum({ sentencesCount: 1 }),
-      },
-    },
-    reviewsTable: {
-      count: 60,
-      columns: {
-        satisfactionRate: funcs.int({ minValue: 1, maxValue: 5 }),
-        notes: funcs.loremIpsum({ sentencesCount: 1 }),
-      },
-    },
-    loyaltyTransactionsTable: {
-      count: 25,
-      columns: {
-        transactionType: funcs.valuesFromArray({
-          values: ["earned", "redeemed"],
-        }),
-        value: funcs.int({ minValue: 1, maxValue: 2 }),
       },
     },
   }));

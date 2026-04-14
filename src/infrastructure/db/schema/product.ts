@@ -17,6 +17,7 @@ export const categoryTable = pgTable("category", {
   name: text().notNull(),
   description: text(),
   parentId: uuid("parent_id").references((): AnyPgColumn => categoryTable.id),
+  public: boolean().notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -32,18 +33,7 @@ export const productTable = pgTable("product", {
   categoryId: uuid("category_id")
     .notNull()
     .references(() => categoryTable.id),
-  type: text()
-    .notNull()
-    .$type<
-      | "complete"
-      | "component"
-      | "ingredient"
-      | "ingrediente"
-      | "complete-product"
-      | "crepa"
-      | "waffle"
-      | "bebida"
-    >(),
+  type: text().notNull().$type<"complete" | "ingredient">(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

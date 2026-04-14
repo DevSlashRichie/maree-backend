@@ -7,12 +7,12 @@ export const CreateScheduleDto = z
     weekday: z.number().int().min(0).max(6),
     timezone: z.string(),
   })
-  .openapi("CreateBranchDto");
+  .openapi("CreateScheduleDto");
 
 export const CreateBranchDto = z
   .object({
     name: z.string(),
-    state: z.string(),
+    state: z.enum(["active", "inactive"]),
     schedules: z.array(CreateScheduleDto).default([]),
   })
   .openapi("CreateBranchDto");

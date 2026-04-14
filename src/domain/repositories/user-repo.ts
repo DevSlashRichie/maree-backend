@@ -152,7 +152,6 @@ export class UserRepo {
       .innerJoin(userRoleTable, eq(userRoleTable.userId, userTable.id));
 
     const total = Number(countResult[0]?.count ?? 0);
-
     return { users, total, page, limit };
   }
 

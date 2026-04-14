@@ -1,6 +1,7 @@
 import { createRoute } from "@hono/zod-openapi";
 import qs from "qs";
 import z from "zod";
+import { CreateCategoryDto } from "@/application/dtos/create-category.ts";
 import { CreateProductDto } from "@/application/dtos/create-product.ts";
 import {
   CreateProductAndVariantDto,
@@ -14,7 +15,14 @@ import {
   ProductVariantFiltersSchema,
   ProductVariantListSchema,
 } from "@/application/dtos/product-variant";
+import { UpdateCategoryDto } from "@/application/dtos/update-category.ts";
 import { UploadProductImageResponseDto } from "@/application/dtos/upload-product-image.ts";
+import {
+  CategoryAlreadyExistsError,
+  CategoryCycleDetectedError,
+  CategoryNotFoundError,
+  ParentCategoryNotFoundError,
+} from "@/application/errors/category";
 import { ProductAlreadyExists } from "@/application/errors/create-product";
 import {
   AddedProductDoesNotExist,
@@ -24,9 +32,9 @@ import {
   InvalidIngredientQuantity,
   ProductVariantAlreadyExists,
 } from "@/application/errors/create-product-variant.ts";
-import { NoCategoriesFound } from "@/application/errors/get-categories";
 import { ProductVariantNotFound } from "@/application/errors/get-product-variant";
 import { ImageIsEmpty } from "@/application/errors/upload-product-image.ts";
+import { createCategoryUseCase } from "@/application/use-cases/create-category.ts";
 import { createProductUseCase } from "@/application/use-cases/create-product.ts";
 import { createProductAndVariantUseCase } from "@/application/use-cases/create-product-and-variant.ts";
 import { getCategoriesUseCase } from "@/application/use-cases/get-categories";
@@ -34,7 +42,9 @@ import { getIngredientsUseCase } from "@/application/use-cases/get-ingredients";
 import { getProductVariantUseCase } from "@/application/use-cases/get-product-variant";
 import { getProductVariantsUseCase } from "@/application/use-cases/get-product-variants";
 import { getProductsUseCase } from "@/application/use-cases/get-products";
+import { updateCategoryUseCase } from "@/application/use-cases/update-category.ts";
 import { uploadProductImageUseCase } from "@/application/use-cases/upload-product-image.ts";
+import { CategorySchema } from "@/domain/entities/category";
 import { ErrorSchema } from "@/domain/entities/error";
 import { ProductFiltersSchema, ProductSchema } from "@/domain/entities/product";
 import { logger } from "@/lib/logger";
@@ -511,16 +521,6 @@ productRouter.openapi(
     if (result.isErr()) {
       const err = result.unwrapErr();
 
-      if (err instanceof NoCategoriesFound) {
-        return ctx.json(
-          {
-            code: err.code,
-            message: err.message,
-          },
-          404,
-        );
-      }
-
       logger.error("Error: %s", err);
 
       return ctx.json(
@@ -535,6 +535,195 @@ productRouter.openapi(
     const categories = result.unwrap();
 
     return ctx.json({ categories }, 200);
+  },
+);
+
+productRouter.openapi(
+  createRoute({
+    tags: ["Products"],
+    method: "post",
+    path: "/categories",
+    request: {
+      body: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: CreateCategoryDto,
+          },
+        },
+      },
+    },
+    responses: {
+      201: {
+        description: "new category",
+        content: {
+          "application/json": {
+            schema: CategorySchema,
+          },
+        },
+      },
+      400: {
+        description: "parent category not found or cycle detected",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      409: {
+        description: "category already exists",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "unexpected",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const body = await ctx.req.json();
+    const result = await createCategoryUseCase(body);
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+
+      if (err instanceof CategoryAlreadyExistsError) {
+        return ctx.json(
+          {
+            code: err.code,
+            message: err.message,
+          },
+          409,
+        );
+      }
+
+      if (err instanceof ParentCategoryNotFoundError) {
+        return ctx.json(
+          {
+            code: err.code,
+            message: err.message,
+          },
+          400,
+        );
+      }
+
+      logger.error("Error: %s", err);
+      return ctx.json(
+        {
+          code: "unexpected",
+          message: err.message,
+        },
+        500,
+      );
+    }
+
+    return ctx.json(result.unwrap(), 201);
+  },
+);
+
+productRouter.openapi(
+  createRoute({
+    tags: ["Products"],
+    method: "patch",
+    path: "/categories/{id}",
+    request: {
+      params: z.object({
+        id: z.string().uuid(),
+      }),
+      body: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: UpdateCategoryDto,
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "updated category",
+        content: {
+          "application/json": {
+            schema: CategorySchema,
+          },
+        },
+      },
+      400: {
+        description: "parent category not found or cycle detected",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      404: {
+        description: "category not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "unexpected",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const { id } = ctx.req.valid("param");
+    const body = await ctx.req.json();
+    const result = await updateCategoryUseCase(id, body);
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+
+      if (err instanceof CategoryNotFoundError) {
+        return ctx.json(
+          {
+            code: err.code,
+            message: err.message,
+          },
+          404,
+        );
+      }
+
+      if (
+        err instanceof ParentCategoryNotFoundError ||
+        err instanceof CategoryCycleDetectedError
+      ) {
+        return ctx.json(
+          {
+            code: err.code,
+            message: err.message,
+          },
+          400,
+        );
+      }
+
+      logger.error("Error: %s", err);
+      return ctx.json(
+        {
+          code: "unexpected",
+          message: err.message,
+        },
+        500,
+      );
+    }
+
+    return ctx.json(result.unwrap(), 200);
   },
 );
 
@@ -576,7 +765,9 @@ productRouter.openapi(
     },
   }),
   async (ctx) => {
+    console.log("at least got here");
     const { id } = ctx.req.valid("param");
+    console.log("got id", id);
     const result = await getProductVariantUseCase(id);
 
     if (result.isErr()) {

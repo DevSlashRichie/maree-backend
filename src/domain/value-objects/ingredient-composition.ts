@@ -20,7 +20,7 @@ export function validateIngredientComposition(
     return;
   }
 
-  if (params.productType !== "complete-product") {
+  if (params.productType !== "complete") {
     throw new IngredientsOnlyForCompleteProductError(params.productType);
   }
 

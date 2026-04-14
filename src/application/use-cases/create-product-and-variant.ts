@@ -54,7 +54,7 @@ export async function createProductAndVariantUseCase(
 
       const type = (await productRepo.isIngredientFromCategory(data.categoryId))
         ? "ingredient"
-        : "complete-product";
+        : "complete";
 
       const product = await productRepo.saveProduct({
         name: data.name,
@@ -70,6 +70,7 @@ export async function createProductAndVariantUseCase(
         price: BigInt(data.price),
         image: data.imageUrl,
         productId: product.id,
+        description: data.description,
       });
       console.log("variant saved");
 
@@ -90,14 +91,6 @@ export async function createProductAndVariantUseCase(
           ingredientCategoryIds.push(ingredientProduct.categoryId);
         }
 
-        const categories = await productRepo.getAllCategories();
-        validateIngredientComposition({
-          productType: type,
-          productCategoryId: data.categoryId,
-          ingredientCategoryIds,
-          categories,
-        });
-
         const componentsData = data.ingredients.map(
           ({ id, quantity, isRemovable }) => ({
             productVariantId: productVariant.id,
@@ -108,6 +101,9 @@ export async function createProductAndVariantUseCase(
         );
         await productRepo.saveProductComponents(componentsData);
       }
+
+      console.log(product);
+      console.log(productVariant);
 
       return Ok({
         product,

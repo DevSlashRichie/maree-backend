@@ -1,9 +1,9 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "f784c1a9-de34-4a1a-90db-ae581c4073ec",
+  "id": "1a8ff7ca-d9d6-4cbc-bbc7-a9f535f50945",
   "prevIds": [
-    "00000000-0000-0000-0000-000000000000"
+    "3fa0d008-0d56-423d-85f4-a29dea4c0538"
   ],
   "ddl": [
     {
@@ -262,6 +262,19 @@
       "generated": null,
       "identity": null,
       "name": "parent_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "category"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "public",
       "entityType": "columns",
       "schema": "public",
       "table": "category"
@@ -1822,6 +1835,19 @@
       "generated": null,
       "identity": null,
       "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "staff"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "role",
       "entityType": "columns",
       "schema": "public",
       "table": "staff"
