@@ -17,6 +17,7 @@ export const categoryTable = pgTable("category", {
   name: text().notNull(),
   description: text(),
   parentId: uuid("parent_id").references((): AnyPgColumn => categoryTable.id),
+  public: boolean().notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

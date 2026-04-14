@@ -21,6 +21,7 @@ export async function getCategoriesUseCase(): Promise<
             id: cat.id,
             name: cat.name,
             parentId: cat.parentId,
+            public: cat.public,
             children: buildTree(cat.id),
           }));
 
@@ -33,6 +34,7 @@ export async function getCategoriesUseCase(): Promise<
           id: cat.id,
           name: cat.name,
           parentId: cat.parentId,
+          public: cat.public,
           children: buildTree(cat.id),
         }));
 

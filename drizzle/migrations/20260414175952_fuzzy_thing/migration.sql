@@ -1,0 +1,1 @@
+ALTER TABLE "category" ADD COLUMN "public" boolean DEFAULT false NOT NULL;
