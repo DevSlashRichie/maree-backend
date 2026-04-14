@@ -27,3 +27,11 @@ export class OrderAlreadyMark extends OrderError {
     super("Order is already mark ready");
   }
 }
+
+export class OrderInvalidTransition extends OrderError {
+  readonly code = "invalid_transition";
+
+  constructor(from: string, direction: string) {
+    super(`Cannot move order from "${from}" ${direction}`);
+  }
+}

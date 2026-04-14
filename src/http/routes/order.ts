@@ -7,6 +7,7 @@ import {
 import {
   OrderAlreadyClosed,
   OrderAlreadyMark,
+  OrderInvalidTransition,
   OrderNotFound,
 } from "@/application/errors/order";
 import { closeOrderUseCase } from "@/application/use-cases/close-order";
@@ -14,6 +15,7 @@ import { getIncomingOrdersUseCase } from "@/application/use-cases/get-incoming-o
 import { getOderHistoryUseCase } from "@/application/use-cases/get-oder-history.ts";
 import { getOrdersUseCase } from "@/application/use-cases/get-orders.ts";
 import { markOrderReadyUseCase } from "@/application/use-cases/mark-order-ready";
+import { updateOrderStatusUseCase } from "@/application/use-cases/update-order-status";
 import { ErrorSchema } from "@/domain/entities/error.ts";
 import {
   OrderFilterSchema,
@@ -334,5 +336,63 @@ orderRouter.openapi(
     }
 
     return ctx.json(orders.unwrap(), 200);
+  },
+);
+
+orderRouter.openapi(
+  createRoute({
+    tags: ["Order"],
+    method: "patch",
+    path: "/{id}/status",
+    request: {
+      params: z.object({ id: z.string() }),
+      body: {
+        content: {
+          "application/json": {
+            schema: z.object({
+              action: z.enum(["forward", "backward"]),
+            }),
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Order status updated",
+        content: { "application/json": { schema: OrderSchema } },
+      },
+      404: {
+        description: "Order not found",
+        content: { "application/json": { schema: ErrorSchema } },
+      },
+      422: {
+        description: "Invalid transition",
+        content: { "application/json": { schema: ErrorSchema } },
+      },
+      500: {
+        description: "Internal server error",
+        content: { "application/json": { schema: ErrorSchema } },
+      },
+    },
+  }),
+  async (ctx) => {
+    const { id } = ctx.req.valid("param");
+    const { action } = ctx.req.valid("json");
+
+    const result = await updateOrderStatusUseCase(id, action);
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+      const statusCode =
+        err instanceof OrderNotFound
+          ? 404
+          : err instanceof OrderInvalidTransition
+            ? 422
+            : 500;
+
+      return ctx.json({ code: err.code, message: err.message }, statusCode);
+    }
+
+    return ctx.json(result.unwrap(), 200);
   },
 );
