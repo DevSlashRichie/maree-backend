@@ -1,9 +1,9 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "f784c1a9-de34-4a1a-90db-ae581c4073ec",
+  "id": "3fa0d008-0d56-423d-85f4-a29dea4c0538",
   "prevIds": [
-    "00000000-0000-0000-0000-000000000000"
+    "e03fb684-0ce3-444d-b374-0e0712bf18c4"
   ],
   "ddl": [
     {
@@ -1822,6 +1822,19 @@
       "generated": null,
       "identity": null,
       "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "staff"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "role",
       "entityType": "columns",
       "schema": "public",
       "table": "staff"
