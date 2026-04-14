@@ -41,13 +41,15 @@ export async function registerUserUseCase(
       });
 
       if (data.branchId) {
+        const roleName = data.role ?? "waiter";
+
         await userRepo.saveStaff({
           userId: user.id,
           branchId: data.branchId,
-          role: data.role ?? "waiter",
+          role: roleName,
         });
 
-        const role = await rbacRepo.findRoleByName(data.role);
+        const role = await rbacRepo.findRoleByName(roleName);
 
         if (!role) {
           throw new RoleNotFoundError();
@@ -65,10 +67,12 @@ export async function registerUserUseCase(
         return Err(error);
       }
 
-      // Temporal para debug — ver el error real
       console.error("RAW ERROR:", error);
       console.error("ERROR TYPE:", typeof error);
-      console.error("ERROR KEYS:", error ? Object.keys(error as object) : null);
+      console.error(
+        "ERROR KEYS:",
+        error ? Object.keys(error as object) : null,
+      );
 
       return Err(
         new UnknownError(
