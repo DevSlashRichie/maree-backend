@@ -4,8 +4,10 @@ import { LoyaltyCardNotFound } from "@/application/errors/get-loyalty-card";
 import { getLoyaltyCardUseCase } from "@/application/use-cases/get-loyalty-card";
 import { ErrorSchema } from "@/domain/entities/error";
 import type { State } from "../state";
+import { authzMiddleware } from "../middleware/authz";
 
 export const loyaltyRouter = new OpenAPIHono<State>();
+loyaltyRouter.use(authzMiddleware(false));
 
 loyaltyRouter.openapi(
   createRoute({
