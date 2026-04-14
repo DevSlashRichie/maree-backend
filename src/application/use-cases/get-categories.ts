@@ -27,6 +27,7 @@ export async function getCategoriesUseCase(): Promise<
           .map((cat) => ({
             id: cat.id,
             name: cat.name,
+            parentId: cat.parentId,
             children: buildTree(cat.id),
           }));
 
@@ -38,6 +39,7 @@ export async function getCategoriesUseCase(): Promise<
         .map((cat) => ({
           id: cat.id,
           name: cat.name,
+          parentId: cat.parentId,
           children: buildTree(cat.id),
         }));
 
