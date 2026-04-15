@@ -1,5 +1,6 @@
 import { BlobServiceClient } from "@azure/storage-blob";
 import { z } from "zod";
+import { uuidv7 } from "uuidv7";
 import type { FilesPort } from "@/domain/ports/files";
 
 export const envAzureStorageSchema = z.object({
@@ -29,10 +30,13 @@ export class AzureBlobStorageAdapter implements FilesPort {
     fileName: string,
     mimeType: string,
   ): Promise<string> {
+    const extension = fileName.split(".").pop();
+    const newFileName = `${uuidv7()}${extension ? `.${extension}` : ""}`;
+
     const containerClient = this.blobServiceClient.getContainerClient(
       this.containerName,
     );
-    const blockBlobClient = containerClient.getBlockBlobClient(fileName);
+    const blockBlobClient = containerClient.getBlockBlobClient(newFileName);
 
     await blockBlobClient.uploadData(file, {
       blobHTTPHeaders: {
@@ -40,7 +44,7 @@ export class AzureBlobStorageAdapter implements FilesPort {
       },
     });
 
-    return fileName;
+    return newFileName;
   }
 
   async getDownloadUrl(fileId: string): Promise<string> {
