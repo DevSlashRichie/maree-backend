@@ -4,6 +4,7 @@ import {
   ImageIsEmpty,
   UploadProductImageError,
 } from "@/application/errors/upload-product-image.ts";
+import type { FilesPort } from "@/domain/ports/files";
 
 type UploadProductImageInput = {
   image: {
@@ -18,6 +19,7 @@ type UploadProductImageOutput = {
 };
 
 export async function uploadProductImageUseCase(
+  filesPort: FilesPort,
   data: UploadProductImageInput,
 ): Promise<Result<UploadProductImageOutput, UploadProductImageError>> {
   try {
@@ -25,10 +27,17 @@ export async function uploadProductImageUseCase(
       throw new ImageIsEmpty();
     }
 
-    const mockedImageUrl = "https://cdn.maree.local/mock/product-image.jpg";
+    const buffer = Buffer.from(data.image.bytes);
+    const fileId = await filesPort.upload(
+      buffer,
+      data.image.name,
+      data.image.contentType,
+    );
+
+    const url = await filesPort.getDownloadUrl(fileId);
 
     return Ok({
-      url: mockedImageUrl,
+      url,
     });
   } catch (error) {
     if (error instanceof UploadProductImageError) return Err(error);

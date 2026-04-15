@@ -76,6 +76,16 @@ resource "azurerm_container_app" "main" {
     value = var.google_creds
   }
 
+  secret {
+    name  = "azure-storage-connection-string"
+    value = azurerm_storage_account.main.primary_connection_string
+  }
+
+  secret {
+    name  = "azure-storage-container-name"
+    value = azurerm_storage_container.products.name
+  }
+
   registry {
     server               = azurerm_container_registry.main.login_server
     username             = var.container_registry_username != "" ? var.container_registry_username : azurerm_container_registry.main.admin_username
@@ -187,6 +197,16 @@ resource "azurerm_container_app" "main" {
       env {
         name  = "GOOGLE_WALLET_CLASS_SUFFIX"
         value = "class_maree"
+      }
+
+      env {
+        name        = "AZURE_STORAGE_CONNECTION_STRING"
+        secret_name = "azure-storage-connection-string"
+      }
+
+      env {
+        name        = "AZURE_STORAGE_CONTAINER_NAME"
+        secret_name = "azure-storage-container-name"
       }
     }
   }

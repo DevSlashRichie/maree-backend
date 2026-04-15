@@ -44,3 +44,19 @@ output "database_password" {
   value       = random_password.database.result
   sensitive   = true
 }
+
+output "azure_storage_account_name" {
+  description = "Name of the storage account"
+  value       = azurerm_storage_account.main.name
+}
+
+output "azure_storage_connection_string" {
+  description = "Connection string for the storage account"
+  value       = azurerm_storage_account.main.primary_connection_string
+  sensitive   = true
+}
+
+output "azure_storage_container_name" {
+  description = "Name of the storage container"
+  value       = azurerm_storage_container.products.name
+}

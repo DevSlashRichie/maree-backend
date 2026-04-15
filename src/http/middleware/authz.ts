@@ -27,6 +27,10 @@ export function authzMiddleware(strict: boolean = true) {
 
       ctx.set("actor", payload);
     } catch (err) {
+      if (!strict) {
+        await next();
+      }
+
       logger.error(err);
       return ctx.json({ message: "forbidden!" }, 403);
     }

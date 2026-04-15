@@ -19,6 +19,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.31.0",
     "@hono/zod-openapi": "^1.2.2",
     "@hono/zod-validator": "^0.7.6",
     "@kapso/whatsapp-cloud-api": "^0.1.1",
