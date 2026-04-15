@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { GoogleWalletPassDto } from "@/application/dtos/google-wallet";
 import { LoyaltyCardDetailsDto } from "@/application/dtos/reward";
