@@ -72,7 +72,7 @@ resource "azurerm_container_app" "main" {
   }
 
   secret {
-    name = "google-creds"
+    name  = "google-creds"
     value = var.google_creds
   }
 
@@ -170,13 +170,23 @@ resource "azurerm_container_app" "main" {
       }
 
       env {
-        name = "GOOGLE_WALLET_CREDENTIALS"
+        name        = "GOOGLE_WALLET_CREDENTIALS"
         secret_name = "google-creds"
       }
 
       env {
         name  = "ADMIN_PHONE"
         value = "+524427536211"
+      }
+
+      env {
+        name  = "GOOGLE_WALLET_ISSUER_ID"
+        value = "3388000000023101441"
+      }
+
+      env {
+        name  = "GOOGLE_WALLET_CLASS_SUFFIX"
+        value = "class_maree"
       }
     }
   }
