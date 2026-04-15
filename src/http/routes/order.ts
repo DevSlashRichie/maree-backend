@@ -103,6 +103,8 @@ orderRouter.openapi(
             ? 404
             : 500;
 
+      logger.warn("Error in post: (%s) %s", err.code, err.message);
+
       return ctx.json(
         {
           code: err.code,
