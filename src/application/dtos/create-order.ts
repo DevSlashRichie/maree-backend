@@ -15,6 +15,6 @@ export const Item = z.object({
 export const CreateOrderDto = z.object({
   items: z.array(Item),
   totalPriceCents: z.int(),
-  discountId: z.uuid(),
+  discountId: z.uuid().optional(),
   branchId: z.uuid(),
 });
