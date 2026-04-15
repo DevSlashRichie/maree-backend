@@ -71,6 +71,11 @@ resource "azurerm_container_app" "main" {
     value = azurerm_container_registry.main.admin_password
   }
 
+  secret {
+    name = "google-creds"
+    value = var.google_creds
+  }
+
   registry {
     server               = azurerm_container_registry.main.login_server
     username             = var.container_registry_username != "" ? var.container_registry_username : azurerm_container_registry.main.admin_username
@@ -162,6 +167,11 @@ resource "azurerm_container_app" "main" {
       env {
         name        = "TWILIO_ACCOUNT_SID"
         secret_name = "twilio-account-sid"
+      }
+
+      env {
+        name = "GOOGLE_WALLET_CREDENTIALS"
+        secret_name = "google-creds"
       }
 
       env {

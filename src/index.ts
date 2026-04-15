@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+//import { execSync } from "node:child_process";
 import { createHttpServer, EnvHttpConf } from "./http";
 import "dotenv/config";
 import { logger } from "@/lib/logger";
@@ -70,7 +70,19 @@ async function main() {
 
   await seedIfRequired();
   await ensureSystemSetup();
-  createHttpServer(parsedHttpConf.data, parsedStateConf.data);
+
+  const GOOGLE_WALLET_CREDENTIALS_DECODED = parsedStateConf.data
+    .GOOGLE_WALLET_CREDENTIALS
+    ? Buffer.from(
+      parsedStateConf.data.GOOGLE_WALLET_CREDENTIALS,
+      "base64",
+    ).toString()
+    : null;
+
+  createHttpServer(parsedHttpConf.data, {
+    ...parsedStateConf.data,
+    GOOGLE_WALLET_CREDENTIALS_DECODED,
+  });
 
   logger.info("Server ready on port: %s", parsedHttpConf.data.PORT);
 }
