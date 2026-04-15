@@ -14,6 +14,7 @@ import {
   UserListSchema,
   UserWithStatsSchema,
 } from "@/application/dtos/user";
+import { UserBranchResponseSchema } from "@/application/dtos/user-branch";
 import {
   ForbiddenError,
   RoleNotFoundError,
@@ -24,6 +25,7 @@ import { getActorUseCase } from "@/application/use-cases/get-actor";
 import { getStaffUseCase } from "@/application/use-cases/get-staff";
 import { getStaffByIdUseCase } from "@/application/use-cases/get-staff-by-id";
 import { getUserUseCase } from "@/application/use-cases/get-user";
+import { getUserBranchUseCase } from "@/application/use-cases/get-user-branch";
 import { getUsersUseCase } from "@/application/use-cases/get-users";
 import { removeRoleUseCase } from "@/application/use-cases/remove-role";
 import { ActorSchema } from "@/domain/entities/actor";
@@ -195,6 +197,49 @@ userRouter.openapi(
       }
       throw error;
     }
+  },
+);
+
+userRouter.openapi(
+  createRoute({
+    tags: ["User"],
+    method: "get",
+    path: "/@me/branch",
+    middleware: [authzMiddleware(true)],
+    responses: {
+      200: {
+        description: "user's assigned branch",
+        content: {
+          "application/json": {
+            schema: UserBranchResponseSchema,
+          },
+        },
+      },
+      404: {
+        description: "user or branch not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const actor = ctx.get("actor");
+    const branch = await getUserBranchUseCase(actor.userId);
+
+    if (!branch) {
+      return ctx.json(
+        {
+          code: "branch_not_found",
+          message: "No branch assigned to this user",
+        },
+        404,
+      );
+    }
+
+    return ctx.json(branch, 200);
   },
 );
 
