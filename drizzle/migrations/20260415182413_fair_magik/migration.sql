@@ -10,6 +10,7 @@ CREATE TABLE "category" (
 	"name" text NOT NULL,
 	"description" text,
 	"parent_id" uuid,
+	"public" boolean DEFAULT false NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -98,7 +99,7 @@ CREATE TABLE "order" (
 	"id" uuid PRIMARY KEY,
 	"user_id" uuid NOT NULL,
 	"branch_id" uuid NOT NULL,
-	"discount_id" uuid NOT NULL,
+	"discount_id" uuid,
 	"total" bigint NOT NULL,
 	"status" text NOT NULL,
 	"note" text,
@@ -196,6 +197,7 @@ CREATE TABLE "staff" (
 	"branch_id" uuid,
 	"user_id" uuid,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"role" text NOT NULL,
 	CONSTRAINT "staff_pkey" PRIMARY KEY("branch_id","user_id")
 );
 --> statement-breakpoint
