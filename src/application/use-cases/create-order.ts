@@ -92,7 +92,7 @@ export async function createOrderUseCase(
       const order = await orderRepo.saveOrder({
         userId,
         branchId: data.branchId,
-        discountId: data.discountId,
+        discountId: data.discountId ?? null,
         total,
         status: "incoming",
         note: note.length > 0 ? note : null,
