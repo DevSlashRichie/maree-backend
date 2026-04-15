@@ -74,9 +74,9 @@ async function main() {
   const GOOGLE_WALLET_CREDENTIALS_DECODED = parsedStateConf.data
     .GOOGLE_WALLET_CREDENTIALS
     ? Buffer.from(
-      parsedStateConf.data.GOOGLE_WALLET_CREDENTIALS,
-      "base64",
-    ).toString()
+        parsedStateConf.data.GOOGLE_WALLET_CREDENTIALS,
+        "base64",
+      ).toString()
     : null;
 
   createHttpServer(parsedHttpConf.data, {
