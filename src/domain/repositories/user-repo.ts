@@ -1,5 +1,5 @@
 import type { InferInsertModel } from "drizzle-orm";
-import { and, eq, sql, or } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type z from "zod";
 import type { Pagination, StaffFilters, UserFilters } from "@/application/dtos";
 import type { UserListSchema } from "@/application/dtos/user";
@@ -40,7 +40,7 @@ export interface PaginatedUsers {
 }
 
 export class UserRepo {
-  constructor(private readonly conn: Executor) { }
+  constructor(private readonly conn: Executor) {}
 
   async findAll(
     filters?: UserFilters,

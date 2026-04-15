@@ -43,11 +43,11 @@ import { getProductVariantUseCase } from "@/application/use-cases/get-product-va
 import { getProductVariantsUseCase } from "@/application/use-cases/get-product-variants";
 import { getProductsUseCase } from "@/application/use-cases/get-products";
 import { updateCategoryUseCase } from "@/application/use-cases/update-category.ts";
-import { AzureBlobStorageAdapter } from "@/infrastructure/azure/blob-storage.ts";
 import { uploadProductImageUseCase } from "@/application/use-cases/upload-product-image.ts";
 import { CategorySchema } from "@/domain/entities/category";
 import { ErrorSchema } from "@/domain/entities/error";
 import { ProductFiltersSchema, ProductSchema } from "@/domain/entities/product";
+import { AzureBlobStorageAdapter } from "@/infrastructure/azure/blob-storage.ts";
 import { logger } from "@/lib/logger";
 import { authzMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
