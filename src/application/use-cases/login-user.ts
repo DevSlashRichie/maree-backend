@@ -53,6 +53,10 @@ async function codeMethod(user: User, code: number) {
   }
 }
 
+async function testCodeMethod(user: User) {
+  CREATED_CODES[user.id] = 123456;
+}
+
 async function passwordMethod(
   user: User,
   password: string,
@@ -89,6 +93,7 @@ export async function loginUserUseCase(
 
     if (data.method.type === "phone") {
       await phoneMethod(user, user.phone, fromNumber);
+
       return Ok({
         type: "required_action",
         required_action: "login_with_sent_code",
@@ -96,9 +101,14 @@ export async function loginUserUseCase(
     } else if (data.method.type === "password") {
       await passwordMethod(user, data.method.value, userRepo);
     } else if (data.method.type === "code") {
-      await codeMethod(user, data.method.value);
+      await codeMethod(user, Number(data.method.value));
     } else if (data.method.type === "test") {
-      // nothing we just continue
+      await testCodeMethod(user);
+
+      return Ok({
+        type: "required_action",
+        required_action: "login_with_sent_code",
+      });
     } else {
       throw new InvalidCredentialsError();
     }

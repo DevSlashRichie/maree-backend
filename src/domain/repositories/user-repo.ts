@@ -15,6 +15,7 @@ import {
   userTable,
 } from "@/infrastructure/db/schema";
 import { buildFilters } from "@/lib/filters";
+import { isUuid } from "@/lib/uuid";
 
 type SaveUserType = Omit<
   InferInsertModel<typeof userTable>,
@@ -232,7 +233,7 @@ export class UserRepo {
       .from(userTable)
       .leftJoin(ordersSubquery, eq(ordersSubquery.userId, userTable.id))
       .leftJoin(loyaltySubquery, eq(loyaltySubquery.userId, userTable.id))
-      .where(eq(userTable.id, id))
+      .where(isUuid(id) ? eq(userTable.id, id) : eq(userTable.phone, id))
       .limit(1);
 
     if (!user) return null;
@@ -380,5 +381,9 @@ export class UserRepo {
 
   async saveStaff(data: { userId: string; branchId: string; role: string }) {
     await this.conn.insert(staffTable).values(data).onConflictDoNothing();
+  }
+
+  async deleteStaff(userId: string) {
+    await this.conn.delete(staffTable).where(eq(staffTable.userId, userId));
   }
 }

@@ -14,16 +14,19 @@ import {
   UserListSchema,
   UserWithStatsSchema,
 } from "@/application/dtos/user";
+import { UserBranchResponseSchema } from "@/application/dtos/user-branch";
 import {
   ForbiddenError,
   RoleNotFoundError,
   UserNotFoundError,
 } from "@/application/errors/rbac";
 import { assignRoleUseCase } from "@/application/use-cases/assign-role";
+import { deleteStaffUseCase } from "@/application/use-cases/delete-staff";
 import { getActorUseCase } from "@/application/use-cases/get-actor";
 import { getStaffUseCase } from "@/application/use-cases/get-staff";
 import { getStaffByIdUseCase } from "@/application/use-cases/get-staff-by-id";
 import { getUserUseCase } from "@/application/use-cases/get-user";
+import { getUserBranchUseCase } from "@/application/use-cases/get-user-branch";
 import { getUsersUseCase } from "@/application/use-cases/get-users";
 import { removeRoleUseCase } from "@/application/use-cases/remove-role";
 import { ActorSchema } from "@/domain/entities/actor";
@@ -202,10 +205,53 @@ userRouter.openapi(
   createRoute({
     tags: ["User"],
     method: "get",
+    path: "/@me/branch",
+    middleware: [authzMiddleware(true)],
+    responses: {
+      200: {
+        description: "user's assigned branch",
+        content: {
+          "application/json": {
+            schema: UserBranchResponseSchema,
+          },
+        },
+      },
+      404: {
+        description: "user or branch not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const actor = ctx.get("actor");
+    const branch = await getUserBranchUseCase(actor.userId);
+
+    if (!branch) {
+      return ctx.json(
+        {
+          code: "branch_not_found",
+          message: "No branch assigned to this user",
+        },
+        404,
+      );
+    }
+
+    return ctx.json(branch, 200);
+  },
+);
+
+userRouter.openapi(
+  createRoute({
+    tags: ["User"],
+    method: "get",
     path: "/{userId}",
     request: {
       params: z.object({
-        userId: z.string().uuid(),
+        userId: z.string().uuid().or(z.string()),
       }),
     },
     responses: {
@@ -348,6 +394,65 @@ userRouter.openapi(
         return ctx.json({ code: error.code, message: error.message }, 404);
       }
       if (error instanceof RoleNotFoundError) {
+        return ctx.json({ code: error.code, message: error.message }, 404);
+      }
+      throw error;
+    }
+
+    return ctx.json(result.unwrap(), 200);
+  },
+);
+
+userRouter.openapi(
+  createRoute({
+    tags: ["User"],
+    method: "delete",
+    path: "/staff/{userId}",
+    security: [{ Bearer: [] }],
+    middleware: [authzMiddleware(true)],
+    request: {
+      params: z.object({
+        userId: z.string().uuid(),
+      }),
+    },
+    responses: {
+      200: {
+        description: "staff deleted successfully",
+        content: {
+          "application/json": {
+            schema: z.object({ userId: z.string() }),
+          },
+        },
+      },
+      403: {
+        description: "forbidden - admin only",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      404: {
+        description: "user not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const actor = ctx.get("actor");
+    const userId = ctx.req.param("userId");
+    const result = await deleteStaffUseCase(actor, userId);
+
+    if (result.isErr()) {
+      const error = result.unwrapErr();
+      if (error instanceof ForbiddenError) {
+        return ctx.json({ code: error.code, message: error.message }, 403);
+      }
+      if (error instanceof UserNotFoundError) {
         return ctx.json({ code: error.code, message: error.message }, 404);
       }
       throw error;

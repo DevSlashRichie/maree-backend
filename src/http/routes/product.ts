@@ -47,6 +47,7 @@ import { uploadProductImageUseCase } from "@/application/use-cases/upload-produc
 import { CategorySchema } from "@/domain/entities/category";
 import { ErrorSchema } from "@/domain/entities/error";
 import { ProductFiltersSchema, ProductSchema } from "@/domain/entities/product";
+import { AzureBlobStorageAdapter } from "@/infrastructure/azure/blob-storage.ts";
 import { logger } from "@/lib/logger";
 import { authzMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
@@ -236,7 +237,9 @@ productRouter.openapi(
     const bytes = new Uint8Array(await image.arrayBuffer());
     console.log("bytes extracted");
 
-    const result = await uploadProductImageUseCase({
+    const filesPort = new AzureBlobStorageAdapter();
+
+    const result = await uploadProductImageUseCase(filesPort, {
       image: {
         bytes,
         name: image.name,

@@ -72,8 +72,18 @@ resource "azurerm_container_app" "main" {
   }
 
   secret {
-    name = "google-creds"
+    name  = "google-creds"
     value = var.google_creds
+  }
+
+  secret {
+    name  = "azure-storage-connection-string"
+    value = azurerm_storage_account.main.primary_connection_string
+  }
+
+  secret {
+    name  = "azure-storage-container-name"
+    value = azurerm_storage_container.products.name
   }
 
   registry {
@@ -170,13 +180,33 @@ resource "azurerm_container_app" "main" {
       }
 
       env {
-        name = "GOOGLE_WALLET_CREDENTIALS"
+        name        = "GOOGLE_WALLET_CREDENTIALS"
         secret_name = "google-creds"
       }
 
       env {
         name  = "ADMIN_PHONE"
         value = "+524427536211"
+      }
+
+      env {
+        name  = "GOOGLE_WALLET_ISSUER_ID"
+        value = "3388000000023101441"
+      }
+
+      env {
+        name  = "GOOGLE_WALLET_CLASS_SUFFIX"
+        value = "class_maree"
+      }
+
+      env {
+        name        = "AZURE_STORAGE_CONNECTION_STRING"
+        secret_name = "azure-storage-connection-string"
+      }
+
+      env {
+        name        = "AZURE_STORAGE_CONTAINER_NAME"
+        secret_name = "azure-storage-container-name"
       }
     }
   }
