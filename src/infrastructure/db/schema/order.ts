@@ -22,8 +22,7 @@ export const ordersTable = pgTable("order", {
   branchId: uuid("branch_id")
     .notNull()
     .references(() => branchsTable.id),
-  discountId: uuid("discount_id")
-    .references(() => discountsTable.id),
+  discountId: uuid("discount_id").references(() => discountsTable.id),
   total: bigint({ mode: "bigint" }).notNull(),
   status: text().notNull(),
   note: text(),

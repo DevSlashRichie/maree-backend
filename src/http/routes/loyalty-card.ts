@@ -94,7 +94,7 @@ loyaltyRouter.openapi(
     let credentialsStr: string;
     try {
       credentialsStr = readFileSync(keyPath, "utf8");
-    } catch (e: any) {
+    } catch (_e: any) {
       console.error(
         `ERROR AL LEER: ${keyPath}. Asegúrate de que el archivo existe en la raíz.`,
       );

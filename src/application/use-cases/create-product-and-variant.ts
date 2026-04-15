@@ -19,7 +19,6 @@ import { ProductRepo } from "@/domain/repositories/product-repo.ts";
 import {
   IncompatibleIngredientFlavorError,
   IngredientsOnlyForCompleteProductError,
-  validateIngredientComposition,
 } from "@/domain/value-objects/ingredient-composition";
 import {
   createIngredientQuantity,
