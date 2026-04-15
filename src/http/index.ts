@@ -45,6 +45,7 @@ export function createHttpServer(
     }),
   );
   app.use("*", createStateMiddleware(stateConf));
+
   app.use("*", loggerMiddleware);
 
   app.onError((err, c) => {

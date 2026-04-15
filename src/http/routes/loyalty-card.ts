@@ -80,28 +80,22 @@ loyaltyRouter.openapi(
   }),
   async (ctx) => {
     const actor = ctx.get("actor");
-    const state = ctx.get("state") as any;
+    const state = ctx.get("state");
 
-    const keyPath = process.env.GOOGLE_WALLET_CREDENTIALS_PATH;
-
-    if (!keyPath) {
+    if (!state.GOOGLE_WALLET_CREDENTIALS_DECODED) {
       console.error(
         "ERROR: La variable GOOGLE_WALLET_CREDENTIALS_PATH no existe en el .env",
       );
       return ctx.json({ code: "CONFIG_ERROR", message: "Path missing" }, 500);
     }
 
-    let credentialsStr: string;
-    try {
-      credentialsStr = readFileSync(keyPath, "utf8");
-    } catch (e: any) {
+    const credentialsStr = state.GOOGLE_WALLET_CREDENTIALS_DECODED;
+
+    if (!state.GOOGLE_WALLET_ISSUER_ID) {
       console.error(
-        `ERROR AL LEER: ${keyPath}. Asegúrate de que el archivo existe en la raíz.`,
+        "ERROR: La variable GOOGLE_WALLET_ISSUER_ID no existe en el .env",
       );
-      return ctx.json(
-        { code: "CONFIG_ERROR", message: "Key file unreadable" },
-        500,
-      );
+      return ctx.json({ code: "CONFIG_ERROR", message: "Path missing" }, 500);
     }
 
     const walletClient = new GoogleWalletClient(
