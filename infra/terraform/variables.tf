@@ -77,6 +77,13 @@ variable "twilio_auth_token" {
   sensitive   = true
 }
 
+variable "google_creds" {
+  description = "google credentials"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
 variable "twilio_account_sid" {
   description = "Twilio account SID"
   type        = string
