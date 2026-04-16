@@ -1,5 +1,6 @@
 import { z } from "@hono/zod-openapi";
 import { OrderSchema, OrderWithUserSchema } from "@/domain/entities/order.ts";
+import { ORDER_STATUSES } from "@/domain/value-objects/order-status";
 
 export const OrderHistoryDto = z
   .object({
@@ -30,3 +31,32 @@ export const markOrderReadyDto = z
     id: z.string(),
   })
   .openapi("MarkOrderReady");
+
+export const UpdateOrderStatusDto = z
+  .object({
+    status: z.enum(ORDER_STATUSES),
+  })
+  .openapi("UpdateOrderStatus");
+
+export const CreateOrderFromAdminDto = z
+  .object({
+    items: z.array(
+      z.object({
+        id: z.uuid(),
+        quantity: z.int(),
+        notes: z.string().optional(),
+        modifiers: z.array(
+          z.object({
+            id: z.uuid(),
+            delta: z.int(),
+          }),
+        ),
+      }),
+    ),
+    totalPriceCents: z.int(),
+    discountId: z.uuid().optional(),
+    branchId: z.uuid(),
+    status: z.enum(ORDER_STATUSES).optional(),
+    userId: z.uuid().optional(),
+  })
+  .openapi("CreateOrderFromAdmin");

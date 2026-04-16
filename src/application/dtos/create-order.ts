@@ -1,4 +1,5 @@
 import z from "zod";
+import { ORDER_STATUSES } from "@/domain/value-objects/order-status";
 
 const modifier = z.object({
   id: z.uuid(),
@@ -17,4 +18,5 @@ export const CreateOrderDto = z.object({
   totalPriceCents: z.int(),
   discountId: z.uuid().optional(),
   branchId: z.uuid(),
+  status: z.enum(ORDER_STATUSES).optional(),
 });
