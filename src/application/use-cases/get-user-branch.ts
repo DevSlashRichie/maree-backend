@@ -1,4 +1,3 @@
-import { UserNotFoundError } from "@/application/errors/rbac";
 import { BranchRepo } from "@/domain/repositories/branch-repo";
 import { UserRepo } from "@/domain/repositories/user-repo";
 import { DB } from "@/infrastructure/db/postgres";
