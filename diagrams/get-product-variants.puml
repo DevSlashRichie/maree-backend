@@ -1,0 +1,42 @@
+@startuml Product Variants Get Flow
+hide footbox
+
+actor User
+
+boundary "ProductVariantsPageComponent" as Component
+control "http/product.ts" as Http
+control "application/get-product-variants.ts" as UseCase
+
+User ->> Component: view product variants
+
+Component ->> Http: GET /v1/product-variants
+activate Http
+
+Http ->> UseCase: getProductVariantsUseCase(filters)
+activate UseCase
+
+create entity "repo/product-repo.ts" as ProductRepo
+database "Postgres DB" as DB
+UseCase ->> ProductRepo: <<create>>
+activate ProductRepo
+
+UseCase ->> ProductRepo: findAllVariants(filters)
+
+ProductRepo ->> DB: SELECT variant, product FROM product_variant LEFT JOIN product ON variant.productId = product.id
+activate DB
+DB -->> ProductRepo: variants[]
+deactivate DB
+
+ProductRepo -->> UseCase: variants[]
+deactivate ProductRepo
+
+UseCase -->> Http: Ok(variants[])
+deactivate UseCase
+
+Http -->> Component: 200 {variants[]}
+deactivate Http
+
+Component -->> User: render product variants list
+
+@enduml
+
