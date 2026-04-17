@@ -27,12 +27,7 @@ export const ordersTable = pgTable("order", {
   status: text()
     .notNull()
     .$type<
-      | "pending"
-      | "incoming"
-      | "set"
-      | "complete"
-      | "ready"
-      | "in-progress"
+      "pending" | "incoming" | "set" | "complete" | "ready" | "in-progress"
     >(),
   note: text(),
   orderNumber: text("order_number").notNull(),
