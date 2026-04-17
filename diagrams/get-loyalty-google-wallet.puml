@@ -1,0 +1,70 @@
+@startuml Loyalty Google Wallet Get Flow
+hide footbox
+
+actor User
+
+boundary "LoyaltyPageComponent" as Component
+control "http/loyalty.ts" as Http
+control "application/get-loyalty-google-wallet.ts" as UseCase
+
+User ->> Component: get google wallet pass
+
+Component ->> Http: GET /v1/loyalty-pass/google-wallet/:userId
+activate Http
+
+Http ->> UseCase: getLoyaltyGoogleWalletUseCase(userId, WalletClient)
+activate UseCase
+
+alt userId empty
+    UseCase -->> Http: Err(LoyaltyCardNotFound)
+    Http -->> Component: 404 {"message": "loyalty card not found"}
+else userId provided
+    database "Postgres DB" as DB
+    create entity "repo/loyalty-repo.ts" as LoyaltyRepo
+    UseCase ->> LoyaltyRepo: findCurrentBalance(userId)
+    activate LoyaltyRepo
+    create entity "repo/user-repo.ts" as UserRepo
+    UseCase ->> UserRepo: findById(userId)
+    activate UserRepo
+
+    LoyaltyRepo ->> DB: SELECT SUM(amount) FROM loyalty_transaction WHERE userId
+    activate DB
+    DB -->> LoyaltyRepo: balance
+
+    UserRepo ->> DB: SELECT * FROM user WHERE id = userId
+    DB -->> UserRepo: user
+    deactivate DB
+
+    alt user not found
+        UserRepo -->> UseCase: null
+        UseCase -->> Http: Err(LoyaltyCardNotFound)
+        Http -->> Component: 404 {"message": "loyalty card not found"}
+    else user found
+        deactivate LoyaltyRepo
+        deactivate UserRepo
+
+        create control "google-wallet/service.ts" as WalletService
+        UseCase ->> WalletService: generateLoyaltyPass({userId, firstName, lastName, phone, points})
+        activate WalletService
+
+        WalletService -> WalletService: create pass JWT
+        WalletService -> WalletService: encode for Google Wallet
+
+        WalletService -->> UseCase: {url, saveUrl}
+        deactivate WalletService
+
+        UseCase -->> Http: Ok({url, saveUrl})
+        Http -->> Component: 200 {googleWalletPass}
+    end
+end
+
+deactivate Http
+
+alt success
+    Component -->> User: show google wallet pass
+else error
+    Component -->> User: show error message
+end
+
+@enduml
+
