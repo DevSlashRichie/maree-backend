@@ -1,6 +1,8 @@
 export const ORDER_STATUSES = [
   "pending",
-  "in-progress",
+  "incoming",
+  "set",
+  "complete",
   "ready",
   "completed",
 ] as const;
