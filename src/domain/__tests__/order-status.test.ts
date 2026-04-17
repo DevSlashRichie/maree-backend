@@ -11,19 +11,19 @@ describe("OrderStatus", () => {
     expect(status).toBe("pending");
   });
 
-  it("should create valid status 'in-progress'", () => {
-    const status = createOrderStatus("in-progress");
-    expect(status).toBe("in-progress");
+  it("should create valid status 'incoming'", () => {
+    const status = createOrderStatus("incoming");
+    expect(status).toBe("incoming");
   });
 
-  it("should create valid status 'ready'", () => {
-    const status = createOrderStatus("ready");
-    expect(status).toBe("ready");
+  it("should create valid status 'set'", () => {
+    const status = createOrderStatus("set");
+    expect(status).toBe("set");
   });
 
-  it("should create valid status 'completed'", () => {
-    const status = createOrderStatus("completed");
-    expect(status).toBe("completed");
+  it("should create valid status 'complete'", () => {
+    const status = createOrderStatus("complete");
+    expect(status).toBe("complete");
   });
 
   it("should throw for invalid status", () => {
@@ -37,7 +37,9 @@ describe("OrderStatus", () => {
   it("should have correct ORDER_STATUSES constant", () => {
     expect(ORDER_STATUSES).toEqual([
       "pending",
-      "in-progress",
+      "incoming",
+      "set",
+      "complete",
       "ready",
       "completed",
     ]);

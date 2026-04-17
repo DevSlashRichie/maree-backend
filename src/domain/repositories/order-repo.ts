@@ -10,6 +10,7 @@ import {
   OrderNotFound,
   type OrderWithUser,
 } from "@/domain/entities/order.ts";
+import type { OrderStatus } from "@/domain/value-objects/order-status";
 import type { Executor } from "@/infrastructure/db/postgres.ts";
 import {
   orderItemsTable,
@@ -76,7 +77,7 @@ export class OrderRepo {
   async closeOrder(id: string) {
     const [order] = await this.conn
       .update(ordersTable)
-      .set({ status: "completed" })
+      .set({ status: "complete" })
       .where(eq(ordersTable.id, id))
       .returning();
 
@@ -119,7 +120,7 @@ export class OrderRepo {
     return this.conn.insert(orderItemsTable).values(items).returning();
   }
 
-  async updateStatus(id: string, status: string) {
+  async updateStatus(id: string, status: OrderStatus) {
     const [order] = await this.conn
       .update(ordersTable)
       .set({ status })

@@ -84,6 +84,11 @@ export class GoogleWalletClient implements WalletPassPort {
       id: resourceId,
       classId: `${this.issuerId}.${this.classSuffix}`,
       state: "ACTIVE",
+      heroImage: {
+        sourceUri: {
+          uri: `https://storage.googleapis.com/wallet-assets-maree/hero-image-visits-${data.points}.png`,
+        },
+      },
       barcode: { type: "QR_CODE", value: data.userId },
       accountId: data.phone,
       accountName: `${data.firstName} ${data.lastName}`,
