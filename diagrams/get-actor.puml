@@ -1,0 +1,52 @@
+@startuml Get Actor Flow
+hide footbox
+
+actor User
+
+boundary "ProfileComponent" as Component
+control "http/user.ts" as Http
+control "application/get-actor.ts" as UseCase
+
+User ->> Component: get profile info
+
+Component ->> Http: GET /v1/users/actor/:userId
+activate Http
+
+Http ->> UseCase: getActorUseCase(userId)
+activate UseCase
+
+create entity "repo/user-repo.ts" as UserRepo
+database "Postgres DB" as DB
+UseCase ->> UserRepo: <<create>>
+activate UserRepo
+
+UseCase ->> UserRepo: findByIdWithRole(userId)
+
+UserRepo ->> DB: SELECT user, role FROM user LEFT JOIN user_role ON user.id = user_role.userId
+activate DB
+DB -->> UserRepo: userWithRole
+deactivate DB
+
+alt user not found
+    UserRepo -->> UseCase: null
+    UseCase -->> Http: throw UserNotFoundError
+    Http -->> Component: 404 {"message": "user not found"}
+else user found
+    deactivate UserRepo
+
+    UseCase -> UseCase: map to ActorType
+
+    UseCase -->> Http: Ok({id, email, phone, firstName, lastName, role})
+    Http -->> Component: 200 {actor}
+end
+
+deactivate Http
+
+alt success
+    Component -->> User: display profile
+else error
+    Component -->> User: show error message
+end
+
+@enduml
+
