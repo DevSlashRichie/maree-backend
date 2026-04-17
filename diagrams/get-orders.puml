@@ -1,0 +1,42 @@
+@startuml Orders Get Flow
+hide footbox
+
+actor User
+
+boundary "OrdersPageComponent" as Component
+control "http/order.ts" as Http
+control "application/get-orders.ts" as UseCase
+
+User ->> Component: view orders
+
+Component ->> Http: GET /v1/orders
+activate Http
+
+Http ->> UseCase: getOrdersUseCase(filters)
+activate UseCase
+
+create entity "repo/order-repo.ts" as OrderRepo
+database "Postgres DB" as DB
+UseCase ->> OrderRepo: <<create>>
+activate OrderRepo
+
+UseCase ->> OrderRepo: findAllWithUser(filters)
+
+OrderRepo ->> DB: SELECT order, user FROM order LEFT JOIN user ON order.userId = user.id
+activate DB
+DB -->> OrderRepo: ordersWithUsers[]
+deactivate DB
+
+OrderRepo -->> UseCase: ordersWithUsers[]
+deactivate OrderRepo
+
+UseCase -->> Http: Ok(ordersWithUsers[])
+deactivate UseCase
+
+Http -->> Component: 200 {ordersWithUsers[]}
+deactivate Http
+
+Component -->> User: render orders list
+
+@enduml
+
