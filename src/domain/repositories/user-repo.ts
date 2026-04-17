@@ -353,6 +353,24 @@ export class UserRepo {
     return !!user;
   }
 
+  async findByIdentityWithRelations(identity: string) {
+    const user = await this.conn
+      .select({
+        id: userTable.id,
+        roleId: userRoleTable.roleId,
+        staffBranchId: staffTable.branchId,
+      })
+      .from(userTable)
+      .leftJoin(userRoleTable, eq(userRoleTable.userId, userTable.id))
+      .leftJoin(staffTable, eq(staffTable.userId, userTable.id))
+      .where(
+        sql`${userTable.phone} = ${identity} OR ${userTable.email} = ${identity}`,
+      )
+      .limit(1);
+
+    return user[0] || null;
+  }
+
   async saveUser(data: SaveUserType) {
     const [user] = await this.conn
       .insert(userTable)

@@ -24,12 +24,11 @@ export async function registerUserUseCase(
       const userRepo = new UserRepo(txn);
       const rbacRepo = new RbacRepo(txn);
 
-      const userAlreadyExists = await userRepo.existsUser(
+      const existingUser = await userRepo.findByIdentityWithRelations(
         data.phone,
-        data.email,
       );
 
-      if (userAlreadyExists) {
+      if (existingUser && (existingUser.roleId || existingUser.staffBranchId)) {
         throw new UserAlreadyExistsError();
       }
 
