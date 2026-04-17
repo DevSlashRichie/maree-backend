@@ -1,0 +1,65 @@
+@startuml Reward Update Flow
+hide footbox
+
+actor Admin
+
+boundary "RewardFormComponent" as Component
+control "http/reward.ts" as Http
+control "application/update-reward.ts" as UseCase
+
+Admin ->> Component: submit reward updates
+
+Component ->> Http: PATCH /v1/rewards/:rewardId
+activate Http
+
+Http -> Http: UpdateRewardDto.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: updateRewardUseCase(params, data)
+    activate UseCase
+
+    create entity "repo/rewards-repo.ts" as RewardsRepo
+    database "Postgres DB" as DB
+    UseCase ->> RewardsRepo: <<create>>
+    activate RewardsRepo
+
+    UseCase ->> RewardsRepo: findRewardById(rewardId)
+
+    RewardsRepo ->> DB: SELECT * FROM reward WHERE id = rewardId
+    activate DB
+    DB -->> RewardsRepo: reward
+    deactivate DB
+
+    alt reward not found or deleted
+        RewardsRepo -->> UseCase: null or deletedAt exists
+        UseCase -->> Http: Err(RewardNotFoundError)
+        Http -->> Component: 404 {"message": "reward not found"}
+    else reward found
+        UseCase ->> RewardsRepo: updateReward(rewardId, data)
+
+        RewardsRepo ->> DB: UPDATE reward SET ... WHERE id = rewardId
+        DB -->> RewardsRepo: updated
+
+        UseCase ->> RewardsRepo: findRewardWithDiscount(rewardId)
+
+        RewardsRepo ->> DB: SELECT reward, discount FROM reward LEFT JOIN discount ON reward.discountId = discount.id WHERE reward.id = rewardId
+        DB -->> RewardsRepo: rewardWithDiscount
+        deactivate RewardsRepo
+
+        UseCase -->> Http: Ok(rewardWithDiscount)
+        Http -->> Component: 200 {reward}
+    end
+end
+
+deactivate Http
+
+alt success
+    Component -->> Admin: redirect to rewards list
+else error
+    Component -->> Admin: show error message
+end
+
+@enduml
+

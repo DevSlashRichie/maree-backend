@@ -1,0 +1,58 @@
+@startuml Discount Create Flow
+hide footbox
+
+actor Admin
+
+boundary "DiscountFormComponent" as Component
+control "http/discount.ts" as Http
+control "application/create-discount.ts" as UseCase
+
+Admin ->> Component: submit discount data
+
+Component ->> Http: POST /v1/discounts
+activate Http
+
+Http -> Http: CreateDiscountDto.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: createDiscountUseCase(data)
+    activate UseCase
+
+    UseCase -> UseCase: createDiscount(data with dates)
+
+    create entity "repo/discount-repo.ts" as DiscountRepo
+    database "Postgres DB" as DB
+    UseCase ->> DiscountRepo: <<create>>
+    activate DiscountRepo
+
+    UseCase ->> DiscountRepo: saveDiscount(validatedData)
+
+    DiscountRepo ->> DB: INSERT INTO discount
+    activate DB
+    DB -->> DiscountRepo: discount
+    deactivate DB
+
+    alt discount creation failed
+        DiscountRepo -->> UseCase: null
+        UseCase -->> Http: Err(UnknownError)
+        Http -->> Component: 500 {"message": "failed to create discount"}
+    else discount created
+        DiscountRepo -->> UseCase: discount
+        deactivate DiscountRepo
+        UseCase -->> Http: Ok(discount)
+        Http -->> Component: 201 {discount}
+    end
+end
+
+deactivate Http
+
+alt success
+    Component -->> Admin: redirect to discounts list
+else error
+    Component -->> Admin: show error message
+end
+
+@enduml
+

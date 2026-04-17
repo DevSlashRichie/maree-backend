@@ -1,0 +1,44 @@
+@startuml Users Get Flow
+hide footbox
+
+actor Administrator
+
+boundary "UsersListComponent" as Component
+control "http/user.ts" as Http
+control "application/get-users.ts" as UseCase
+
+Administrator ->> Component: view users list
+
+Component ->> Http: GET /v1/users
+activate Http
+
+Http ->> UseCase: getUsersUseCase(filters, pagination)
+activate UseCase
+
+create entity "repo/user-repo.ts" as UserRepo
+database "Postgres DB" as DB
+UseCase ->> UserRepo: <<create>>
+activate UserRepo
+
+UseCase ->> UserRepo: findAll(filters, pagination)
+
+UserRepo ->> DB: SELECT user FROM user WHERE ... LIMIT pagination.limit OFFSET pagination.offset
+activate DB
+DB -->> UserRepo: {users[], total}
+deactivate DB
+
+UserRepo -->> UseCase: {users[], total, page, limit}
+deactivate UserRepo
+
+UseCase -> UseCase: enrich users with totalConsumed and totalVisits
+
+UseCase -->> Http: Ok({users[], total, page, limit})
+deactivate UseCase
+
+Http -->> Component: 200 {users[], pagination}
+deactivate Http
+
+Component -->> Administrator: render users list with pagination
+
+@enduml
+

@@ -1,0 +1,52 @@
+@startuml Check Policies Flow
+hide footbox
+
+actor User
+
+boundary "ProtectedComponent" as Component
+control "http/middleware.ts" as Http
+control "application/check-policies.ts" as UseCase
+
+User ->> Component: request protected resource
+
+Component ->> Http: GET /v1/protected
+activate Http
+
+Http ->> UseCase: checkPolicies(roleId, requiredPolicies)
+activate UseCase
+
+create entity "repo/rbac-repo.ts" as RbacRepo
+database "Postgres DB" as DB
+UseCase ->> RbacRepo: <<create>>
+activate RbacRepo
+
+UseCase ->> RbacRepo: findPoliciesForRole(roleId)
+
+RbacRepo ->> DB: SELECT policy FROM role_policy WHERE roleId
+activate DB
+DB -->> RbacRepo: policies[]
+deactivate DB
+
+RbacRepo -->> UseCase: policies[]
+deactivate RbacRepo
+
+UseCase -> UseCase: validate required policies are in set
+
+alt all policies granted
+    UseCase -->> Http: true
+    Http ->> Component: grant access
+else missing policies
+    UseCase -->> Http: false
+    Http -->> Component: 403 {"message": "forbidden"}
+end
+
+deactivate Http
+
+alt authorized
+    Component -->> User: show resource
+else forbidden
+    Component -->> User: show error
+end
+
+@enduml
+

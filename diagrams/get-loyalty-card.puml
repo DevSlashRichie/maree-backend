@@ -1,0 +1,66 @@
+@startuml Loyalty Card Get Flow
+hide footbox
+
+actor User
+
+boundary "LoyaltyCardPageComponent" as Component
+control "http/loyalty.ts" as Http
+control "application/get-loyalty-card.ts" as UseCase
+
+User ->> Component: view loyalty card
+
+Component ->> Http: GET /v1/loyalty-card/:userId
+activate Http
+
+Http ->> UseCase: getLoyaltyCardUseCase(userId)
+activate UseCase
+
+alt userId empty
+    UseCase -->> Http: Err(LoyaltyCardNotFound)
+    Http -->> Component: 404 {"message": "loyalty card not found"}
+else userId provided
+    create entity "repo/loyalty-repo.ts" as LoyaltyRepo
+    database "Postgres DB" as DB
+    UseCase ->> LoyaltyRepo: findCurrentBalance(userId)
+    activate LoyaltyRepo
+    create entity "repo/user-repo.ts" as UserRepo
+    UseCase ->> UserRepo: findById(userId)
+    activate UserRepo
+    UseCase ->> LoyaltyRepo: findLastRedemptions(userId, 3)
+
+    LoyaltyRepo ->> DB: SELECT SUM(amount) FROM loyalty_transaction WHERE userId
+    activate DB
+    DB -->> LoyaltyRepo: balance
+
+    UserRepo ->> DB: SELECT * FROM user WHERE id = userId
+    DB -->> UserRepo: user
+
+    LoyaltyRepo ->> DB: SELECT reward_redemption, reward, branch FROM reward_redemption WHERE userId ORDER BY createdAt DESC LIMIT 3
+    DB -->> LoyaltyRepo: redemptions[]
+    deactivate DB
+
+    alt user not found
+        UserRepo -->> UseCase: null
+        UseCase -->> Http: Err(LoyaltyCardNotFound)
+        Http -->> Component: 404 {"message": "loyalty card not found"}
+    else user found
+        deactivate LoyaltyRepo
+        deactivate UserRepo
+
+        UseCase -> UseCase: map redemptions to dto
+
+        UseCase -->> Http: Ok({currentBalance, firstName, lastName, phone, lastRedemptions})
+        Http -->> Component: 200 {loyaltyCard}
+    end
+end
+
+deactivate Http
+
+alt success
+    Component -->> User: display loyalty card
+else error
+    Component -->> User: show error message
+end
+
+@enduml
+

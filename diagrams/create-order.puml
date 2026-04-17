@@ -1,0 +1,73 @@
+@startuml Order Create Flow
+hide footbox
+
+actor User
+
+boundary "OrderFormComponent" as Component
+control "http/order.ts" as Http
+control "application/create-order.ts" as UseCase
+
+User ->> Component: submit order
+
+Component ->> Http: POST /v1/orders
+activate Http
+
+Http -> Http: CreateOrderDto.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: createOrderUseCase(userId, data)
+    activate UseCase
+
+    create entity "repo/product-repo.ts" as ProductRepo
+    database "Postgres DB" as DB
+    UseCase ->> ProductRepo: findProductVariantSnapshotsByIds(variantIds)
+    activate ProductRepo
+
+    ProductRepo ->> DB: SELECT * FROM product_variant WHERE id IN variantIds
+    activate DB
+    DB -->> ProductRepo: variantSnapshots[]
+    deactivate DB
+
+    alt variant not found
+        ProductRepo -->> UseCase: []
+        UseCase -->> Http: Err(ProductVariantNotFoundError)
+        Http -->> Component: 404 {"message": "variant not found"}
+    else variants found
+        UseCase -> UseCase: validate total price matches
+
+        alt total mismatch
+            UseCase -->> Http: Err(TotalMismatchError)
+            Http -->> Component: 400 {"message": "total price mismatch"}
+        else total valid
+            create entity "repo/order-repo.ts" as OrderRepo
+            UseCase ->> OrderRepo: saveOrder({userId, branchId, total, status: "incoming"})
+            activate OrderRepo
+
+            OrderRepo ->> DB: INSERT INTO order
+            DB -->> OrderRepo: order
+
+            UseCase ->> OrderRepo: saveOrderItems(items)
+
+            OrderRepo ->> DB: INSERT INTO order_item
+            DB -->> OrderRepo: success
+            deactivate OrderRepo
+            deactivate ProductRepo
+
+            UseCase -->> Http: Ok(order)
+            Http -->> Component: 201 {order}
+        end
+    end
+end
+
+deactivate Http
+
+alt success
+    Component -->> User: redirect to orders
+else error
+    Component -->> User: show error message
+end
+
+@enduml
+
