@@ -1,0 +1,60 @@
+@startuml Upload Product Image Flow
+hide footbox
+
+actor Admin
+
+boundary "ProductFormComponent" as Component
+control "http/product.ts" as Http
+control "application/upload-product-image.ts" as UseCase
+
+Admin ->> Component: upload product image
+
+Component ->> Http: POST /v1/products/image
+activate Http
+
+Http -> Http: validate image file
+
+alt validation fails or empty
+    Http -->> Component: 400 {"message": "invalid or empty image"}
+else validation succeeds
+    Http ->> UseCase: uploadProductImageUseCase(filesPort, imageData)
+    activate UseCase
+
+    alt image is empty
+        UseCase -->> Http: Err(ImageIsEmpty)
+        Http -->> Component: 400 {"message": "image is empty"}
+    else image valid
+        UseCase -> UseCase: convert bytes to Buffer
+
+        create control "azure-storage/service.ts" as FileService
+        UseCase ->> FileService: upload(buffer, filename, contentType)
+        activate FileService
+
+        FileService -> FileService: upload to Azure Blob Storage
+
+        FileService -->> UseCase: fileId
+        deactivate FileService
+
+        UseCase ->> FileService: getDownloadUrl(fileId)
+        activate FileService
+
+        FileService -> FileService: generate SAS URL
+
+        FileService -->> UseCase: url
+        deactivate FileService
+
+        UseCase -->> Http: Ok({url})
+        Http -->> Component: 200 {url}
+    end
+end
+
+deactivate Http
+
+alt success
+    Component -->> Admin: display preview with url
+else error
+    Component -->> Admin: show error message
+end
+
+@enduml
+
