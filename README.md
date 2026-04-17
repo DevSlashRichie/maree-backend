@@ -19,7 +19,7 @@ AVANCE 4:
 Avance 5:
 - [DOC DE VALIDACION](https://github.com/DevSlashRichie/maree-frontend/blob/main/docs/Requirements%20Validation%20Checklist%20(1).pdf)
 - [DIAGRAMAS DE SECUENCIA](https://github.com/DevSlashRichie/maree-backend/tree/main/diagrams)
-- [DIAGRAMA DE DESPLIEGUE](https://github.com/DevSlashRichie/maree-frontend/blob/main/docs/diagrama_de_despliegue)
+- [DIAGRAMA DE DESPLIEGUE](https://github.com/DevSlashRichie/maree-backend/blob/main/docs/WhatsApp%20Image%202026-04-16%20at%2011.19.22%20PM.jpeg)
 - [PRUEBAS FRONT](https://github.com/DevSlashRichie/maree-frontend/tree/main/tests)
 - [PRUEBAS BACK](https://github.com/DevSlashRichie/maree-backend/blob/main/src/application/__tests__/create-reward.test.ts)
 
