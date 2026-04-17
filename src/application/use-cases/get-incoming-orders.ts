@@ -13,7 +13,7 @@ export async function getIncomingOrdersUseCase(): Promise<
       const orderRepo = new OrderRepo(txn);
 
       const filters = {
-        status: { eq: "in-progress" },
+        status: { eq: "incoming" },
       };
 
       const orders = await orderRepo.findAll(filters);

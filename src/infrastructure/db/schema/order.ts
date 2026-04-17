@@ -24,7 +24,11 @@ export const ordersTable = pgTable("order", {
     .references(() => branchsTable.id),
   discountId: uuid("discount_id").references(() => discountsTable.id),
   total: bigint({ mode: "bigint" }).notNull(),
-  status: text().notNull(),
+  status: text()
+    .notNull()
+    .$type<
+      "pending" | "incoming" | "set" | "complete" | "ready" | "completed"
+    >(),
   note: text(),
   orderNumber: text("order_number").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })

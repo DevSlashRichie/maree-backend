@@ -7,17 +7,22 @@ import {
 } from "@/application/errors/order";
 import type { OrderType } from "@/domain/entities/order";
 import { OrderRepo } from "@/domain/repositories/order-repo";
+import type { OrderStatus } from "@/domain/value-objects/order-status";
 import { DB } from "@/infrastructure/db/postgres";
 
-const TRANSITIONS: Record<string, Record<string, string>> = {
+const TRANSITIONS: Record<string, Record<string, OrderStatus>> = {
   forward: {
-    pending: "set",
-    set: "ready",
-    ready: "completed",
+    pending: "incoming",
+    incoming: "set",
+    set: "complete",
+    complete: "ready",
+    ready: "complete",
   },
   backward: {
-    set: "pending",
-    ready: "set",
+    incoming: "pending",
+    set: "incoming",
+    complete: "set",
+    ready: "complete",
   },
 };
 
