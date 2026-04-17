@@ -1,0 +1,42 @@
+@startuml Staff Get Flow
+hide footbox
+
+actor Administrator
+
+boundary "StaffListComponent" as Component
+control "http/staff.ts" as Http
+control "application/get-staff.ts" as UseCase
+
+Administrator ->> Component: view staff members
+
+Component ->> Http: GET /v1/staff
+activate Http
+
+Http ->> UseCase: getStaffUseCase(filters, pagination)
+activate UseCase
+
+create entity "repo/user-repo.ts" as UserRepo
+database "Postgres DB" as DB
+UseCase ->> UserRepo: <<create>>
+activate UserRepo
+
+UseCase ->> UserRepo: findAllStaff(filters, pagination)
+
+UserRepo ->> DB: SELECT staff, user, role FROM staff LEFT JOIN user ON staff.userId = user.id LEFT JOIN user_role ON user.id = user_role.userId WHERE ... LIMIT pagination.limit OFFSET pagination.offset
+activate DB
+DB -->> UserRepo: {staff[], total}
+deactivate DB
+
+UserRepo -->> UseCase: {staff[], total}
+deactivate UserRepo
+
+UseCase -->> Http: Ok({staff[], total, page, limit})
+deactivate UseCase
+
+Http -->> Component: 200 {staff[], pagination}
+deactivate Http
+
+Component -->> Administrator: render staff list with pagination
+
+@enduml
+
