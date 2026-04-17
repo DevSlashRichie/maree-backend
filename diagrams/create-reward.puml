@@ -1,0 +1,86 @@
+@startuml Reward Create Flow
+hide footbox
+
+actor Admin
+
+boundary "RewardFormComponent" as Component
+control "http/reward.ts" as Http
+control "application/create-reward.ts" as UseCase
+
+Admin ->> Component: submit reward data with discount
+
+Component ->> Http: POST /v1/rewards
+activate Http
+
+Http -> Http: CreateRewardDto.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    alt discount not provided
+        Http ->> UseCase: createRewardUseCase(data)
+        activate UseCase
+        UseCase -->> Http: Err(DiscountRequiredError)
+        Http -->> Component: 400 {"message": "discount is required"}
+    else discount provided
+        Http ->> UseCase: createRewardUseCase(data)
+        activate UseCase
+
+        create entity "repo/discount-repo.ts" as DiscountRepo
+        database "Postgres DB" as DB
+        UseCase ->> DiscountRepo: <<create>>
+        activate DiscountRepo
+
+        UseCase -> UseCase: generateCouponCode()
+
+        UseCase ->> DiscountRepo: saveDiscount(validatedDiscount)
+
+        DiscountRepo ->> DB: INSERT INTO discount
+        activate DB
+        DB -->> DiscountRepo: discount
+        deactivate DB
+
+        alt discount creation failed
+            DiscountRepo -->> UseCase: null
+            UseCase -->> Http: Err(DiscountCreationError)
+            Http -->> Component: 500 {"message": "failed to create discount"}
+        else discount created
+            create entity "repo/rewards-repo.ts" as RewardsRepo
+            UseCase ->> RewardsRepo: <<create>>
+            activate RewardsRepo
+            UseCase ->> RewardsRepo: saveReward(validatedReward)
+
+            RewardsRepo ->> DB: INSERT INTO reward
+            DB -->> RewardsRepo: reward
+
+            alt reward creation failed
+                RewardsRepo -->> UseCase: null
+                UseCase -->> Http: Err(RewardCreationError)
+                Http -->> Component: 500 {"message": "failed to create reward"}
+            else reward created
+                alt branchId provided
+                    UseCase ->> DiscountRepo: saveBranchDiscount({discountId, branchId})
+                    DiscountRepo ->> DB: INSERT INTO branch_discount
+                    DB -->> DiscountRepo: success
+                end
+
+                deactivate DiscountRepo
+                deactivate RewardsRepo
+
+                UseCase -->> Http: Ok(reward)
+                Http -->> Component: 201 {reward}
+            end
+        end
+    end
+end
+
+deactivate Http
+
+alt success
+    Component -->> Admin: redirect to rewards list
+else error
+    Component -->> Admin: show error message
+end
+
+@enduml
+
