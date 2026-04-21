@@ -20,9 +20,12 @@ import { closeOrderUseCase } from "@/application/use-cases/close-order";
 import { createOrderUseCase } from "@/application/use-cases/create-order.ts";
 import { getIncomingOrdersUseCase } from "@/application/use-cases/get-incoming-orders.ts";
 import { getOderHistoryUseCase } from "@/application/use-cases/get-oder-history.ts";
+import { getOrderDetailUseCase } from "@/application/use-cases/get-order-detail";
 import { getOrdersUseCase } from "@/application/use-cases/get-orders.ts";
+import { getUserOrdersUseCase } from "@/application/use-cases/get-user-orders";
 import { markOrderReadyUseCase } from "@/application/use-cases/mark-order-ready";
 import { updateOrderStatusUseCase } from "@/application/use-cases/update-order-status";
+import { ForbiddenError } from "@/application/errors/rbac";
 import { ErrorSchema } from "@/domain/entities/error.ts";
 import {
   OrderFilterSchema,
@@ -161,6 +164,93 @@ orderRouter.openapi(
     }
 
     return ctx.json(history.unwrap, 200);
+  },
+);
+
+orderRouter.openapi(
+  createRoute({
+    tags: ["Order"],
+    method: "get",
+    path: "/@me",
+    security: [{ Bearer: [] }],
+    middleware: [authzMiddleware(true)],
+    responses: {
+      200: {
+        description: "user order history",
+        content: {
+          "application/json": {
+            schema: z.array(OrderSchema),
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const actor = ctx.get("actor");
+    const orders = await getUserOrdersUseCase(actor.userId);
+    return ctx.json(orders, 200);
+  },
+);
+
+orderRouter.openapi(
+  createRoute({
+    tags: ["Order"],
+    method: "get",
+    path: "/@me/{id}",
+    security: [{ Bearer: [] }],
+    middleware: [authzMiddleware(true)],
+    request: {
+      params: z.object({
+        id: z.string().uuid(),
+      }),
+    },
+    responses: {
+      200: {
+        description: "order details with items",
+        content: {
+          "application/json": {
+            schema: OrderSchema.extend({
+              items: z.array(z.any()),
+            }),
+          },
+        },
+      },
+      403: {
+        description: "forbidden - not your order",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      404: {
+        description: "order not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const actor = ctx.get("actor");
+    const { id } = ctx.req.valid("param");
+
+    const result = await getOrderDetailUseCase(id, actor.userId);
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+      if (err instanceof ForbiddenError) {
+        return ctx.json({ code: err.code, message: err.message }, 403);
+      }
+      if (err instanceof OrderNotFound) {
+        return ctx.json({ code: err.code, message: err.message }, 404);
+      }
+      return ctx.json({ code: "internal_error", message: err.message }, 500);
+    }
+
+    return ctx.json(result.unwrap(), 200);
   },
 );
 

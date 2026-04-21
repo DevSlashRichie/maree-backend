@@ -16,6 +16,13 @@ export const UserListSchema = z
   })
   .openapi("UserList");
 
+export const UpdateUserDto = UserSchema.pick({
+  firstName: true,
+  lastName: true,
+})
+  .partial()
+  .openapi("UpdateUser");
+
 export const StaffListSchema = z
   .object({
     users: z.array(ActorSchema),

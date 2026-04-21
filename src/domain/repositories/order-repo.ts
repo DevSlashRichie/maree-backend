@@ -13,6 +13,7 @@ import {
 import type { OrderStatus } from "@/domain/value-objects/order-status";
 import type { Executor } from "@/infrastructure/db/postgres.ts";
 import {
+  orderItemsModifiersTable,
   orderItemsTable,
   ordersTable,
   userTable,
@@ -46,6 +47,28 @@ export class OrderRepo {
       .where(whereClause);
 
     return orders;
+  }
+
+  async findAllByUserId(userId: string): Promise<Order[]> {
+    return await this.conn
+      .select()
+      .from(ordersTable)
+      .where(eq(ordersTable.userId, userId));
+  }
+
+  async findDetailById(id: string) {
+    const order = await this.conn.query.ordersTable.findFirst({
+      where: eq(ordersTable.id, id),
+      with: {
+        items: {
+          with: {
+            modifiers: true,
+          },
+        },
+      },
+    });
+
+    return order ?? null;
   }
 
   async findAllWithUser(filters?: OrderFilters): Promise<OrderWithUser[]> {
