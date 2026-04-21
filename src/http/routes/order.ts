@@ -16,6 +16,7 @@ import {
   OrderInvalidTransition,
   OrderNotFound,
 } from "@/application/errors/order";
+import { ForbiddenError } from "@/application/errors/rbac";
 import { closeOrderUseCase } from "@/application/use-cases/close-order";
 import { createOrderUseCase } from "@/application/use-cases/create-order.ts";
 import { getIncomingOrdersUseCase } from "@/application/use-cases/get-incoming-orders.ts";
@@ -25,7 +26,6 @@ import { getOrdersUseCase } from "@/application/use-cases/get-orders.ts";
 import { getUserOrdersUseCase } from "@/application/use-cases/get-user-orders";
 import { markOrderReadyUseCase } from "@/application/use-cases/mark-order-ready";
 import { updateOrderStatusUseCase } from "@/application/use-cases/update-order-status";
-import { ForbiddenError } from "@/application/errors/rbac";
 import { ErrorSchema } from "@/domain/entities/error.ts";
 import {
   OrderFilterSchema,

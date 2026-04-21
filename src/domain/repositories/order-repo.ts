@@ -13,7 +13,6 @@ import {
 import type { OrderStatus } from "@/domain/value-objects/order-status";
 import type { Executor } from "@/infrastructure/db/postgres.ts";
 import {
-  orderItemsModifiersTable,
   orderItemsTable,
   ordersTable,
   userTable,

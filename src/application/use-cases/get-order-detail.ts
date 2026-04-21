@@ -1,10 +1,13 @@
 import { Err, Ok, type Result } from "oxide.ts";
-import { OrderRepo } from "@/domain/repositories/order-repo";
-import { DB } from "@/infrastructure/db/postgres";
 import { OrderNotFound } from "@/application/errors/order";
 import { ForbiddenError } from "@/application/errors/rbac";
+import { OrderRepo } from "@/domain/repositories/order-repo";
+import { DB } from "@/infrastructure/db/postgres";
 
-export async function getOrderDetailUseCase(orderId: string, userId: string): Promise<Result<any, Error>> {
+export async function getOrderDetailUseCase(
+  orderId: string,
+  userId: string,
+): Promise<Result<any, Error>> {
   const orderRepo = new OrderRepo(DB);
   const order = await orderRepo.findDetailById(orderId);
 
