@@ -23,7 +23,7 @@ export async function closeOrderUseCase(
       throw new OrderNotFound();
     }
 
-    if (order.status === "completed") {
+    if (order.status === "complete") {
       throw new OrderAlreadyClosed();
     }
 

@@ -41,7 +41,7 @@ describe("OrderStatus", () => {
       "set",
       "complete",
       "ready",
-      "completed",
+      "in-progress",
     ]);
   });
 });
