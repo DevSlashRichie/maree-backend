@@ -65,7 +65,7 @@ export class GoogleWalletClient implements WalletPassPort {
         hexBackgroundColor: "#4a4a4a",
         programLogo: {
           sourceUri: {
-            uri: "https://images.rappi.com.mx/restaurants_logo/logo1-1670627103359.png?e=webp&d=10x10&q=10",
+            uri: "https://storage.googleapis.com/wallet-assets-maree/logo1.png",
           },
           contentDescription: {
             defaultValue: { language: "es-419", value: "Logo de MARÉE " },
