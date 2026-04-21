@@ -4,7 +4,7 @@ export const ORDER_STATUSES = [
   "set",
   "complete",
   "ready",
-  "completed",
+  "in-progress",
 ] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 

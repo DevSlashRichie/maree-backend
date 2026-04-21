@@ -65,7 +65,7 @@ export class GoogleWalletClient implements WalletPassPort {
         hexBackgroundColor: "#4a4a4a",
         programLogo: {
           sourceUri: {
-            uri: "https://storage.googleapis.com/wallet-assets-maree/MAREE.png",
+            uri: "https://storage.googleapis.com/wallet-assets-maree/logo1.png",
           },
           contentDescription: {
             defaultValue: { language: "es-419", value: "Logo de MARÉE " },
@@ -86,7 +86,7 @@ export class GoogleWalletClient implements WalletPassPort {
       state: "ACTIVE",
       heroImage: {
         sourceUri: {
-          uri: `https://storage.googleapis.com/wallet-assets-maree/hero-image-visits-${data.points}.png`,
+          uri: `https://storage.googleapis.com/wallet-assets-maree/hero-image-visits-${(data.points % 6) + 1}.png`,
         },
       },
       barcode: { type: "QR_CODE", value: data.userId },
