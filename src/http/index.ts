@@ -7,6 +7,7 @@ import { ZodError, z } from "zod";
 import { loggerMiddleware } from "./middleware/logger";
 import { authenticationRouter } from "./routes/authentication";
 import { branchRouter } from "./routes/branch";
+import { discountRouter } from "./routes/discount";
 import { loyaltyRouter } from "./routes/loyalty-card";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
@@ -102,6 +103,7 @@ export function createHttpServer(
   v1.route("/review", reviewRouter);
   v1.route("/branches", branchRouter);
   v1.route("/loyalty", loyaltyRouter);
+  v1.route("/discounts", discountRouter);
 
   app.route("/auth", authenticationRouter);
   app.route("/v1", v1);
