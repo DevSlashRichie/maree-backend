@@ -1,0 +1,46 @@
+@startuml Categories Get Flow
+hide footbox
+
+actor User
+
+boundary "CategoriesPageComponent" as Component
+control "http/category.ts" as Http
+control "application/get-categories.ts" as UseCase
+
+User ->> Component: view categories
+
+Component ->> Http: GET /v1/categories
+activate Http
+
+Http ->> UseCase: getCategoriesUseCase()
+activate UseCase
+
+create entity "repo/product-repo.ts" as ProductRepo
+database "Postgres DB" as DB
+UseCase ->> ProductRepo: <<create>>
+activate ProductRepo
+
+UseCase ->> ProductRepo: getAllCategories()
+
+ProductRepo ->> DB: SELECT * FROM category
+activate DB
+DB -->> ProductRepo: categories[]
+deactivate DB
+
+UseCase -> UseCase: buildTree(categories)
+
+ProductRepo -->> UseCase: categories[]
+deactivate ProductRepo
+
+UseCase -> UseCase: recursively build category tree with parent-child relationships
+
+UseCase -->> Http: Ok(categoryTree[])
+deactivate UseCase
+
+Http -->> Component: 200 {categoryTree[]}
+deactivate Http
+
+Component -->> User: render category tree
+
+@enduml
+

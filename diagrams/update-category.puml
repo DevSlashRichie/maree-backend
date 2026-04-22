@@ -1,0 +1,82 @@
+@startuml Category Update Flow
+hide footbox
+
+actor Admin
+
+boundary "CategoryFormComponent" as Component
+control "http/category.ts" as Http
+control "application/update-category.ts" as UseCase
+
+Admin ->> Component: submit category updates
+
+Component ->> Http: PATCH /v1/categories/:id
+activate Http
+
+Http -> Http: UpdateCategoryDto.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: updateCategoryUseCase(id, data)
+    activate UseCase
+
+    create entity "repo/product-repo.ts" as ProductRepo
+    database "Postgres DB" as DB
+    UseCase ->> ProductRepo: <<create>>
+    activate ProductRepo
+
+    UseCase ->> ProductRepo: findCategoryById(id)
+
+    ProductRepo ->> DB: SELECT * FROM category WHERE id = id
+    activate DB
+    DB -->> ProductRepo: category
+    deactivate DB
+
+    alt category not found
+        ProductRepo -->> UseCase: null
+        UseCase -->> Http: Err(CategoryNotFoundError)
+        Http -->> Component: 404 {"message": "category not found"}
+    else category found
+        alt parentId provided
+            alt parentId equals id
+                UseCase -->> Http: Err(CategoryCycleDetectedError)
+                Http -->> Component: 400 {"message": "cycle detected"}
+            else different ids
+                UseCase ->> ProductRepo: findCategoryById(parentId)
+                ProductRepo ->> DB: SELECT * FROM category WHERE id = parentId
+                DB -->> ProductRepo: parentCategory
+
+                alt parent not found
+                    ProductRepo -->> UseCase: null
+                    UseCase -->> Http: Err(ParentCategoryNotFoundError)
+                    Http -->> Component: 404 {"message": "parent category not found"}
+                else parent found
+                    UseCase ->> ProductRepo: updateCategory(id, data)
+                    ProductRepo ->> DB: UPDATE category SET ... WHERE id = id
+                    DB -->> ProductRepo: updated
+                    deactivate ProductRepo
+                    UseCase -->> Http: Ok(updated)
+                    Http -->> Component: 200 {category}
+                end
+            end
+        else no parent
+            UseCase ->> ProductRepo: updateCategory(id, data)
+            ProductRepo ->> DB: UPDATE category SET ... WHERE id = id
+            DB -->> ProductRepo: updated
+            deactivate ProductRepo
+            UseCase -->> Http: Ok(updated)
+            Http -->> Component: 200 {category}
+        end
+    end
+end
+
+deactivate Http
+
+alt success
+    Component -->> Admin: redirect to categories list
+else error
+    Component -->> Admin: show error message
+end
+
+@enduml
+

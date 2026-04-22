@@ -1,0 +1,61 @@
+@startuml Add Visit Flow
+hide footbox
+
+actor User
+
+boundary "LoyaltyComponent" as Component
+control "http/loyalty.ts" as Http
+control "application/add-visit.ts" as UseCase
+
+User ->> Component: add visit
+
+Component ->> Http: POST /v1/loyalty/visit
+activate Http
+
+Http ->> UseCase: addVisitUseCase(userId, amount)
+activate UseCase
+
+create entity "repo/user-repo.ts" as UserRepo
+database "Postgres DB" as DB
+UseCase ->> UserRepo: findById(userId)
+activate UserRepo
+
+UserRepo ->> DB: SELECT user WHERE id = userId
+activate DB
+DB -->> UserRepo: user
+deactivate DB
+
+alt user not found
+    UserRepo -->> UseCase: null
+    UseCase -->> Http: Err(UserNotFoundError)
+    Http -->> Component: 404 {"message": "user not found"}
+else user found
+    deactivate UserRepo
+    create entity "repo/rewards-repo.ts" as RewardsRepo
+    UseCase ->> RewardsRepo: createLoyaltyTransaction(userId, amount, "earned")
+    activate RewardsRepo
+
+
+    RewardsRepo ->> DB: INSERT INTO loyalty_transaction
+    DB -->> RewardsRepo: transaction
+
+    UseCase ->> RewardsRepo: calculateLoyaltyBalance(userId)
+
+    RewardsRepo ->> DB: SELECT SUM(amount) FROM loyalty_transaction WHERE userId
+    DB -->> RewardsRepo: newBalance
+    deactivate RewardsRepo
+
+    UseCase -->> Http: Ok({transaction, newBalance})
+    Http -->> Component: 201 {transaction, newBalance}
+end
+
+deactivate Http
+
+alt success
+    Component -->> User: redirect to loyalty
+else error
+    Component -->> User: show error message
+end
+
+@enduml
+

@@ -12,11 +12,11 @@ const {
   productTable,
   productVariantsTable,
   productComponentsTable,
-  ordersTable: _ordersTable,
-  orderItemsTable: _orderItemsTable,
-  orderItemsModifiersTable: _orderItemsModifiersTable,
-  reviewsTable: _reviewsTable,
-  loyaltyTransactionsTable: _loyaltyTransactionsTable,
+  ordersTable,
+  orderItemsTable,
+  orderItemsModifiersTable,
+  reviewsTable,
+  loyaltyTransactionsTable,
   ...seedSchema
 } = schema;
 
@@ -477,7 +477,7 @@ export async function seedIfRequired() {
   }
 
   await reset(DB, schema);
-  await seed(DB, seedSchema, {
+  await seed(DB, schema, {
     count: 1,
   }).refine((funcs) => ({
     branchsTable: {
@@ -498,6 +498,12 @@ export async function seedIfRequired() {
           {
             weight: 1,
             count: 1,
+          },
+        ],
+        ordersTable: [
+          {
+            weight: 1,
+            count: 10,
           },
         ],
       },
@@ -571,7 +577,7 @@ export async function seedIfRequired() {
         type: funcs.valuesFromArray({
           values: ["percentage", "fixed"],
         }),
-        value: funcs.int({ minValue: 100, maxValue: 2000 }),
+        value: funcs.int({ minValue: 10, maxValue: 25 }),
         state: funcs.valuesFromArray({
           values: ["active", "inactive"],
         }),
@@ -617,6 +623,72 @@ export async function seedIfRequired() {
           values: ["pending", "sent", "failed"],
         }),
         body: funcs.loremIpsum({ sentencesCount: 3 }),
+      },
+    },
+    orderItemsTable: {
+      columns: {
+        quantity: funcs.int({ minValue: 1, maxValue: 3 }),
+        pricingSnapshot: funcs.int({ minValue: 1000, maxValue: 4000 }),
+      },
+    },
+    ordersTable: {
+      columns: {
+        total: funcs.int({ minValue: 1000, maxValue: 4000 }),
+        status: funcs.valuesFromArray({ values: ["incoming", "set", "ready"] }),
+      },
+      with: {
+        orderItemsTable: [
+          {
+            weight: 1,
+            count: 5,
+          },
+        ],
+      },
+    },
+    productTable: {
+      count: 5,
+      columns: {
+        name: funcs.valuesFromArray({
+          values: [
+            "Crepa Oreo",
+            "Crepa Dulce",
+            "Crepa de Jamón y Queso",
+            "Café de Olla",
+            "Té Helado de Limón",
+          ],
+        }),
+      },
+      with: {
+        productVariantsTable: [
+          {
+            weight: 1,
+            count: 1,
+          },
+        ],
+      },
+    },
+    productVariantsTable: {
+      count: 10,
+      columns: {
+        price: funcs.int({ minValue: 100, maxValue: 400 }),
+      },
+    },
+    categoryTable: {
+      count: 10,
+    },
+    orderItemsModifiersTable: {
+      count: 0,
+    },
+    rewardsTable: {
+      count: 2,
+      columns: {
+        name: funcs.valuesFromArray({
+          values: ["Latte Gratis", "Descuento", "Crepa Gratis"],
+        }),
+        status: funcs.valuesFromArray({ values: ["active"] }),
+        cost: funcs.int({ minValue: 1, maxValue: 3 }),
+        description: funcs.loremIpsum({ sentencesCount: 1 }),
+        deletedAt: false,
       },
     },
   }));

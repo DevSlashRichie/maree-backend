@@ -1,0 +1,59 @@
+@startuml Product Variant Get Flow
+hide footbox
+
+actor User
+
+boundary "ProductDetailComponent" as Component
+control "http/product.ts" as Http
+control "application/get-product-variant.ts" as UseCase
+
+User ->> Component: view product variant details
+
+Component ->> Http: GET /v1/product-variants/:variantId
+activate Http
+
+Http ->> UseCase: getProductVariantUseCase(variantId)
+activate UseCase
+
+create entity "repo/product-repo.ts" as ProductRepo
+database "Postgres DB" as DB
+UseCase ->> ProductRepo: <<create>>
+activate ProductRepo
+
+UseCase ->> ProductRepo: findProductVariantWithComponents(variantId)
+
+ProductRepo ->> DB: SELECT variant, product, component FROM product_variant LEFT JOIN product_component WHERE variant.id = variantId
+activate DB
+DB -->> ProductRepo: {variant, product, components}
+deactivate DB
+
+alt variant not found
+    ProductRepo -->> UseCase: null
+    UseCase -->> Http: Err(ProductVariantNotFound)
+    Http -->> Component: 404 {"message": "product variant not found"}
+else variant found
+    UseCase ->> ProductRepo: getAllCategories()
+
+    ProductRepo ->> DB: SELECT * FROM category
+    DB -->> ProductRepo: categories[]
+
+    UseCase -> UseCase: build category path from root to product
+
+    deactivate ProductRepo
+
+    UseCase -> UseCase: map to ProductVariantWithComponents DTO
+
+    UseCase -->> Http: Ok(variantWithComponents)
+    Http -->> Component: 200 {variantWithComponents}
+end
+
+deactivate Http
+
+alt success
+    Component -->> User: render product details
+else error
+    Component -->> User: show error message
+end
+
+@enduml
+

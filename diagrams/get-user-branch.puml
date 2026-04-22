@@ -1,0 +1,65 @@
+@startuml User Branch Get Flow
+hide footbox
+
+actor User
+
+boundary "UserBranchComponent" as Component
+control "http/user.ts" as Http
+control "application/get-user-branch.ts" as UseCase
+
+User ->> Component: get assigned branch
+
+Component ->> Http: GET /v1/users/:userId/branch
+activate Http
+
+Http ->> UseCase: getUserBranchUseCase(userId)
+activate UseCase
+
+create entity "repo/user-repo.ts" as UserRepo
+database "Postgres DB" as DB
+UseCase ->> UserRepo: findStaffById(userId)
+activate UserRepo
+
+UserRepo ->> DB: SELECT staff FROM staff WHERE userId = userId
+activate DB
+DB -->> UserRepo: staff
+deactivate DB
+
+alt staff not found or no branchId
+    UserRepo -->> UseCase: null
+    UseCase -->> Http: Ok(null)
+    Http -->> Component: 200 {null}
+else staff found with branchId
+    deactivate UserRepo
+    create entity "repo/branch-repo.ts" as BranchRepo
+    UseCase ->> BranchRepo: findById(branchId)
+    activate BranchRepo
+
+
+    BranchRepo ->> DB: SELECT * FROM branch WHERE id = branchId
+    DB -->> BranchRepo: branch
+
+    alt branch not found
+        BranchRepo -->> UseCase: null
+        UseCase -->> Http: Ok(null)
+        Http -->> Component: 200 {null}
+    else branch found
+        deactivate BranchRepo
+
+        UseCase -> UseCase: map to UserBranchResponse
+
+        UseCase -->> Http: Ok({id, name, state, createdAt})
+        Http -->> Component: 200 {branch}
+    end
+end
+
+deactivate Http
+
+alt branch found
+    Component -->> User: display branch info
+else not found
+    Component -->> User: show empty state
+end
+
+@enduml
+

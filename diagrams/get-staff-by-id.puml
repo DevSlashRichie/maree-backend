@@ -1,0 +1,52 @@
+@startuml Staff By Id Get Flow
+hide footbox
+
+actor Administrator
+
+boundary "StaffDetailComponent" as Component
+control "http/staff.ts" as Http
+control "application/get-staff-by-id.ts" as UseCase
+
+Administrator ->> Component: view staff member details
+
+Component ->> Http: GET /v1/staff/:userId
+activate Http
+
+Http ->> UseCase: getStaffByIdUseCase(userId)
+activate UseCase
+
+create entity "repo/user-repo.ts" as UserRepo
+database "Postgres DB" as DB
+UseCase ->> UserRepo: <<create>>
+activate UserRepo
+
+UseCase ->> UserRepo: findStaffById(userId)
+
+UserRepo ->> DB: SELECT staff, user, role FROM staff LEFT JOIN user ON staff.userId = user.id LEFT JOIN user_role ON user.id = user_role.userId WHERE staff.userId = userId
+activate DB
+DB -->> UserRepo: staff
+deactivate DB
+
+alt staff not found
+    UserRepo -->> UseCase: null
+    UseCase -->> Http: Ok(null)
+    Http -->> Component: 200 {null}
+else staff found
+    deactivate UserRepo
+
+    UseCase -> UseCase: map to ActorType DTO
+
+    UseCase -->> Http: Ok({id, firstName, lastName, phone, email, role})
+    Http -->> Component: 200 {actor}
+end
+
+deactivate Http
+
+alt staff found
+    Component -->> Administrator: render staff details
+else not found
+    Component -->> Administrator: show empty state
+end
+
+@enduml
+

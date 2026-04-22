@@ -1,0 +1,67 @@
+@startuml Order Status Update Flow
+hide footbox
+
+actor Admin
+
+boundary "OrderDetailComponent" as Component
+control "http/order.ts" as Http
+control "application/update-order-status.ts" as UseCase
+
+Admin ->> Component: change order status (forward/backward)
+
+Component ->> Http: PATCH /v1/orders/:id/status
+activate Http
+
+Http -> Http: validate action (forward or backward)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "invalid action"}
+else validation succeeds
+    Http ->> UseCase: updateOrderStatusUseCase(id, action)
+    activate UseCase
+
+    create entity "repo/order-repo.ts" as OrderRepo
+    database "Postgres DB" as DB
+    UseCase ->> OrderRepo: <<create>>
+    activate OrderRepo
+
+    UseCase ->> OrderRepo: findById(id)
+
+    OrderRepo ->> DB: SELECT * FROM order WHERE id = id
+    activate DB
+    DB -->> OrderRepo: order
+    deactivate DB
+
+    alt order not found
+        OrderRepo -->> UseCase: null
+        UseCase -->> Http: Err(OrderNotFound)
+        Http -->> Component: 404 {"message": "order not found"}
+    else order found
+        UseCase -> UseCase: lookup nextStatus in TRANSITIONS[action][currentStatus]
+
+        alt invalid transition
+            UseCase -->> Http: Err(OrderInvalidTransition)
+            Http -->> Component: 400 {"message": "invalid status transition"}
+        else valid transition
+            UseCase ->> OrderRepo: updateStatus(id, nextStatus)
+
+            OrderRepo ->> DB: UPDATE order SET status = nextStatus WHERE id = id
+            DB -->> OrderRepo: updated
+            deactivate OrderRepo
+
+            UseCase -->> Http: Ok(updated)
+            Http -->> Component: 200 {order}
+        end
+    end
+end
+
+deactivate Http
+
+alt success
+    Component -->> Admin: update order display
+else error
+    Component -->> Admin: show error message
+end
+
+@enduml
+

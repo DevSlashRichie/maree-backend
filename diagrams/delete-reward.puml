@@ -1,0 +1,54 @@
+@startuml Reward Delete Flow
+hide footbox
+
+actor Admin
+
+boundary "RewardListComponent" as Component
+control "http/reward.ts" as Http
+control "application/delete-reward.ts" as UseCase
+
+Admin ->> Component: delete reward
+
+Component ->> Http: DELETE /v1/rewards/:rewardId
+activate Http
+
+Http ->> UseCase: deleteRewardUseCase(params)
+activate UseCase
+
+create entity "repo/rewards-repo.ts" as RewardsRepo
+database "Postgres DB" as DB
+UseCase ->> RewardsRepo: <<create>>
+activate RewardsRepo
+
+UseCase ->> RewardsRepo: findRewardById(rewardId)
+
+RewardsRepo ->> DB: SELECT * FROM reward WHERE id = rewardId
+activate DB
+DB -->> RewardsRepo: reward
+deactivate DB
+
+alt reward not found or already deleted
+    RewardsRepo -->> UseCase: null or deletedAt exists
+    UseCase -->> Http: Err(RewardNotFoundError)
+    Http -->> Component: 404 {"message": "reward not found"}
+else reward found
+    UseCase ->> RewardsRepo: softDeleteReward(rewardId)
+
+    RewardsRepo ->> DB: UPDATE reward SET deletedAt = NOW() WHERE id = rewardId
+    DB -->> RewardsRepo: success
+    deactivate RewardsRepo
+
+    UseCase -->> Http: Ok(undefined)
+    Http -->> Component: 204 No Content
+end
+
+deactivate Http
+
+alt success
+    Component -->> Admin: remove from list
+else error
+    Component -->> Admin: show error message
+end
+
+@enduml
+

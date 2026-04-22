@@ -1,0 +1,77 @@
+@startuml Category Create Flow
+hide footbox
+
+actor Admin
+
+boundary "CategoryFormComponent" as Component
+control "http/category.ts" as Http
+control "application/create-category.ts" as UseCase
+
+Admin ->> Component: submit category data
+
+Component ->> Http: POST /v1/categories
+activate Http
+
+Http -> Http: CreateCategoryDto.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: createCategoryUseCase(data)
+    activate UseCase
+
+    create entity "repo/product-repo.ts" as ProductRepo
+    database "Postgres DB" as DB
+    UseCase ->> ProductRepo: <<create>>
+    activate ProductRepo
+
+    UseCase ->> ProductRepo: findCategoryByName(name)
+
+    ProductRepo ->> DB: SELECT category WHERE name = name
+    activate DB
+    DB -->> ProductRepo: category
+    deactivate DB
+
+    alt category already exists
+        ProductRepo -->> UseCase: category
+        UseCase -->> Http: Err(CategoryAlreadyExistsError)
+        Http -->> Component: 400 {"message": "category already exists"}
+    else category not exists
+        alt parentId provided
+            UseCase ->> ProductRepo: findCategoryById(parentId)
+            ProductRepo ->> DB: SELECT category WHERE id = parentId
+            DB -->> ProductRepo: parentCategory
+
+            alt parent not found
+                ProductRepo -->> UseCase: null
+                UseCase -->> Http: Err(ParentCategoryNotFoundError)
+                Http -->> Component: 404 {"message": "parent category not found"}
+            else parent found
+                UseCase ->> ProductRepo: saveCategory(data)
+                ProductRepo ->> DB: INSERT INTO category
+                DB -->> ProductRepo: category
+                deactivate ProductRepo
+                UseCase -->> Http: Ok(category)
+                Http -->> Component: 201 {category}
+            end
+        else no parent
+            UseCase ->> ProductRepo: saveCategory(data)
+            ProductRepo ->> DB: INSERT INTO category
+            DB -->> ProductRepo: category
+            deactivate ProductRepo
+            UseCase -->> Http: Ok(category)
+            Http -->> Component: 201 {category}
+        end
+    end
+end
+
+deactivate Http
+
+alt success
+    Component -->> Admin: redirect to categories list
+else error
+    Component -->> Admin: show error message
+end
+
+@enduml
+

@@ -14,15 +14,14 @@ const TRANSITIONS: Record<string, Record<string, OrderStatus>> = {
   forward: {
     pending: "incoming",
     incoming: "set",
-    set: "complete",
-    complete: "ready",
-    ready: "complete",
+    set: "ready",
+    ready: "completed",
   },
   backward: {
     incoming: "pending",
     set: "incoming",
-    complete: "set",
-    ready: "complete",
+    ready: "set",
+    completed: "ready",
   },
 };
 

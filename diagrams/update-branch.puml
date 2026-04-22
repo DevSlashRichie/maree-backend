@@ -1,0 +1,60 @@
+@startuml Branch Update Flow
+hide footbox
+
+actor Admin
+
+boundary "BranchFormComponent" as Component
+control "http/branch.ts" as Http
+control "application/update-branch.ts" as UseCase
+
+Admin ->> Component: submit branch updates
+
+Component ->> Http: PATCH /v1/branches/:id
+activate Http
+
+Http -> Http: UpdateBranchDto.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: updateBranchUseCase(id, data)
+    activate UseCase
+
+    create entity "repo/branch-repo.ts" as BranchRepo
+    database "Postgres DB" as DB
+    UseCase ->> BranchRepo: <<create>>
+    activate BranchRepo
+
+    UseCase ->> BranchRepo: findById(id)
+
+    BranchRepo ->> DB: SELECT * FROM branch WHERE id = id
+    activate DB
+    DB -->> BranchRepo: branch
+    deactivate DB
+
+    alt branch not found
+        BranchRepo -->> UseCase: null
+        UseCase -->> Http: Err(BranchNotFound)
+        Http -->> Component: 404 {"message": "branch not found"}
+    else branch found
+        UseCase ->> BranchRepo: updateBranch(id, data)
+
+        BranchRepo ->> DB: UPDATE branch SET ... WHERE id = id
+        DB -->> BranchRepo: updated
+        deactivate BranchRepo
+
+        UseCase -->> Http: Ok(updated)
+        Http -->> Component: 200 {branch}
+    end
+end
+
+deactivate Http
+
+alt success
+    Component -->> Admin: redirect to branches list
+else error
+    Component -->> Admin: show error message
+end
+
+@enduml
+

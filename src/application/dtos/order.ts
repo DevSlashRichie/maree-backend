@@ -60,3 +60,38 @@ export const CreateOrderFromAdminDto = z
     userId: z.uuid().optional(),
   })
   .openapi("CreateOrderFromAdmin");
+
+export const DetailedOrderDto = OrderSchema.extend({
+  items: z.array(
+    z.object({
+      id: z.uuid(),
+      quantity: z.int(),
+      notes: z.string().nullish(),
+      pricingSnapshot: z.bigint(),
+      variantId: z.string(),
+      productVariantsTable: z
+        .object({
+          id: z.string(),
+          name: z.string(),
+          description: z.string().nullish(),
+          image: z.string().nullish(),
+        })
+        .nullish(),
+      modifiers: z.array(
+        z.object({
+          id: z.uuid(),
+          productVariantId: z.string(),
+          quantityDelta: z.int(),
+          productVariantsTable: z
+            .object({
+              id: z.string(),
+              name: z.string(),
+              description: z.string().nullish(),
+              image: z.string().nullish(),
+            })
+            .nullish(),
+        }),
+      ),
+    }),
+  ),
+});

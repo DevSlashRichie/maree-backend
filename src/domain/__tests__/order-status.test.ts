@@ -21,9 +21,9 @@ describe("OrderStatus", () => {
     expect(status).toBe("set");
   });
 
-  it("should create valid status 'complete'", () => {
-    const status = createOrderStatus("complete");
-    expect(status).toBe("complete");
+  it("should create valid status 'completed'", () => {
+    const status = createOrderStatus("completed");
+    expect(status).toBe("completed");
   });
 
   it("should throw for invalid status", () => {
@@ -39,8 +39,8 @@ describe("OrderStatus", () => {
       "pending",
       "incoming",
       "set",
-      "complete",
       "ready",
+      "completed",
       "in-progress",
     ]);
   });

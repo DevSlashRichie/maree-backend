@@ -1,0 +1,55 @@
+@startuml Ingredients Get Flow
+hide footbox
+
+actor User
+
+boundary "IngredientsPageComponent" as Component
+control "http/product.ts" as Http
+control "application/get-ingredients.ts" as UseCase
+
+User ->> Component: view available ingredients
+
+Component ->> Http: GET /v1/ingredients
+activate Http
+
+Http ->> UseCase: getIngredientsUseCase()
+activate UseCase
+
+create entity "repo/product-repo.ts" as ProductRepo
+database "Postgres DB" as DB
+UseCase ->> ProductRepo: <<create>>
+activate ProductRepo
+
+UseCase ->> ProductRepo: getAllCategories()
+
+ProductRepo ->> DB: SELECT * FROM category
+activate DB
+DB -->> ProductRepo: categories[]
+deactivate DB
+
+UseCase -> UseCase: find "Ingrediente" root category
+
+alt ingrediente category not found
+    UseCase -->> Http: Ok([])
+    Http -->> Component: 200 {[]}
+else ingrediente category found
+    UseCase ->> ProductRepo: findIngredientsWithVariantPrice()
+
+    ProductRepo ->> DB: SELECT product, product_variant FROM product WHERE type = 'ingredient'
+    DB -->> ProductRepo: ingredients[]
+
+    deactivate ProductRepo
+
+    UseCase -> UseCase: build ingredient tree by category
+    UseCase -> UseCase: organize with paths
+
+    UseCase -->> Http: Ok(ingredientsByCategory)
+    Http -->> Component: 200 {ingredientsByCategory}
+end
+
+deactivate Http
+
+Component -->> User: render ingredients by category
+
+@enduml
+
