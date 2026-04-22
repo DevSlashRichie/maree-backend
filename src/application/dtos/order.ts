@@ -1,7 +1,6 @@
 import { z } from "@hono/zod-openapi";
 import { OrderSchema, OrderWithUserSchema } from "@/domain/entities/order.ts";
 import { ORDER_STATUSES } from "@/domain/value-objects/order-status";
-import { ProductVariantSchema } from "@/domain/entities/product";
 
 export const OrderHistoryDto = z
   .object({
