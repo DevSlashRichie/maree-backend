@@ -1,4 +1,4 @@
-import { desc, eq, notInArray, and, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull, notInArray } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
 import {
   branchsTable,
@@ -48,19 +48,19 @@ export class LoyaltyRepo {
   }
 
   async findAvailableRewards(userId: string) {
-    const redeemedRewardsIds =  this.conn
-    .select({ rewardId: rewardRedemptionsTable.rewardId})
-    .from (rewardRedemptionsTable)
-    .where(eq(rewardRedemptionsTable.userId, userId));
+    const redeemedRewardsIds = this.conn
+      .select({ rewardId: rewardRedemptionsTable.rewardId })
+      .from(rewardRedemptionsTable)
+      .where(eq(rewardRedemptionsTable.userId, userId));
 
     return await this.conn
-    .select()
-    .from(rewardsTable)
-    .where(
-      and(
-        notInArray(rewardsTable.id, redeemedRewardsIds),
-        isNull(rewardsTable.deletedAt)
-      ),
-    );
+      .select()
+      .from(rewardsTable)
+      .where(
+        and(
+          notInArray(rewardsTable.id, redeemedRewardsIds),
+          isNull(rewardsTable.deletedAt),
+        ),
+      );
   }
 }
