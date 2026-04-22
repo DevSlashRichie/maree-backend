@@ -1,8 +1,14 @@
 import { createRoute, z } from "@hono/zod-openapi";
-import { CreateDiscountDto, UpdateDiscountDto } from "@/application/dtos/discount";
+import {
+  CreateDiscountDto,
+  UpdateDiscountDto,
+} from "@/application/dtos/discount";
 import { createDiscountUseCase } from "@/application/use-cases/create-discount";
 import { deleteDiscountUseCase } from "@/application/use-cases/delete-discount";
-import { getDiscountUseCase, DiscountNotFoundError } from "@/application/use-cases/get-discount";
+import {
+  DiscountNotFoundError,
+  getDiscountUseCase,
+} from "@/application/use-cases/get-discount";
 import { listDiscountsUseCase } from "@/application/use-cases/list-discounts";
 import { updateDiscountUseCase } from "@/application/use-cases/update-discount";
 import { DiscountSchema } from "@/domain/entities/discount";

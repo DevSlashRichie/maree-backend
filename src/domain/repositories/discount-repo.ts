@@ -71,7 +71,10 @@ export class DiscountRepo {
     });
   }
 
-  async updateDiscount(id: string, data: Partial<Omit<typeof discountsTable.$inferInsert, "id">>) {
+  async updateDiscount(
+    id: string,
+    data: Partial<Omit<typeof discountsTable.$inferInsert, "id">>,
+  ) {
     const result = await this.conn
       .update(discountsTable)
       .set(data)

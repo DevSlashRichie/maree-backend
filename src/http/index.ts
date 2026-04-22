@@ -7,6 +7,7 @@ import { ZodError, z } from "zod";
 import { loggerMiddleware } from "./middleware/logger";
 import { authenticationRouter } from "./routes/authentication";
 import { branchRouter } from "./routes/branch";
+import { discountRouter } from "./routes/discount";
 import { loyaltyRouter } from "./routes/loyalty-card";
 import { orderRouter } from "./routes/order";
 import { productRouter } from "./routes/product";
@@ -14,7 +15,6 @@ import { reportRouter } from "./routes/report";
 import { reviewRouter } from "./routes/review";
 import { rewardRouter } from "./routes/reward";
 import { userRouter } from "./routes/user";
-import { discountRouter } from "./routes/discount";
 import {
   createStateMiddleware,
   type State,

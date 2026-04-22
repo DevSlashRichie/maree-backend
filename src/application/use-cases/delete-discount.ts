@@ -1,9 +1,9 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import { UnknownError } from "@/application/error";
+import type { Discount } from "@/domain/entities/discount";
 import { DiscountRepo } from "@/domain/repositories/discount-repo";
 import { DB } from "@/infrastructure/db/postgres";
 import { DiscountNotFoundError } from "./get-discount";
-import type { Discount } from "@/domain/entities/discount";
 
 export async function deleteDiscountUseCase(
   id: string,

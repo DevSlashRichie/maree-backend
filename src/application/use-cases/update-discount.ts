@@ -2,8 +2,8 @@ import { Err, Ok, type Result } from "oxide.ts";
 import type z from "zod";
 import type { UpdateDiscountDto } from "@/application/dtos/discount";
 import { UnknownError } from "@/application/error";
-import { DiscountRepo } from "@/domain/repositories/discount-repo";
 import type { Discount } from "@/domain/entities/discount";
+import { DiscountRepo } from "@/domain/repositories/discount-repo";
 import { DB } from "@/infrastructure/db/postgres";
 import { DiscountNotFoundError } from "./get-discount";
 
@@ -13,7 +13,7 @@ export async function updateDiscountUseCase(
 ): Promise<Result<Discount, Error>> {
   try {
     const discountRepo = new DiscountRepo(DB);
-    
+
     const existing = await discountRepo.findDiscountById(id);
     if (!existing) {
       return Err(new DiscountNotFoundError(id));

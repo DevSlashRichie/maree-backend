@@ -15,4 +15,5 @@ export const CreateDiscountDto = z
   })
   .openapi("CreateDiscount");
 
-export const UpdateDiscountDto = CreateDiscountDto.partial().openapi("UpdateDiscount");
+export const UpdateDiscountDto =
+  CreateDiscountDto.partial().openapi("UpdateDiscount");
