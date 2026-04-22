@@ -115,6 +115,14 @@ discountRouter.openapi(
           },
         },
       },
+      500: {
+        description: "Unexpected error",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
     },
   }),
   async (ctx) => {
@@ -161,6 +169,14 @@ discountRouter.openapi(
       },
       404: {
         description: "Discount not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "Unexpected error",
         content: {
           "application/json": {
             schema: ErrorSchema,
