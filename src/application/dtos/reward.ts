@@ -85,7 +85,7 @@ export const LoyaltyCardDetailsDto = z
         date: z.string(),
       }),
     ),
-    availableRewards: RewardsAvailableSchema,
+    availableRewards: z.array(RewardsAvailableSchema),
   })
   .openapi("LoyaltyCardDetailsDto");
 
