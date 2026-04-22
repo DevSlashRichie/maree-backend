@@ -383,6 +383,15 @@ export class UserRepo {
     await this.conn.insert(staffTable).values(data).onConflictDoNothing();
   }
 
+  async updateUser(id: string, data: Partial<SaveUserType>) {
+    const [updatedUser] = await this.conn
+      .update(userTable)
+      .set(data)
+      .where(eq(userTable.id, id))
+      .returning();
+    return updatedUser;
+  }
+
   async deleteStaff(userId: string) {
     await this.conn.delete(staffTable).where(eq(staffTable.userId, userId));
   }

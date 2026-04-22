@@ -20,11 +20,13 @@ export async function getLoyaltyCardUseCase(
   try {
     const loyaltyRepo = new LoyaltyRepo(DB);
     const userRepo = new UserRepo(DB);
-    const [balance, user, lastRedemptions] = await Promise.all([
-      loyaltyRepo.findCurrentBalance(userId),
-      userRepo.findById(userId),
-      loyaltyRepo.findLastRedemptions(userId, 3),
-    ]);
+    const [balance, user, lastRedemptions, availableRewards] =
+      await Promise.all([
+        loyaltyRepo.findCurrentBalance(userId),
+        userRepo.findById(userId),
+        loyaltyRepo.findLastRedemptions(userId, 3),
+        loyaltyRepo.findAvailableRewards(userId),
+      ]);
 
     if (!user) {
       return Err(new LoyaltyCardNotFound(userId));
@@ -40,6 +42,7 @@ export async function getLoyaltyCardUseCase(
         name: it.reward.name,
         date: it.reward_redemption.createdAt.toISOString(),
       })),
+      availableRewards,
     });
   } catch (error) {
     return Err(new UnknownLoyaltyCardError(error));

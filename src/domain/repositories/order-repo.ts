@@ -48,6 +48,35 @@ export class OrderRepo {
     return orders;
   }
 
+  async findAllByUserId(userId: string): Promise<Order[]> {
+    return await this.conn
+      .select()
+      .from(ordersTable)
+      .where(eq(ordersTable.userId, userId));
+  }
+
+  async findDetailById(id: string) {
+    const orderr = await this.conn.query.ordersTable.findFirst({
+      where: {
+        id,
+      },
+      with: {
+        items: {
+          with: {
+            productVariantsTable: true,
+            modifiers: {
+              with: {
+                productVariantsTable: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return orderr ?? null;
+  }
+
   async findAllWithUser(filters?: OrderFilters): Promise<OrderWithUser[]> {
     const whereConditions = filters
       ? buildFilters(filters as Record<string, unknown>, ordersTable)
@@ -77,7 +106,7 @@ export class OrderRepo {
   async closeOrder(id: string) {
     const [order] = await this.conn
       .update(ordersTable)
-      .set({ status: "complete" })
+      .set({ status: "completed" })
       .where(eq(ordersTable.id, id))
       .returning();
 

@@ -11,6 +11,7 @@ import {
 } from "@/application/dtos/assign-role";
 import {
   StaffListSchema,
+  UpdateUserDto,
   UserListSchema,
   UserWithStatsSchema,
 } from "@/application/dtos/user";
@@ -29,6 +30,7 @@ import { getUserUseCase } from "@/application/use-cases/get-user";
 import { getUserBranchUseCase } from "@/application/use-cases/get-user-branch";
 import { getUsersUseCase } from "@/application/use-cases/get-users";
 import { removeRoleUseCase } from "@/application/use-cases/remove-role";
+import { updateUserUseCase } from "@/application/use-cases/update-user";
 import { ActorSchema } from "@/domain/entities/actor";
 import { ErrorSchema } from "@/domain/entities/error";
 import { authzMiddleware } from "../middleware/authz";
@@ -191,6 +193,57 @@ userRouter.openapi(
 
     try {
       const user = await getActorUseCase(actor.userId);
+      return ctx.json(user, 200);
+    } catch (error) {
+      if (error instanceof UserNotFoundError) {
+        return ctx.json({ code: error.code, message: error.message }, 404);
+      }
+      throw error;
+    }
+  },
+);
+
+userRouter.openapi(
+  createRoute({
+    tags: ["User"],
+    method: "patch",
+    path: "/@me",
+    middleware: [authzMiddleware(true)],
+    request: {
+      body: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: UpdateUserDto,
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "user profile updated",
+        content: {
+          "application/json": {
+            schema: ActorSchema,
+          },
+        },
+      },
+      404: {
+        description: "user not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const actor = ctx.get("actor");
+    const body = ctx.req.valid("json");
+
+    try {
+      const user = await updateUserUseCase(actor.userId, body);
       return ctx.json(user, 200);
     } catch (error) {
       if (error instanceof UserNotFoundError) {

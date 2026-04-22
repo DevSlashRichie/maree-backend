@@ -3,6 +3,7 @@ import { DISCOUNT_STATES } from "@/domain/entities/discount";
 import {
   LoyaltyTransactionSchema,
   RewardRedeemSchema,
+  RewardsAvailableSchema,
 } from "@/domain/entities/loyalty";
 
 export const CreateRewardDto = z
@@ -84,6 +85,7 @@ export const LoyaltyCardDetailsDto = z
         date: z.string(),
       }),
     ),
+    availableRewards: z.array(RewardsAvailableSchema),
   })
   .openapi("LoyaltyCardDetailsDto");
 
