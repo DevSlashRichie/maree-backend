@@ -2,7 +2,7 @@ import { createRoute, z } from "@hono/zod-openapi";
 import qs from "qs";
 import { CreateOrderDto } from "@/application/dtos/create-order.ts";
 import {
-    DetailedOrderDto,
+  DetailedOrderDto,
   IncomingOrdersDto,
   OrderHistoryDto,
 } from "@/application/dtos/order.ts";
