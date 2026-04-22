@@ -30,7 +30,7 @@ type SaveOrderItemType = Omit<
 >;
 
 export class OrderRepo {
-  constructor(private readonly conn: Executor) {}
+  constructor(private readonly conn: Executor) { }
 
   async findAll(filters?: OrderFilters): Promise<Order[]> {
     const whereConditions = filters
@@ -56,8 +56,10 @@ export class OrderRepo {
   }
 
   async findDetailById(id: string) {
-    const order = await this.conn.query.ordersTable.findFirst({
-      where: eq(ordersTable.id, id),
+    const orderr = await this.conn.query.ordersTable.findFirst({
+      where: {
+        id,
+      },
       with: {
         items: {
           with: {
@@ -67,7 +69,7 @@ export class OrderRepo {
       },
     });
 
-    return order ?? null;
+    return orderr ?? null;
   }
 
   async findAllWithUser(filters?: OrderFilters): Promise<OrderWithUser[]> {
@@ -99,7 +101,7 @@ export class OrderRepo {
   async closeOrder(id: string) {
     const [order] = await this.conn
       .update(ordersTable)
-      .set({ status: "complete" })
+      .set({ status: "completed" })
       .where(eq(ordersTable.id, id))
       .returning();
 

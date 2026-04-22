@@ -60,3 +60,21 @@ export const CreateOrderFromAdminDto = z
     userId: z.uuid().optional(),
   })
   .openapi("CreateOrderFromAdmin");
+
+export const DetailedOrderDto = OrderSchema.extend({
+  items: z.array(
+    z.array(
+      z.object({
+        id: z.uuid(),
+        quantity: z.int(),
+        notes: z.string().optional(),
+        modifiers: z.array(
+          z.object({
+            id: z.uuid(),
+            delta: z.int(),
+          }),
+        ),
+      }),
+    ),
+  ),
+});

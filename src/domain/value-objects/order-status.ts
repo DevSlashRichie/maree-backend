@@ -2,9 +2,9 @@ export const ORDER_STATUSES = [
   "pending",
   "incoming",
   "set",
-  "complete",
   "ready",
   "completed",
+  "in-progress",
 ] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 

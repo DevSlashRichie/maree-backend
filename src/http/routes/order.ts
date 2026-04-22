@@ -2,6 +2,7 @@ import { createRoute, z } from "@hono/zod-openapi";
 import qs from "qs";
 import { CreateOrderDto } from "@/application/dtos/create-order.ts";
 import {
+    DetailedOrderDto,
   IncomingOrdersDto,
   OrderHistoryDto,
 } from "@/application/dtos/order.ts";
@@ -209,9 +210,7 @@ orderRouter.openapi(
         description: "order details with items",
         content: {
           "application/json": {
-            schema: OrderSchema.extend({
-              items: z.array(z.any()),
-            }),
+            schema: DetailedOrderDto,
           },
         },
       },
@@ -225,6 +224,14 @@ orderRouter.openapi(
       },
       404: {
         description: "order not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "internal server error",
         content: {
           "application/json": {
             schema: ErrorSchema,
