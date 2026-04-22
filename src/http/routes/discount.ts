@@ -197,16 +197,24 @@ discountRouter.openapi(
       }),
     },
     responses: {
-      200: {
+      202: {
         description: "Delete discount",
         content: {
           "application/json": {
-            schema: DiscountSchema,
+            schema: z.object({}),
           },
         },
       },
       404: {
         description: "Discount not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "Unexpected error",
         content: {
           "application/json": {
             schema: ErrorSchema,
@@ -227,6 +235,6 @@ discountRouter.openapi(
       return ctx.json({ code: "unexpected", message: err.message }, 500);
     }
 
-    return ctx.json(result.unwrap(), 200);
+    return ctx.json({}, 202);
   },
 );

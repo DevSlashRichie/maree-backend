@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
 import {
   discountBranchesTable,
@@ -6,7 +6,7 @@ import {
 } from "@/infrastructure/db/schema";
 
 export class DiscountRepo {
-  constructor(private readonly conn: Executor) {}
+  constructor(private readonly conn: Executor) { }
 
   async saveDiscount(data: {
     name: string;
@@ -68,6 +68,11 @@ export class DiscountRepo {
   async listDiscounts() {
     return await this.conn.query.discountsTable.findMany({
       orderBy: (discounts, { desc }) => [desc(discounts.createdAt)],
+      where: {
+        isActive: {
+          ne: "deleted",
+        },
+      },
     });
   }
 
@@ -78,16 +83,19 @@ export class DiscountRepo {
     const result = await this.conn
       .update(discountsTable)
       .set(data)
-      .where(eq(discountsTable.id, id))
+      .where(
+        and(eq(discountsTable.id, id), ne(discountsTable.isActive, "deleted")),
+      )
       .returning();
     return result[0];
   }
 
   async deleteDiscount(id: string) {
-    const result = await this.conn
-      .delete(discountsTable)
-      .where(eq(discountsTable.id, id))
-      .returning();
-    return result[0];
+    await this.conn
+      .update(discountsTable)
+      .set({
+        isActive: "deleted",
+      })
+      .where(eq(discountsTable.id, id));
   }
 }
