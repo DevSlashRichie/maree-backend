@@ -1,6 +1,7 @@
 import { z } from "@hono/zod-openapi";
 import { OrderSchema, OrderWithUserSchema } from "@/domain/entities/order.ts";
 import { ORDER_STATUSES } from "@/domain/value-objects/order-status";
+import { ProductVariantSchema } from "@/domain/entities/product";
 
 export const OrderHistoryDto = z
   .object({
@@ -63,18 +64,35 @@ export const CreateOrderFromAdminDto = z
 
 export const DetailedOrderDto = OrderSchema.extend({
   items: z.array(
-    z.array(
-      z.object({
-        id: z.uuid(),
-        quantity: z.int(),
-        notes: z.string().optional(),
-        modifiers: z.array(
-          z.object({
-            id: z.uuid(),
-            delta: z.int(),
-          }),
-        ),
-      }),
-    ),
+    z.object({
+      id: z.uuid(),
+      quantity: z.int(),
+      notes: z.string().nullish(),
+      pricingSnapshot: z.bigint(),
+      variantId: z.string(),
+      productVariantsTable: z
+        .object({
+          id: z.string(),
+          name: z.string(),
+          description: z.string().nullish(),
+          image: z.string().nullish(),
+        })
+        .nullish(),
+      modifiers: z.array(
+        z.object({
+          id: z.uuid(),
+          productVariantId: z.string(),
+          quantityDelta: z.int(),
+          productVariantsTable: z
+            .object({
+              id: z.string(),
+              name: z.string(),
+              description: z.string().nullish(),
+              image: z.string().nullish(),
+            })
+            .nullish(),
+        }),
+      ),
+    }),
   ),
 });

@@ -85,11 +85,19 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.orderItemsTable.id,
       to: r.orderItemsModifiersTable.orderItemId,
     }),
+    productVariantsTable: r.one.productVariantsTable({
+      from: r.orderItemsTable.variantId,
+      to: r.productVariantsTable.id,
+    }),
   },
   orderItemsModifiersTable: {
     item: r.one.orderItemsTable({
       from: r.orderItemsModifiersTable.orderItemId,
       to: r.orderItemsTable.id,
+    }),
+    productVariantsTable: r.one.productVariantsTable({
+      from: r.orderItemsModifiersTable.productVariantId,
+      to: r.productVariantsTable.id,
     }),
   },
   staffTable: {
