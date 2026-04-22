@@ -14,6 +14,7 @@ import { reportRouter } from "./routes/report";
 import { reviewRouter } from "./routes/review";
 import { rewardRouter } from "./routes/reward";
 import { userRouter } from "./routes/user";
+import { discountRouter } from "./routes/discount";
 import {
   createStateMiddleware,
   type State,
@@ -102,6 +103,7 @@ export function createHttpServer(
   v1.route("/review", reviewRouter);
   v1.route("/branches", branchRouter);
   v1.route("/loyalty", loyaltyRouter);
+  v1.route("/discounts", discountRouter);
 
   app.route("/auth", authenticationRouter);
   app.route("/v1", v1);

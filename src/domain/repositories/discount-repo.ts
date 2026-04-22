@@ -64,4 +64,27 @@ export class DiscountRepo {
       .values(data)
       .onConflictDoNothing();
   }
+
+  async listDiscounts() {
+    return await this.conn.query.discountsTable.findMany({
+      orderBy: (discounts, { desc }) => [desc(discounts.createdAt)],
+    });
+  }
+
+  async updateDiscount(id: string, data: Partial<Omit<typeof discountsTable.$inferInsert, "id">>) {
+    const result = await this.conn
+      .update(discountsTable)
+      .set(data)
+      .where(eq(discountsTable.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteDiscount(id: string) {
+    const result = await this.conn
+      .delete(discountsTable)
+      .where(eq(discountsTable.id, id))
+      .returning();
+    return result[0];
+  }
 }

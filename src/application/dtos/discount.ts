@@ -14,3 +14,5 @@ export const CreateDiscountDto = z
     hidden: z.boolean().optional(),
   })
   .openapi("CreateDiscount");
+
+export const UpdateDiscountDto = CreateDiscountDto.partial().openapi("UpdateDiscount");
