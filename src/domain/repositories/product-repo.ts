@@ -2,6 +2,7 @@ import {
   and,
   desc,
   eq,
+  isNull,
   type InferInsertModel,
   inArray,
   sql,
@@ -59,6 +60,8 @@ export class ProductRepo {
       ? buildFilters(filters as Record<string, unknown>, productTable)
       : [];
 
+    whereConditions.push(isNull(productTable.deletedAt));
+
     const whereClause =
       whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
@@ -97,9 +100,8 @@ export class ProductRepo {
 
   async findById(id: string) {
     const product = await this.conn.query.productTable.findFirst({
-      where: {
-        id,
-      },
+      where: (productTable, { eq, and, isNull }) =>
+        and(eq(productTable.id, id), isNull(productTable.deletedAt)),
     });
 
     return product;
@@ -158,6 +160,13 @@ export class ProductRepo {
 
     // biome-ignore lint/style/noNonNullAssertion: since we're creating a new product, it should always exist
     return product!;
+  }
+
+  async softDelete(id: string) {
+    await this.conn
+      .update(productTable)
+      .set({ deletedAt: new Date() })
+      .where(eq(productTable.id, id));
   }
 
   async existsProduct(name: string) {
