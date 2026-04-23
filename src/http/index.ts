@@ -120,7 +120,7 @@ export function createHttpServer(
         description: "LOCALHOST",
       },
       {
-        url: "https://maree.kindmeadow-92ce4777.centralus.azurecontainerapps.io",
+        url: "https://cloud.maree.binarysails.com",
         description: "PRODUCTION",
       },
     ],
