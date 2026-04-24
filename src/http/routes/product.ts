@@ -4,10 +4,6 @@ import z from "zod";
 import { CreateCategoryDto } from "@/application/dtos/create-category.ts";
 import { CreateProductDto } from "@/application/dtos/create-product.ts";
 import {
-  CreateAllowedIngredientDto,
-  ProductAllowedIngredientSchema,
-} from "@/application/dtos/product-allowed-ingredient.ts";
-import {
   CreateProductAndVariantDto,
   CreateProductAndVariantResponseDto,
 } from "@/application/dtos/create-product-and-variant.ts";
@@ -15,6 +11,10 @@ import { GetCategoriesDto } from "@/application/dtos/get-categories";
 import { GetIngredientsDto } from "@/application/dtos/get-ingredients";
 import { GetProductVariantDto } from "@/application/dtos/get-product-variant";
 import { ProductListSchema } from "@/application/dtos/product";
+import {
+  CreateAllowedIngredientDto,
+  ProductAllowedIngredientSchema,
+} from "@/application/dtos/product-allowed-ingredient.ts";
 import {
   ProductVariantFiltersSchema,
   ProductVariantListSchema,
@@ -39,12 +39,12 @@ import {
 import { ProductVariantNotFound } from "@/application/errors/get-product-variant";
 import { ProductNotFound } from "@/application/errors/product";
 import { ImageIsEmpty } from "@/application/errors/upload-product-image.ts";
+import { createAllowedIngredientUseCase } from "@/application/use-cases/create-allowed-ingredient";
 import { createCategoryUseCase } from "@/application/use-cases/create-category.ts";
 import { createProductUseCase } from "@/application/use-cases/create-product.ts";
-import { createAllowedIngredientUseCase } from "@/application/use-cases/create-allowed-ingredient";
 import { createProductAndVariantUseCase } from "@/application/use-cases/create-product-and-variant.ts";
-import { deleteProductUseCase } from "@/application/use-cases/delete-product.ts";
 import { deleteAllowedIngredientUseCase } from "@/application/use-cases/delete-allowed-ingredient";
+import { deleteProductUseCase } from "@/application/use-cases/delete-product.ts";
 import { deleteProductVariantUseCase } from "@/application/use-cases/delete-product-variant.ts";
 import { getAllowedIngredientsUseCase } from "@/application/use-cases/get-allowed-ingredients";
 import { getCategoriesUseCase } from "@/application/use-cases/get-categories";

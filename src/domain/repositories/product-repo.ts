@@ -7,6 +7,7 @@ import {
   isNull,
   sql,
 } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import type {
   ProductVariantFilters,
   ProductVariantWithProduct,
@@ -20,9 +21,7 @@ import {
   productTable,
   productVariantsTable,
 } from "@/infrastructure/db/schema";
-
 import { buildFilters } from "@/lib/filters";
-import { alias } from "drizzle-orm/pg-core";
 
 type SaveProductType = Omit<
   InferInsertModel<typeof productTable>,
@@ -60,7 +59,7 @@ type SaveAllowedIngredientType = Omit<
 type UpdateCategoryType = Partial<SaveCategoryType>;
 
 export class ProductRepo {
-  constructor(private readonly conn: Executor) { }
+  constructor(private readonly conn: Executor) {}
 
   async findAll(filters?: ProductFilters): Promise<Product[]> {
     const whereConditions = filters
