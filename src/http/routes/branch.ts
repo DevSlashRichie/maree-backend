@@ -7,6 +7,10 @@ import { CreateBranchDto } from "@/application/dtos/create-branch";
 import { UpdateBranchDto } from "@/application/dtos/update-branch";
 import { createBranchUseCase } from "@/application/use-cases/create-branch";
 import {
+  BranchNotFoundError,
+  deleteBranchUseCase,
+} from "@/application/use-cases/delete-branch";
+import {
   getBranchByIdUseCase,
   getBranchesUseCase,
   getRewardsByBranchUseCase,
@@ -328,5 +332,57 @@ branchRouter.openapi(
     }
 
     return ctx.json(result.unwrap(), 200);
+  },
+);
+
+branchRouter.openapi(
+  createRoute({
+    tags: ["Branch"],
+    method: "delete",
+    path: "/{id}",
+    request: {
+      params: z.object({ id: z.string() }),
+    },
+    responses: {
+      204: {
+        description: "branch deleted",
+      },
+      404: {
+        description: "branch not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "unexpected",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+
+  async (ctx) => {
+    const { id } = ctx.req.valid("param");
+
+    const result = await deleteBranchUseCase(id);
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+
+      if (err instanceof BranchNotFoundError) {
+        return ctx.json({ code: err.code, message: err.message }, 404);
+      }
+
+      logger.error("Unknown error: %s", err);
+
+      return ctx.json({ code: "unexpected", message: "unexpected" }, 500);
+    }
+
+    return ctx.body(null, 204);
   },
 );
