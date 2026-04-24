@@ -315,6 +315,7 @@ export class ProductRepo {
         productCategoryId: productTable.categoryId,
         productStatus: productTable.status,
         productType: productTable.type,
+        productDescription: productVariantsTable.description,
       })
       .from(productVariantsTable)
       .innerJoin(
@@ -356,6 +357,7 @@ export class ProductRepo {
         image: result.variantImage,
         productId: result.productId,
         createdAt: result.variantCreatedAt,
+        description: result.productDescription,
       },
       product: {
         id: result.productId,
