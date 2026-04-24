@@ -4,6 +4,10 @@ import z from "zod";
 import { CreateCategoryDto } from "@/application/dtos/create-category.ts";
 import { CreateProductDto } from "@/application/dtos/create-product.ts";
 import {
+  CreateAllowedIngredientDto,
+  ProductAllowedIngredientSchema,
+} from "@/application/dtos/product-allowed-ingredient.ts";
+import {
   CreateProductAndVariantDto,
   CreateProductAndVariantResponseDto,
 } from "@/application/dtos/create-product-and-variant.ts";
@@ -37,9 +41,12 @@ import { ProductNotFound } from "@/application/errors/product";
 import { ImageIsEmpty } from "@/application/errors/upload-product-image.ts";
 import { createCategoryUseCase } from "@/application/use-cases/create-category.ts";
 import { createProductUseCase } from "@/application/use-cases/create-product.ts";
+import { createAllowedIngredientUseCase } from "@/application/use-cases/create-allowed-ingredient";
 import { createProductAndVariantUseCase } from "@/application/use-cases/create-product-and-variant.ts";
 import { deleteProductUseCase } from "@/application/use-cases/delete-product.ts";
+import { deleteAllowedIngredientUseCase } from "@/application/use-cases/delete-allowed-ingredient";
 import { deleteProductVariantUseCase } from "@/application/use-cases/delete-product-variant.ts";
+import { getAllowedIngredientsUseCase } from "@/application/use-cases/get-allowed-ingredients";
 import { getCategoriesUseCase } from "@/application/use-cases/get-categories";
 import { getIngredientsUseCase } from "@/application/use-cases/get-ingredients";
 import { getProductVariantUseCase } from "@/application/use-cases/get-product-variant";
@@ -49,7 +56,11 @@ import { updateCategoryUseCase } from "@/application/use-cases/update-category.t
 import { uploadProductImageUseCase } from "@/application/use-cases/upload-product-image.ts";
 import { CategorySchema } from "@/domain/entities/category";
 import { ErrorSchema } from "@/domain/entities/error";
-import { ProductFiltersSchema, ProductSchema } from "@/domain/entities/product";
+import {
+  ProductFiltersSchema,
+  ProductSchema,
+  ProductVariantSchema,
+} from "@/domain/entities/product";
 import { AzureBlobStorageAdapter } from "@/infrastructure/azure/blob-storage.ts";
 import { logger } from "@/lib/logger";
 import { authzMiddleware } from "../middleware/authz";
@@ -171,6 +182,130 @@ productRouter.openapi(
     );
 
     return ctx.json({ variants }, 200);
+  },
+);
+
+productRouter.openapi(
+  createRoute({
+    tags: ["Products"],
+    method: "get",
+    path: "/variants/allowed",
+    request: {
+      query: z.object({
+        variantId: z.string().uuid(),
+      }),
+    },
+    responses: {
+      200: {
+        description: "allowed product variant list",
+        content: {
+          "application/json": {
+            schema: z.array(ProductVariantSchema),
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const { variantId } = ctx.req.valid("query");
+
+    const variants = await getAllowedIngredientsUseCase(variantId);
+
+    return ctx.json(variants, 200);
+  },
+);
+
+productRouter.openapi(
+  createRoute({
+    tags: ["Products"],
+    method: "post",
+    path: "/variants/allowed-ingredients",
+    request: {
+      body: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: CreateAllowedIngredientDto,
+          },
+        },
+      },
+    },
+    responses: {
+      201: {
+        description: "new allowed ingredient rule",
+        content: {
+          "application/json": {
+            schema: ProductAllowedIngredientSchema,
+          },
+        },
+      },
+      400: {
+        description: "invalid request",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "unexpected",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const body = await ctx.req.json();
+    const result = await createAllowedIngredientUseCase(body);
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+
+      return ctx.json(
+        {
+          code: "bad_request",
+          message: err.message,
+        },
+        400,
+      );
+    }
+
+    return ctx.json(result.unwrap(), 201);
+  },
+);
+
+productRouter.openapi(
+  createRoute({
+    tags: ["Products"],
+    method: "delete",
+    path: "/variants/allowed-ingredients/{id}",
+    request: {
+      params: z.object({
+        id: z.string().uuid(),
+      }),
+    },
+    responses: {
+      204: {
+        description: "allowed ingredient rule deleted",
+      },
+      500: {
+        description: "unexpected",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const { id } = ctx.req.valid("param");
+    await deleteAllowedIngredientUseCase(id);
+
+    return ctx.body(null, 204);
   },
 );
 

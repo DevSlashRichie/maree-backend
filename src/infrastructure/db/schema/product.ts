@@ -70,3 +70,21 @@ export const productComponentsTable = pgTable("product_component", {
   quantity: integer().notNull(),
   isRemovable: boolean("is_removable").notNull().default(false),
 });
+
+export const productAllowedIngredientsTable = pgTable(
+  "product_allowed_ingredient",
+  {
+    id: uuid()
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    productVariantId: uuid("product_variant_id")
+      .notNull()
+      .references(() => productVariantsTable.id),
+    allowedProductId: uuid("allowed_product_id").references(
+      () => productVariantsTable.id,
+    ),
+    allowedCategoryId: uuid("allowed_category_id").references(
+      () => categoryTable.id,
+    ),
+  },
+);

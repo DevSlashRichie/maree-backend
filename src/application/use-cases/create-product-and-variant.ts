@@ -74,20 +74,24 @@ export async function createProductAndVariantUseCase(
       console.log("variant saved");
 
       if (data.ingredients?.length) {
-        const ingredientCategoryIds: string[] = [];
-
         for (const ingredient of data.ingredients) {
-          const ingredientProduct = await productRepo.findById(ingredient.id);
+          const _ingredientProduct = await productRepo.findProductVariant(
+            ingredient.id,
+          );
+
+          if (!_ingredientProduct?.length) {
+            throw new AddedProductDoesNotExist(ingredient.id);
+          }
+
+          const [ingredientProduct] = _ingredientProduct;
 
           if (!ingredientProduct) {
             throw new AddedProductDoesNotExist(ingredient.id);
           }
 
-          if (ingredientProduct.type !== "ingredient") {
+          if (ingredientProduct.product.type !== "ingredient") {
             throw new AddedProductIsNotIngredient();
           }
-
-          ingredientCategoryIds.push(ingredientProduct.categoryId);
         }
 
         const componentsData = data.ingredients.map(
@@ -101,8 +105,25 @@ export async function createProductAndVariantUseCase(
         await productRepo.saveProductComponents(componentsData);
       }
 
-      console.log(product);
-      console.log(productVariant);
+      if (data.allowedIngredients?.length) {
+        for (const ingredientId of data.allowedIngredients) {
+          await productRepo.saveAllowedIngredient({
+            productVariantId: productVariant.id,
+            allowedProductId: ingredientId,
+            allowedCategoryId: null,
+          });
+        }
+      }
+
+      if (data.allowedCategories?.length) {
+        for (const categoryId of data.allowedCategories) {
+          await productRepo.saveAllowedIngredient({
+            productVariantId: productVariant.id,
+            allowedProductId: null,
+            allowedCategoryId: categoryId,
+          });
+        }
+      }
 
       return Ok({
         product,
