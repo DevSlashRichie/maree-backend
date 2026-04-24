@@ -7,6 +7,7 @@ import {
   isNull,
   sql,
 } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import type {
   ProductVariantFilters,
   ProductVariantWithProduct,
@@ -15,11 +16,11 @@ import type { Product, ProductFilters } from "@/domain/entities/product";
 import type { Executor } from "@/infrastructure/db/postgres";
 import {
   categoryTable,
+  productAllowedIngredientsTable,
   productComponentsTable,
   productTable,
   productVariantsTable,
 } from "@/infrastructure/db/schema";
-
 import { buildFilters } from "@/lib/filters";
 
 type SaveProductType = Omit<
@@ -50,6 +51,11 @@ type SaveCategoryType = Omit<
   "id" | "createdAt"
 >;
 
+type SaveAllowedIngredientType = Omit<
+  InferInsertModel<typeof productAllowedIngredientsTable>,
+  "id"
+>;
+
 type UpdateCategoryType = Partial<SaveCategoryType>;
 
 export class ProductRepo {
@@ -76,26 +82,19 @@ export class ProductRepo {
   async findIngredientsWithVariantPrice() {
     return this.conn
       .select({
-        id: productTable.id,
-        name: productTable.name,
+        id: productVariantsTable.id,
+        name: productVariantsTable.name,
         status: productTable.status,
-        image: productTable.image,
+        image: productVariantsTable.image,
         categoryId: productTable.categoryId,
-        price: sql<bigint | null>`min(${productVariantsTable.price})`,
+        price: productVariantsTable.price,
       })
       .from(productTable)
-      .leftJoin(
+      .innerJoin(
         productVariantsTable,
         eq(productVariantsTable.productId, productTable.id),
       )
-      .where(eq(productTable.type, "ingredient"))
-      .groupBy(
-        productTable.id,
-        productTable.name,
-        productTable.status,
-        productTable.image,
-        productTable.categoryId,
-      );
+      .where(eq(productTable.type, "ingredient"));
   }
 
   async findById(id: string) {
@@ -136,8 +135,17 @@ export class ProductRepo {
   async isIngredientFromType(id: string) {
     const [res] = await this.conn
       .select()
-      .from(productTable)
-      .where(and(eq(productTable.id, id), eq(productTable.type, "ingredient")));
+      .from(productVariantsTable)
+      .innerJoin(
+        productTable,
+        eq(productTable.id, productVariantsTable.productId),
+      )
+      .where(
+        and(
+          eq(productVariantsTable.id, id),
+          eq(productTable.type, "ingredient"),
+        ),
+      );
 
     return !!res;
   }
@@ -327,6 +335,18 @@ export class ProductRepo {
     return category;
   }
 
+  async findProductVariant(id: string) {
+    return await this.conn
+      .select()
+      .from(productVariantsTable)
+      .innerJoin(
+        productTable,
+        eq(productTable.id, productVariantsTable.productId),
+      )
+      .where(eq(productVariantsTable.id, id))
+      .limit(1);
+  }
+
   async findProductVariantSnapshotsByIds(
     variantIds: string[],
   ): Promise<ProductVariantSnapshot[]> {
@@ -375,12 +395,7 @@ export class ProductRepo {
         productTable,
         eq(productVariantsTable.productId, productTable.id),
       )
-      .where(
-        and(
-          eq(productVariantsTable.id, variantId),
-          isNull(productVariantsTable.deletedAt),
-        ),
-      );
+      .where(and(eq(productVariantsTable.id, variantId)));
 
     if (!variantWithProduct || variantWithProduct.length === 0) {
       return null;
@@ -425,5 +440,43 @@ export class ProductRepo {
       },
       components,
     };
+  }
+
+  async findAllowedIngredientsForVariant(variantId: string) {
+    const prod = alias(productVariantsTable, "prod");
+
+    const query = this.conn
+      .select()
+      .from(productAllowedIngredientsTable)
+      .innerJoin(
+        productVariantsTable,
+        eq(
+          productVariantsTable.id,
+          productAllowedIngredientsTable.productVariantId,
+        ),
+      )
+      .innerJoin(
+        prod,
+        eq(prod.id, productAllowedIngredientsTable.allowedProductId),
+      )
+      .where(eq(productAllowedIngredientsTable.productVariantId, variantId));
+
+    return await query;
+  }
+
+  async saveAllowedIngredient(data: SaveAllowedIngredientType) {
+    const [result] = await this.conn
+      .insert(productAllowedIngredientsTable)
+      .values(data)
+      .returning();
+
+    // biome-ignore lint/style/noNonNullAssertion: since we're creating a new product, it should always exist
+    return result!;
+  }
+
+  async deleteAllowedIngredient(id: string) {
+    await this.conn
+      .delete(productAllowedIngredientsTable)
+      .where(eq(productAllowedIngredientsTable.id, id));
   }
 }
