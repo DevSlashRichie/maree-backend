@@ -52,6 +52,7 @@ export async function getProductVariantUseCase(
         productId: product.id,
         categoryId: product.categoryId,
         path,
+        description: variant.description ?? "",
         status: product.status,
         type: product.type,
         createdAt: variant.createdAt,
