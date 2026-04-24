@@ -34,6 +34,14 @@ import {
 } from "@/application/errors/create-product-variant.ts";
 import { ProductVariantNotFound } from "@/application/errors/get-product-variant";
 import { ProductNotFound } from "@/application/errors/product";
+import {
+  AddedProductDoesNotExist as UpdateAddedProductDoesNotExist,
+  AddedProductIsNotIngredient as UpdateAddedProductIsNotIngredient,
+  IncompatibleIngredientFlavor as UpdateIncompatibleIngredientFlavor,
+  IngredientsOnlyForCompleteProduct as UpdateIngredientsOnlyForCompleteProduct,
+  InvalidIngredientQuantity as UpdateInvalidIngredientQuantity,
+  ProductVariantNotFound as UpdateProductVariantNotFound,
+} from "@/application/errors/update-product.ts";
 import { ImageIsEmpty } from "@/application/errors/upload-product-image.ts";
 import { createCategoryUseCase } from "@/application/use-cases/create-category.ts";
 import { createProductUseCase } from "@/application/use-cases/create-product.ts";
@@ -46,6 +54,7 @@ import { getProductVariantUseCase } from "@/application/use-cases/get-product-va
 import { getProductVariantsUseCase } from "@/application/use-cases/get-product-variants";
 import { getProductsUseCase } from "@/application/use-cases/get-products";
 import { updateCategoryUseCase } from "@/application/use-cases/update-category.ts";
+import { updateProductAndVariantUseCase } from "@/application/use-cases/update-product-and-variant.ts";
 import { uploadProductImageUseCase } from "@/application/use-cases/upload-product-image.ts";
 import { CategorySchema } from "@/domain/entities/category";
 import { ErrorSchema } from "@/domain/entities/error";
@@ -929,6 +938,151 @@ productRouter.openapi(
     }
 
     return ctx.body(null, 204);
+  },
+);
+
+productRouter.openapi(
+  createRoute({
+    tags: ["Products"],
+    method: "put",
+    path: "/product-variant/{id}",
+    request: {
+      params: z.object({
+        id: z.string().uuid(),
+      }),
+      body: {
+        required: true,
+        description: "product details",
+        content: {
+          "application/json": {
+            schema: CreateProductAndVariantDto,
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "updated product and variant",
+        content: {
+          "application/json": {
+            schema: CreateProductAndVariantResponseDto,
+          },
+        },
+      },
+      404: {
+        description: "product variant not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      409: {
+        description: "ingredient validation error",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      400: {
+        description: "invalid ingredient quantity",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "unexpected",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const { id } = ctx.req.valid("param");
+    const body = await ctx.req.json();
+    const result = await updateProductAndVariantUseCase(id, body);
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+
+      if (err instanceof UpdateProductVariantNotFound) {
+        return ctx.json(
+          {
+            code: err.code,
+            message: err.message,
+          },
+          404,
+        );
+      }
+
+      if (err instanceof UpdateAddedProductDoesNotExist) {
+        return ctx.json(
+          {
+            code: err.code,
+            message: err.message,
+          },
+          409,
+        );
+      }
+
+      if (err instanceof UpdateAddedProductIsNotIngredient) {
+        return ctx.json(
+          {
+            code: err.code,
+            message: err.message,
+          },
+          409,
+        );
+      }
+
+      if (err instanceof UpdateIngredientsOnlyForCompleteProduct) {
+        return ctx.json(
+          {
+            code: err.code,
+            message: err.message,
+          },
+          409,
+        );
+      }
+
+      if (err instanceof UpdateIncompatibleIngredientFlavor) {
+        return ctx.json(
+          {
+            code: err.code,
+            message: err.message,
+          },
+          409,
+        );
+      }
+
+      if (err instanceof UpdateInvalidIngredientQuantity) {
+        return ctx.json(
+          {
+            code: err.code,
+            message: err.message,
+          },
+          400,
+        );
+      }
+
+      logger.error("Error updating product and variant: %s", err);
+
+      return ctx.json(
+        {
+          code: "unexpected",
+          message: "unexpected",
+        },
+        500,
+      );
+    }
+
+    return ctx.json(result.unwrap(), 200);
   },
 );
 
