@@ -16,6 +16,7 @@ export const GetProductVariantDto = z.object({
   productId: z.string(),
   categoryId: z.string(),
   path: z.array(z.string().min(1)),
+  description: z.string(),
   status: z.string(),
   type: z.string(),
   createdAt: z.date(),
