@@ -38,6 +38,7 @@ import { ImageIsEmpty } from "@/application/errors/upload-product-image.ts";
 import { createCategoryUseCase } from "@/application/use-cases/create-category.ts";
 import { createProductUseCase } from "@/application/use-cases/create-product.ts";
 import { deleteProductUseCase } from "@/application/use-cases/delete-product.ts";
+import { deleteProductVariantUseCase } from "@/application/use-cases/delete-product-variant.ts";
 import { createProductAndVariantUseCase } from "@/application/use-cases/create-product-and-variant.ts";
 import { getCategoriesUseCase } from "@/application/use-cases/get-categories";
 import { getIngredientsUseCase } from "@/application/use-cases/get-ingredients";
@@ -864,6 +865,70 @@ productRouter.openapi(
     }
 
     return ctx.json(result.unwrap(), 200);
+  },
+);
+
+productRouter.openapi(
+  createRoute({
+    tags: ["Products"],
+    method: "delete",
+    path: "/variant/{id}",
+    request: {
+      params: z.object({
+        id: z.string().uuid(),
+      }),
+    },
+    responses: {
+      204: {
+        description: "product variant deleted",
+      },
+      404: {
+        description: "product variant not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "unexpected",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const { id } = ctx.req.valid("param");
+    const result = await deleteProductVariantUseCase(id);
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+
+      if (err instanceof ProductVariantNotFound) {
+        return ctx.json(
+          {
+            code: err.code,
+            message: err.message,
+          },
+          404,
+        );
+      }
+
+      logger.error("Error deleting product variant: %s", err);
+
+      return ctx.json(
+        {
+          code: "unexpected",
+          message: "unexpected",
+        },
+        500,
+      );
+    }
+
+    return ctx.body(null, 204);
   },
 );
 

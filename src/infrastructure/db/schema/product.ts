@@ -54,6 +54,7 @@ export const productVariantsTable = pgTable("product_variant", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
 });
 
 export const productComponentsTable = pgTable("product_component", {
