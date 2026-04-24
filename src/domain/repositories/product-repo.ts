@@ -4,6 +4,7 @@ import {
   eq,
   type InferInsertModel,
   inArray,
+  isNull,
   sql,
 } from "drizzle-orm";
 import type {
@@ -59,6 +60,8 @@ export class ProductRepo {
       ? buildFilters(filters as Record<string, unknown>, productTable)
       : [];
 
+    whereConditions.push(isNull(productTable.deletedAt));
+
     const whereClause =
       whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
@@ -97,9 +100,8 @@ export class ProductRepo {
 
   async findById(id: string) {
     const product = await this.conn.query.productTable.findFirst({
-      where: {
-        id,
-      },
+      where: (productTable, { eq, and, isNull }) =>
+        and(eq(productTable.id, id), isNull(productTable.deletedAt)),
     });
 
     return product;
@@ -160,6 +162,13 @@ export class ProductRepo {
     return product!;
   }
 
+  async softDelete(id: string) {
+    await this.conn
+      .update(productTable)
+      .set({ deletedAt: new Date() })
+      .where(eq(productTable.id, id));
+  }
+
   async existsProduct(name: string) {
     const product = await this.conn.query.productTable.findFirst({
       where: {
@@ -175,6 +184,8 @@ export class ProductRepo {
     const whereConditions = filters
       ? buildFilters(filters as Record<string, unknown>, productVariantsTable)
       : [];
+
+    whereConditions.push(isNull(productVariantsTable.deletedAt));
 
     const whereClause =
       whereConditions.length > 0 ? and(...whereConditions) : undefined;
@@ -230,6 +241,13 @@ export class ProductRepo {
 
   async saveProductComponents(data: SaveProductComponentsType[]) {
     return this.conn.insert(productComponentsTable).values(data).returning();
+  }
+
+  async softDeleteVariant(id: string) {
+    await this.conn
+      .update(productVariantsTable)
+      .set({ deletedAt: new Date() })
+      .where(eq(productVariantsTable.id, id));
   }
 
   async getAllCategories() {
@@ -300,7 +318,12 @@ export class ProductRepo {
         productTable,
         eq(productVariantsTable.productId, productTable.id),
       )
-      .where(inArray(productVariantsTable.id, variantIds));
+      .where(
+        and(
+          inArray(productVariantsTable.id, variantIds),
+          isNull(productVariantsTable.deletedAt),
+        ),
+      );
   }
 
   async findProductVariantWithComponents(variantId: string) {
@@ -321,7 +344,12 @@ export class ProductRepo {
         productTable,
         eq(productVariantsTable.productId, productTable.id),
       )
-      .where(eq(productVariantsTable.id, variantId));
+      .where(
+        and(
+          eq(productVariantsTable.id, variantId),
+          isNull(productVariantsTable.deletedAt),
+        ),
+      );
 
     if (!variantWithProduct || variantWithProduct.length === 0) {
       return null;
