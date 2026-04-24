@@ -24,7 +24,6 @@ import {
   ParentCategoryNotFoundError,
 } from "@/application/errors/category";
 import { ProductAlreadyExists } from "@/application/errors/create-product";
-import { ProductNotFound } from "@/application/errors/product";
 import {
   AddedProductDoesNotExist,
   AddedProductIsNotIngredient,
@@ -34,12 +33,13 @@ import {
   ProductVariantAlreadyExists,
 } from "@/application/errors/create-product-variant.ts";
 import { ProductVariantNotFound } from "@/application/errors/get-product-variant";
+import { ProductNotFound } from "@/application/errors/product";
 import { ImageIsEmpty } from "@/application/errors/upload-product-image.ts";
 import { createCategoryUseCase } from "@/application/use-cases/create-category.ts";
 import { createProductUseCase } from "@/application/use-cases/create-product.ts";
+import { createProductAndVariantUseCase } from "@/application/use-cases/create-product-and-variant.ts";
 import { deleteProductUseCase } from "@/application/use-cases/delete-product.ts";
 import { deleteProductVariantUseCase } from "@/application/use-cases/delete-product-variant.ts";
-import { createProductAndVariantUseCase } from "@/application/use-cases/create-product-and-variant.ts";
 import { getCategoriesUseCase } from "@/application/use-cases/get-categories";
 import { getIngredientsUseCase } from "@/application/use-cases/get-ingredients";
 import { getProductVariantUseCase } from "@/application/use-cases/get-product-variant";
