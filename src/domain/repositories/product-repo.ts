@@ -99,12 +99,13 @@ export class ProductRepo {
   }
 
   async findById(id: string) {
-    const product = await this.conn.query.productTable.findFirst({
-      where: (productTable, { eq, and, isNull }) =>
-        and(eq(productTable.id, id), isNull(productTable.deletedAt)),
-    });
+    const [product] = await this.conn
+      .select()
+      .from(productTable)
+      .where(and(eq(productTable.id, id), isNull(productTable.deletedAt)))
+      .limit(1);
 
-    return product;
+    return product ?? null;
   }
 
   async isIngredientFromCategory(id: string) {
@@ -241,6 +242,35 @@ export class ProductRepo {
 
   async saveProductComponents(data: SaveProductComponentsType[]) {
     return this.conn.insert(productComponentsTable).values(data).returning();
+  }
+
+  async updateProduct(id: string, data: Partial<SaveProductType>) {
+    const [product] = await this.conn
+      .update(productTable)
+      .set(data)
+      .where(eq(productTable.id, id))
+      .returning();
+    // biome-ignore lint/style/noNonNullAssertion: product must exist at this point
+    return product!;
+  }
+
+  async updateProductVariant(
+    id: string,
+    data: Partial<SaveProductVariantType>,
+  ) {
+    const [variant] = await this.conn
+      .update(productVariantsTable)
+      .set(data)
+      .where(eq(productVariantsTable.id, id))
+      .returning();
+    // biome-ignore lint/style/noNonNullAssertion: variant must exist at this point
+    return variant!;
+  }
+
+  async deleteProductComponentsByVariantId(variantId: string) {
+    await this.conn
+      .delete(productComponentsTable)
+      .where(eq(productComponentsTable.productVariantId, variantId));
   }
 
   async softDeleteVariant(id: string) {
