@@ -59,14 +59,17 @@ export async function createOrderUseCase(
           if (modifierVariant.productType !== "ingredient") {
             throw new ModifierMustBeIngredientError(modifier.id);
           }
-
         }
       }
 
       let discountId = data.discountId ?? null;
       if (data.rewardId) {
         const reward = await rewardsRepo.findRewardById(data.rewardId);
-        if (!reward || reward.status !== "active" || reward.deletedAt !== null) {
+        if (
+          !reward ||
+          reward.status !== "active" ||
+          reward.deletedAt !== null
+        ) {
           throw new RewardNotFoundError();
         }
 
@@ -89,7 +92,11 @@ export async function createOrderUseCase(
 
         discountId = reward.discountId;
 
-        await rewardsRepo.createRedemption(data.rewardId, userId, data.branchId);
+        await rewardsRepo.createRedemption(
+          data.rewardId,
+          userId,
+          data.branchId,
+        );
       }
 
       const note = data.items

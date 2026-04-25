@@ -110,9 +110,9 @@ orderRouter.openapi(
           ? 400
           : err instanceof RewardNotFoundError
             ? 404
-          : err instanceof ProductVariantNotFoundError
-            ? 404
-            : 500;
+            : err instanceof ProductVariantNotFoundError
+              ? 404
+              : 500;
 
       logger.warn("Error in post: (%s) %s", err.code, err.message);
 
