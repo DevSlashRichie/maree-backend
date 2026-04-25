@@ -7,9 +7,12 @@ import {
   OrderHistoryDto,
 } from "@/application/dtos/order.ts";
 import {
+  InsufficientPointsError,
   ModifierMustBeIngredientError,
   ProductVariantNotFoundError,
-  TotalMismatchError,
+  RewardAlreadyRedeemedError,
+  RewardDiscountMismatchError,
+  RewardNotFoundError,
 } from "@/application/errors/create-order.ts";
 import {
   OrderAlreadyClosed,
@@ -100,9 +103,13 @@ orderRouter.openapi(
       const err = result.unwrapErr();
 
       const statusCode =
-        err instanceof TotalMismatchError ||
-        err instanceof ModifierMustBeIngredientError
+        err instanceof ModifierMustBeIngredientError ||
+        err instanceof RewardDiscountMismatchError ||
+        err instanceof RewardAlreadyRedeemedError ||
+        err instanceof InsufficientPointsError
           ? 400
+          : err instanceof RewardNotFoundError
+            ? 404
           : err instanceof ProductVariantNotFoundError
             ? 404
             : 500;
