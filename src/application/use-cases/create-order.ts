@@ -59,12 +59,6 @@ export async function createOrderUseCase(
           if (modifierVariant.productType !== "ingredient") {
             throw new ModifierMustBeIngredientError(modifier.id);
           }
-
-          if (modifier.build_your_own) {
-            continue;
-          }
-
-          total += modifierVariant.price * BigInt(modifier.delta);
         }
       }
 
