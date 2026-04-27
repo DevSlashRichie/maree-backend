@@ -20,6 +20,8 @@ export const CreateProductAndVariantDto = z.object({
       }),
     )
     .optional(),
+  allowedIngredients: z.array(z.string().uuid()).optional(),
+  allowedCategories: z.array(z.string().uuid()).optional(),
 });
 
 export const CreateProductAndVariantResponseDto = z.object({

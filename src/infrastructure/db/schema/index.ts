@@ -14,6 +14,7 @@ export {
 } from "./order";
 export {
   categoryTable,
+  productAllowedIngredientsTable,
   productComponentsTable,
   productTable,
   productVariantsTable,
