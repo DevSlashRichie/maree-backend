@@ -107,4 +107,13 @@ export class BranchRepo {
       with: { schedulesTable: true },
     });
   }
+
+  async deleteBranch(id: string) {
+    const { staffTable } = await import("@/infrastructure/db/schema");
+    await this.conn.delete(staffTable).where(eq(staffTable.branchId, id));
+    await this.conn
+      .delete(schedulesTable)
+      .where(eq(schedulesTable.branchId, id));
+    await this.conn.delete(branchsTable).where(eq(branchsTable.id, id));
+  }
 }

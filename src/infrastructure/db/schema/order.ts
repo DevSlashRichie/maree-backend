@@ -31,6 +31,7 @@ export const ordersTable = pgTable("order", {
     >(),
   note: text(),
   orderNumber: text("order_number").notNull(),
+  orderType: text("order_type").notNull().$type<"mesa" | "recoger">(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
