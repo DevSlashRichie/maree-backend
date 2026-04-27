@@ -199,7 +199,7 @@ export class ProductRepo {
     const whereClause =
       whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
-    const variants = await this.conn
+    const variants = this.conn
       .select({
         variant: productVariantsTable,
         product: productTable,
@@ -211,7 +211,9 @@ export class ProductRepo {
       )
       .where(whereClause);
 
-    return variants.map(({ variant, product }) => ({
+    console.log(variants.toSQL());
+
+    return (await variants).map(({ variant, product }) => ({
       ...variant,
       // biome-ignore lint/style/noNonNullAssertion: a variant must always belong to a product
       product: product!,
@@ -459,7 +461,16 @@ export class ProductRepo {
         prod,
         eq(prod.id, productAllowedIngredientsTable.allowedProductId),
       )
-      .where(eq(productAllowedIngredientsTable.productVariantId, variantId));
+      .innerJoin(
+        productTable,
+        eq(productTable.id, productVariantsTable.productId),
+      )
+      .where(
+        and(
+          eq(productAllowedIngredientsTable.productVariantId, variantId),
+          eq(productTable.type, "ingredient"),
+        ),
+      );
 
     return await query;
   }
