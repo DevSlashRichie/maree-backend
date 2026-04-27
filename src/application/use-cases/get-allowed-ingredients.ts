@@ -10,6 +10,11 @@ export async function getAllowedIngredientsUseCase(
 
     const vars = await productRepo.findAllowedIngredientsForVariant(variantId);
 
+    if (!vars.length) {
+      const all = await productRepo.findAllVariants();
+      return all;
+    }
+
     return vars.map((it) => ({
       ...it.prod,
     }));

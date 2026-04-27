@@ -4,6 +4,7 @@ import { ORDER_STATUSES } from "@/domain/value-objects/order-status";
 const modifier = z.object({
   id: z.uuid(),
   delta: z.int(),
+  build_your_own: z.boolean().nullish(),
 });
 
 export const Item = z.object({
