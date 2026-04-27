@@ -123,6 +123,7 @@ export async function createOrderUseCase(
         status: "incoming",
         note: note.length > 0 ? note : null,
         orderNumber: crypto.randomUUID(),
+        orderType: data.orderType,
       });
 
       await orderRepo.saveOrderItems(

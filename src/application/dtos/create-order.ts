@@ -20,4 +20,5 @@ export const CreateOrderDto = z.object({
   discountId: z.uuid().optional(),
   rewardId: z.uuid().optional(),
   branchId: z.uuid(),
+  orderType: z.enum(["mesa", "recoger"]),
 });
