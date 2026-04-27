@@ -1,10 +1,11 @@
 import { z } from "@hono/zod-openapi";
 import { ProductSchema } from "@/domain/entities/product";
 import { ProductVariantSchema } from "@/domain/entities/product-variant";
-import { UuidFilterSchema } from "@/lib/filters";
+import { StringFilterSchema, UuidFilterSchema } from "@/lib/filters";
 
 export const ProductVariantFiltersSchema = z.object({
   productId: UuidFilterSchema.optional(),
+  type: StringFilterSchema.optional(),
 });
 
 export const ProductVariantWithProductSchema = ProductVariantSchema.extend({

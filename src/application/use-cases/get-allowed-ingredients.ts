@@ -12,7 +12,7 @@ export async function getAllowedIngredientsUseCase(
 
     if (!vars.length) {
       const all = await productRepo.findAllVariants();
-      return all;
+      return all.filter((it) => it.product.type === "ingredient");
     }
 
     return vars.map((it) => ({
