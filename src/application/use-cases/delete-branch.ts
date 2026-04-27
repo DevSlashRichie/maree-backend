@@ -2,6 +2,7 @@ import { Err, Ok, type Result } from "oxide.ts";
 import { UnknownError } from "@/application/error";
 import { BranchRepo } from "@/domain/repositories/branch-repo";
 import { DB } from "@/infrastructure/db/postgres";
+import { logger } from "@/lib/logger";
 
 export abstract class DeleteBranchError extends Error {
   abstract readonly code: string;
@@ -19,26 +20,28 @@ export async function deleteBranchUseCase(
   id: string,
 ): Promise<Result<void, DeleteBranchError>> {
   try {
-    const branchRepo = new BranchRepo(DB);
+    return await DB.transaction(async (txn) => {
+      const branchRepo = new BranchRepo(txn);
 
-    const existingBranch = await branchRepo.findById(id);
+      const existingBranch = await branchRepo.findById(id);
 
-    if (!existingBranch) {
-      return Err(new BranchNotFoundError());
-    }
+      if (!existingBranch) {
+        return Err(new BranchNotFoundError());
+      }
 
-    await branchRepo.deleteBranch(id);
+      await branchRepo.deleteBranch(id);
 
-    return Ok(undefined);
+      return Ok(undefined);
+    });
   } catch (error) {
+    logger.error("Error deleting branch: %s", error);
+
     if (error instanceof DeleteBranchError) {
       return Err(error);
     }
 
     return Err(
-      new UnknownError(
-        error instanceof Error ? error.message : "unknown error",
-      ),
+      new UnknownError(error instanceof Error ? error.message : String(error)),
     );
   }
 }
