@@ -56,7 +56,6 @@ export async function createOrderUseCase(
         total += itemVariant.price * BigInt(item.quantity);
 
         for (const modifier of item.modifiers) {
-
           const modifierVariant = variantsById.get(modifier.id);
           if (!modifierVariant) {
             throw new ProductVariantNotFoundError(modifier.id);
@@ -65,7 +64,6 @@ export async function createOrderUseCase(
           if (modifierVariant.productType !== "ingredient") {
             throw new ModifierMustBeIngredientError(modifier.id);
           }
-
 
           if (modifier.build_your_own) {
             continue;
