@@ -24,6 +24,15 @@ export async function getBranchesUseCase(): Promise<BranchWithSchedules[]> {
   return branches;
 }
 
+export async function getOpenBranchesUseCase(): Promise<BranchWithSchedules[]> {
+  const branches = await DB.transaction(async (txn) => {
+    const branchRepo = new BranchRepo(txn);
+    return branchRepo.findAllOpen();
+  });
+
+  return branches;
+}
+
 export async function getStaffByBranchUseCase(branchId: string) {
   return DB.transaction(async (txn) => {
     const userRepo = new UserRepo(txn);

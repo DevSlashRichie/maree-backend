@@ -30,6 +30,13 @@ export class BranchRepo {
     });
   }
 
+  async findAllOpen() {
+    return this.conn.query.branchsTable.findMany({
+      where: { state: "active" },
+      with: { schedulesTable: true },
+    });
+  }
+
   async findByName(name: string) {
     return this.conn.query.branchsTable.findFirst({
       where: { name },
