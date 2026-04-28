@@ -13,6 +13,7 @@ import {
 import type { OrderStatus } from "@/domain/value-objects/order-status";
 import type { Executor } from "@/infrastructure/db/postgres.ts";
 import {
+  orderItemsModifiersTable,
   orderItemsTable,
   ordersTable,
   userTable,
@@ -161,5 +162,18 @@ export class OrderRepo {
     }
 
     return order;
+  }
+
+  async saveOrderItemModifiers(
+    modifiers: {
+      orderItemId: string;
+      productVariantId: string;
+      quantityDelta: number;
+    }[],
+  ) {
+    return this.conn
+      .insert(orderItemsModifiersTable)
+      .values(modifiers)
+      .returning();
   }
 }

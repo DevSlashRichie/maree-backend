@@ -126,7 +126,7 @@ export async function createOrderUseCase(
         orderType: data.orderType,
       });
 
-      await orderRepo.saveOrderItems(
+      const savedItems = await orderRepo.saveOrderItems(
         data.items.map((item) => {
           const itemVariant = variantsById.get(item.id);
           if (!itemVariant) {
@@ -142,6 +142,33 @@ export async function createOrderUseCase(
           };
         }),
       );
+
+      if (
+        data.items.some((item) => item.modifiers && item.modifiers.length > 0)
+      ) {
+        const modifiersToSave: {
+          orderItemId: string;
+          productVariantId: string;
+          quantityDelta: number;
+        }[] = [];
+
+        savedItems.forEach((savedItem, index) => {
+          const originalItem = data.items[index];
+          if (originalItem.modifiers && originalItem.modifiers.length > 0) {
+            originalItem.modifiers.forEach((mod) => {
+              modifiersToSave.push({
+                orderItemId: savedItem.id,
+                productVariantId: mod.id,
+                quantityDelta: mod.delta,
+              });
+            });
+          }
+        });
+
+        if (modifiersToSave.length > 0) {
+          await orderRepo.saveOrderItemModifiers(modifiersToSave);
+        }
+      }
 
       return Ok(order);
     });
