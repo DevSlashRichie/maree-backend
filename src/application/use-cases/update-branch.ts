@@ -16,6 +16,7 @@ export async function updateBranchUseCase(
       timezone: string;
     }[];
   },
+  // biome-ignore lint/suspicious/noExplicitAny: drizzle inferred return type
 ): Promise<Result<any, BranchDomainError>> {
   try {
     const branchRepo = new BranchRepo(DB);
