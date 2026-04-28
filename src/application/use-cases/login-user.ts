@@ -117,8 +117,8 @@ export async function loginUserUseCase(
     const actor = await userRepo.findByIdWithRole(user.id);
 
     const exp = new Date();
-    //const oneMonth = 2.628e6;
-    exp.setTime(exp.getTime() + 1.5e6);
+    // + one month
+    exp.setTime(exp.getTime() + 30 * 24 * 60 * 60 * 1000); 
 
     const token = encrypt(encryptKey, {
       userId: user.id,
