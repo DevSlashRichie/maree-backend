@@ -1,4 +1,4 @@
-import { eq, type InferInsertModel } from "drizzle-orm";
+import { eq, type InferInsertModel, inArray } from "drizzle-orm";
 import { CreateBranchError } from "@/application/errors/create-branch";
 import type { Executor } from "@/infrastructure/db/postgres";
 import { branchsTable, schedulesTable } from "@/infrastructure/db/schema";
@@ -24,8 +24,17 @@ export class BranchRepo {
     return !!branch;
   }
 
-  async findAll() {
+  async findAll(state?: "active" | "inactive") {
+    const whereCondition = state ? { state } : undefined;
     return this.conn.query.branchsTable.findMany({
+      where: whereCondition,
+      with: { schedulesTable: true },
+    });
+  }
+
+  async findAllOpen() {
+    return this.conn.query.branchsTable.findMany({
+      where: { state: "active" },
       with: { schedulesTable: true },
     });
   }
@@ -109,11 +118,68 @@ export class BranchRepo {
   }
 
   async deleteBranch(id: string) {
-    const { staffTable } = await import("@/infrastructure/db/schema");
+    const {
+      staffTable,
+      reviewsTable,
+      schedulesTable,
+      ordersTable,
+      orderItemsTable,
+      orderItemsModifiersTable,
+      discountBranchesTable,
+      rewardRedemptionsTable,
+    } = await import("@/infrastructure/db/schema");
+
+    // Delete related records that don't have dependent children first
     await this.conn.delete(staffTable).where(eq(staffTable.branchId, id));
+    await this.conn.delete(reviewsTable).where(eq(reviewsTable.branchId, id));
+    await this.conn
+      .delete(discountBranchesTable)
+      .where(eq(discountBranchesTable.branchId, id));
+    await this.conn
+      .delete(rewardRedemptionsTable)
+      .where(eq(rewardRedemptionsTable.branchId, id));
+
+    // Handle orders and their items
+    const ordersToDelete = await this.conn
+      .select()
+      .from(ordersTable)
+      .where(eq(ordersTable.branchId, id));
+
+    if (ordersToDelete.length > 0) {
+      const orderIds = ordersToDelete.map((o) => o.id);
+
+      // Get order items
+      const itemsToDelete = await this.conn
+        .select()
+        .from(orderItemsTable)
+        .where(inArray(orderItemsTable.orderId, orderIds));
+
+      const itemIds = itemsToDelete.map((i) => i.id);
+
+      if (itemIds.length > 0) {
+        // Delete order item modifiers first
+        await this.conn
+          .delete(orderItemsModifiersTable)
+          .where(inArray(orderItemsModifiersTable.orderItemId, itemIds));
+
+        // Delete order items
+        await this.conn
+          .delete(orderItemsTable)
+          .where(inArray(orderItemsTable.id, itemIds));
+      }
+
+      // Delete orders
+      await this.conn
+        .delete(ordersTable)
+        .where(inArray(ordersTable.id, orderIds));
+    }
+
+    // Delete schedules
     await this.conn
       .delete(schedulesTable)
       .where(eq(schedulesTable.branchId, id));
+
+    // Finally delete the branch
     await this.conn.delete(branchsTable).where(eq(branchsTable.id, id));
   }
 }

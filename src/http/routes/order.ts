@@ -271,6 +271,62 @@ orderRouter.openapi(
 orderRouter.openapi(
   createRoute({
     tags: ["Order"],
+    method: "get",
+    path: "/{id}",
+    security: [{ Bearer: [] }],
+    middleware: [authzMiddleware(true)],
+    request: {
+      params: z.object({
+        id: z.string().uuid(),
+      }),
+    },
+    responses: {
+      200: {
+        description: "order details with items",
+        content: {
+          "application/json": {
+            schema: DetailedOrderDto,
+          },
+        },
+      },
+      404: {
+        description: "order not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "internal server error",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const { id } = ctx.req.valid("param");
+
+    const result = await getOrderDetailUseCase(id);
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+      if (err instanceof OrderNotFound) {
+        return ctx.json({ code: err.code, message: err.message }, 404);
+      }
+      return ctx.json({ code: "internal_error", message: err.message }, 500);
+    }
+
+    return ctx.json(result.unwrap(), 200);
+  },
+);
+
+orderRouter.openapi(
+  createRoute({
+    tags: ["Order"],
     method: "patch",
     path: "/{id}/close",
     request: {

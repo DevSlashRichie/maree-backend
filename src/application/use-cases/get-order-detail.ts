@@ -8,7 +8,7 @@ import type { DetailedOrderDto } from "../dtos/order";
 
 export async function getOrderDetailUseCase(
   orderId: string,
-  userId: string,
+  userId?: string,
 ): Promise<Result<z.infer<typeof DetailedOrderDto>, Error>> {
   const orderRepo = new OrderRepo(DB);
   const order = await orderRepo.findDetailById(orderId);
@@ -17,7 +17,7 @@ export async function getOrderDetailUseCase(
     return Err(new OrderNotFound());
   }
 
-  if (order.userId !== userId) {
+  if (userId && order.userId !== userId) {
     return Err(new ForbiddenError());
   }
 
