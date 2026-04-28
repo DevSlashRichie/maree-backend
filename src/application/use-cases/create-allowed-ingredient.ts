@@ -5,6 +5,7 @@ import { DB } from "@/infrastructure/db/postgres";
 
 export async function createAllowedIngredientUseCase(
   data: CreateAllowedIngredientDto,
+  // biome-ignore lint/suspicious/noExplicitAny: drizzle inferred return type
 ): Promise<Result<any, Error>> {
   try {
     return await DB.transaction(async (txn) => {

@@ -79,9 +79,25 @@ async function main() {
       ).toString()
     : null;
 
+  const decode = (b64: string | undefined) =>
+    b64 ? Buffer.from(b64, "base64").toString() : null;
+
+  const APPLE_WALLET_WWDR_PEM_DECODED = decode(
+    parsedStateConf.data.APPLE_WALLET_WWDR_PEM,
+  );
+  const APPLE_WALLET_CERT_PEM_DECODED = decode(
+    parsedStateConf.data.APPLE_WALLET_CERT_PEM,
+  );
+  const APPLE_WALLET_KEY_PEM_DECODED = decode(
+    parsedStateConf.data.APPLE_WALLET_KEY_PEM,
+  );
+
   createHttpServer(parsedHttpConf.data, {
     ...parsedStateConf.data,
     GOOGLE_WALLET_CREDENTIALS_DECODED,
+    APPLE_WALLET_WWDR_PEM_DECODED,
+    APPLE_WALLET_CERT_PEM_DECODED,
+    APPLE_WALLET_KEY_PEM_DECODED,
   });
 
   logger.info("Server ready on port: %s", parsedHttpConf.data.PORT);
