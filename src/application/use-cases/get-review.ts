@@ -1,7 +1,7 @@
 import { Err, Ok, type Result } from "oxide.ts";
 import { UnknownError } from "@/application/error";
 import {
-  GetReviewError,
+  type GetReviewError,
   ReviewNotFoundError,
 } from "@/application/errors/get-review";
 import type { ReviewType } from "@/domain/entities/review";

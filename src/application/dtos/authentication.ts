@@ -3,7 +3,7 @@ import { ActorSchema } from "@/domain/entities/actor";
 
 export const LoginSchema = z
   .object({
-    identity: z.string().min(1),
+    identity: z.string().min(1).optional(),
     method: z.discriminatedUnion("type", [
       z.object({ type: z.literal("phone") }),
       z.object({
@@ -15,6 +15,7 @@ export const LoginSchema = z
           .transform((val) => Number(val)),
       }),
       z.object({ type: z.literal("password"), value: z.string().min(1) }),
+      z.object({ type: z.literal("google"), value: z.string().min(1) }),
       z.object({ type: z.literal("test") }),
     ]),
   })

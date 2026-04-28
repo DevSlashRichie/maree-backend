@@ -1,3 +1,4 @@
+import { google } from "googleapis";
 import { Err, Ok, type Result } from "oxide.ts";
 import { encrypt } from "paseto-ts/v4";
 import type { z } from "zod";
@@ -77,6 +78,31 @@ async function passwordMethod(
   }
 }
 
+async function googleMethod(idToken: string) {
+  const client = new google.auth.OAuth2();
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken,
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload || !payload.email) {
+      throw new InvalidCredentialsError();
+    }
+
+    return {
+      email: payload.email,
+      firstName: payload.given_name || "",
+      lastName: payload.family_name || "",
+    };
+  } catch (error) {
+    logger.error(error, "google auth error");
+    throw new InvalidCredentialsError();
+  }
+}
+
 export async function loginUserUseCase(
   data: z.infer<typeof LoginSchema>,
   encryptKey: string,
@@ -85,31 +111,57 @@ export async function loginUserUseCase(
   try {
     const userRepo = new UserRepo(DB);
 
-    const user = await userRepo.findByIdentity(data.identity);
+    let user: User | undefined;
 
-    if (!user) {
-      throw new InvalidCredentialsError();
+    if (data.method.type === "google") {
+      const googleData = await googleMethod(data.method.value);
+      const existingUser = await userRepo.findByIdentity(googleData.email);
+
+      if (existingUser) {
+        user = existingUser;
+      } else {
+        user = await userRepo.saveUser({
+          email: googleData.email,
+          firstName: googleData.firstName,
+          lastName: googleData.lastName,
+          phone: "",
+        });
+      }
+    } else {
+      if (!data.identity) {
+        throw new InvalidCredentialsError();
+      }
+
+      user = (await userRepo.findByIdentity(data.identity)) ?? undefined;
+
+      if (!user) {
+        throw new InvalidCredentialsError();
+      }
+
+      if (data.method.type === "phone") {
+        await phoneMethod(user, user.phone, fromNumber);
+
+        return Ok({
+          type: "required_action",
+          required_action: "login_with_sent_code",
+        });
+      } else if (data.method.type === "password") {
+        await passwordMethod(user, data.method.value, userRepo);
+      } else if (data.method.type === "code") {
+        await codeMethod(user, Number(data.method.value));
+      } else if (data.method.type === "test") {
+        await testCodeMethod(user);
+
+        return Ok({
+          type: "required_action",
+          required_action: "login_with_sent_code",
+        });
+      } else {
+        throw new InvalidCredentialsError();
+      }
     }
 
-    if (data.method.type === "phone") {
-      await phoneMethod(user, user.phone, fromNumber);
-
-      return Ok({
-        type: "required_action",
-        required_action: "login_with_sent_code",
-      });
-    } else if (data.method.type === "password") {
-      await passwordMethod(user, data.method.value, userRepo);
-    } else if (data.method.type === "code") {
-      await codeMethod(user, Number(data.method.value));
-    } else if (data.method.type === "test") {
-      await testCodeMethod(user);
-
-      return Ok({
-        type: "required_action",
-        required_action: "login_with_sent_code",
-      });
-    } else {
+    if (!user) {
       throw new InvalidCredentialsError();
     }
 
@@ -118,7 +170,7 @@ export async function loginUserUseCase(
 
     const exp = new Date();
     // + one month
-    exp.setTime(exp.getTime() + 30 * 24 * 60 * 60 * 1000); 
+    exp.setTime(exp.getTime() + 30 * 24 * 60 * 60 * 1000);
 
     const token = encrypt(encryptKey, {
       userId: user.id,
