@@ -1,5 +1,4 @@
 import { createRoute, z } from "@hono/zod-openapi";
-import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 import {
   CreateDiscountDto,
   UpdateDiscountDto,
@@ -15,6 +14,7 @@ import { updateDiscountUseCase } from "@/application/use-cases/update-discount";
 import { DiscountSchema } from "@/domain/entities/discount";
 import { ErrorSchema } from "@/domain/entities/error";
 import { logger } from "@/lib/logger";
+import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
 
 export const discountRouter = createRouter();

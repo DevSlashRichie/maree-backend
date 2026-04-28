@@ -48,7 +48,10 @@ orderRouter.openapi(
     method: "post",
     path: "/",
     security: [{ Bearer: [] }],
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:orders"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:orders"]),
+    ],
     request: {
       body: {
         content: {
@@ -276,7 +279,10 @@ orderRouter.openapi(
     method: "patch",
     path: "/{id}/close",
     security: [{ Bearer: [] }],
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:orders"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:orders"]),
+    ],
     request: {
       params: z.object({
         id: z.string(),
@@ -351,7 +357,10 @@ orderRouter.openapi(
     method: "patch",
     path: "/{id}/ready",
     security: [{ Bearer: [] }],
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:orders"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:orders"]),
+    ],
     request: {
       params: z.object({
         id: z.string(),
@@ -550,7 +559,10 @@ orderRouter.openapi(
     method: "patch",
     path: "/{id}/status",
     security: [{ Bearer: [] }],
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:orders"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:orders"]),
+    ],
     request: {
       params: z.object({ id: z.string() }),
       body: {

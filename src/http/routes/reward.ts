@@ -41,7 +41,10 @@ rewardRouter.openapi(
     tags: ["Reward"],
     method: "post",
     path: "/",
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:rewards"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:rewards"]),
+    ],
     request: {
       body: {
         content: {
@@ -186,7 +189,10 @@ rewardRouter.openapi(
     tags: ["Reward"],
     method: "post",
     path: "/redeem",
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:orders"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:orders"]),
+    ],
     request: {
       body: {
         content: {
@@ -253,7 +259,10 @@ rewardRouter.openapi(
     method: "delete",
     path: "/{rewardId}",
     security: [{ Bearer: [] }],
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:rewards"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:rewards"]),
+    ],
     request: {
       params: DeleteRewardParamsSchema,
     },
@@ -302,7 +311,10 @@ rewardRouter.openapi(
     method: "patch",
     path: "/{rewardId}",
     security: [{ Bearer: [] }],
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:rewards"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:rewards"]),
+    ],
     request: {
       params: UpdateRewardParamsSchema,
       body: {
@@ -363,7 +375,10 @@ rewardRouter.openapi(
     tags: ["Reward"],
     method: "post",
     path: "/visit",
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:visits"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:visits"]),
+    ],
     request: {
       body: {
         content: {

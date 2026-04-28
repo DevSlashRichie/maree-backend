@@ -1,5 +1,4 @@
 import { createRoute, z } from "@hono/zod-openapi";
-import { authzMiddleware } from "../middleware/authz";
 import { RegisterReviewDto } from "@/application/dtos/register-review";
 import { ReviewNotFoundError } from "@/application/errors/get-review";
 import {
@@ -14,6 +13,7 @@ import {
   ReviewSchema,
 } from "@/domain/entities/review";
 import { logger } from "@/lib/logger";
+import { authzMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
 
 export const reviewRouter = createRouter();

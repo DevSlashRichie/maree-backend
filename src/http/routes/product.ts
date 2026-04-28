@@ -291,7 +291,10 @@ productRouter.openapi(
     tags: ["Products"],
     method: "delete",
     path: "/{id}/ingredients/{ingredientId}",
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:products"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:products"]),
+    ],
     request: {
       params: z.object({
         id: z.string().uuid(),
@@ -324,7 +327,10 @@ productRouter.openapi(
     tags: ["Products"],
     method: "post",
     path: "/{id}/ingredients",
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:products"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:products"]),
+    ],
     request: {
       body: {
         required: true,
@@ -430,7 +436,10 @@ productRouter.openapi(
     tags: ["Products"],
     method: "post",
     path: "/",
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:products"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:products"]),
+    ],
     request: {
       body: {
         required: true,
@@ -506,7 +515,10 @@ productRouter.openapi(
     tags: ["Products"],
     method: "post",
     path: "/variants",
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:products"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:products"]),
+    ],
     request: {
       body: {
         required: true,
@@ -894,7 +906,10 @@ productRouter.openapi(
     tags: ["Products"],
     method: "delete",
     path: "/{id}",
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:products"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:products"]),
+    ],
     request: {
       params: z.object({
         id: z.string().uuid(),
@@ -1030,7 +1045,10 @@ productRouter.openapi(
     tags: ["Products"],
     method: "delete",
     path: "/variants/{id}",
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:products"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:products"]),
+    ],
     request: {
       params: z.object({
         id: z.string().uuid(),

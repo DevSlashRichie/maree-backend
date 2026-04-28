@@ -1,5 +1,4 @@
 import { UserNotFoundError } from "@/application/errors/rbac";
-import { checkPolicies } from "@/application/use-cases/check-policies";
 import type { ActorType } from "@/domain/entities/actor";
 import { RbacRepo } from "@/domain/repositories/rbac-repo";
 import { UserRepo } from "@/domain/repositories/user-repo";

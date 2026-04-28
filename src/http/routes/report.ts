@@ -1,8 +1,8 @@
 import { createRoute } from "@hono/zod-openapi";
-import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 import { ReportsDto } from "@/application/dtos/report";
 import { getReportsUseCase } from "@/application/use-cases/get-reports";
 import { ErrorSchema } from "@/domain/entities/error";
+import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
 
 export const reportRouter = createRouter();
@@ -12,7 +12,10 @@ reportRouter.openapi(
     tags: ["Reports"],
     method: "get",
     path: "/",
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["read:reports"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["read:reports"]),
+    ],
     responses: {
       200: {
         description: "reports data",

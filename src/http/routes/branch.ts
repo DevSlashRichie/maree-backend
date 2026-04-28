@@ -1,5 +1,4 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 import {
   BranchDiscountSchema,
   BranchStaffSchema,
@@ -26,6 +25,7 @@ import {
 } from "@/domain/entities/branch";
 import { ErrorSchema } from "@/domain/entities/error";
 import { logger } from "@/lib/logger";
+import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 import type { State } from "../state";
 
 export const branchRouter = new OpenAPIHono<State>();
@@ -35,7 +35,10 @@ branchRouter.openapi(
     tags: ["Branch"],
     method: "post",
     path: "/",
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:branches"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:branches"]),
+    ],
     request: {
       body: {
         required: true,
@@ -279,7 +282,10 @@ branchRouter.openapi(
     tags: ["Branch"],
     method: "patch",
     path: "/{id}",
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:branches"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:branches"]),
+    ],
     request: {
       params: z.object({ id: z.string() }),
       body: {
@@ -344,7 +350,10 @@ branchRouter.openapi(
     tags: ["Branch"],
     method: "delete",
     path: "/{id}",
-    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:branches"])],
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:branches"]),
+    ],
     request: {
       params: z.object({ id: z.string() }),
     },
