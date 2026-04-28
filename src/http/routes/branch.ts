@@ -1,4 +1,5 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 import {
   BranchDiscountSchema,
   BranchStaffSchema,
@@ -34,6 +35,7 @@ branchRouter.openapi(
     tags: ["Branch"],
     method: "post",
     path: "/",
+    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:branches"])],
     request: {
       body: {
         required: true,
@@ -186,6 +188,7 @@ branchRouter.openapi(
     tags: ["Branch"],
     method: "get",
     path: "/{id}/staff",
+    middleware: [authzMiddleware(true), checkPolicyMiddleware(["read:staff"])],
     request: {
       params: z.object({
         id: z.string(),
@@ -276,6 +279,7 @@ branchRouter.openapi(
     tags: ["Branch"],
     method: "patch",
     path: "/{id}",
+    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:branches"])],
     request: {
       params: z.object({ id: z.string() }),
       body: {
@@ -340,6 +344,7 @@ branchRouter.openapi(
     tags: ["Branch"],
     method: "delete",
     path: "/{id}",
+    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:branches"])],
     request: {
       params: z.object({ id: z.string() }),
     },

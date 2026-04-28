@@ -72,7 +72,7 @@ import {
 } from "@/domain/entities/product";
 import { AzureBlobStorageAdapter } from "@/infrastructure/azure/blob-storage.ts";
 import { logger } from "@/lib/logger";
-import { authzMiddleware } from "../middleware/authz";
+import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
 
 export const productRouter = createRouter();
@@ -290,7 +290,8 @@ productRouter.openapi(
   createRoute({
     tags: ["Products"],
     method: "delete",
-    path: "/variants/allowed-ingredients/{id}",
+    path: "/{id}/ingredients/{ingredientId}",
+    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:products"])],
     request: {
       params: z.object({
         id: z.string().uuid(),
@@ -322,7 +323,8 @@ productRouter.openapi(
   createRoute({
     tags: ["Products"],
     method: "post",
-    path: "/image",
+    path: "/{id}/ingredients",
+    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:products"])],
     request: {
       body: {
         required: true,
@@ -428,6 +430,7 @@ productRouter.openapi(
     tags: ["Products"],
     method: "post",
     path: "/",
+    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:products"])],
     request: {
       body: {
         required: true,
@@ -502,7 +505,8 @@ productRouter.openapi(
   createRoute({
     tags: ["Products"],
     method: "post",
-    path: "/product-variant",
+    path: "/variants",
+    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:products"])],
     request: {
       body: {
         required: true,
@@ -693,6 +697,10 @@ productRouter.openapi(
     tags: ["Products"],
     method: "post",
     path: "/categories",
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:categories"]),
+    ],
     request: {
       body: {
         required: true,
@@ -784,6 +792,10 @@ productRouter.openapi(
     tags: ["Products"],
     method: "patch",
     path: "/categories/{id}",
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:categories"]),
+    ],
     request: {
       params: z.object({
         id: z.string().uuid(),
@@ -882,6 +894,7 @@ productRouter.openapi(
     tags: ["Products"],
     method: "delete",
     path: "/{id}",
+    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:products"])],
     request: {
       params: z.object({
         id: z.string().uuid(),
@@ -1016,7 +1029,8 @@ productRouter.openapi(
   createRoute({
     tags: ["Products"],
     method: "delete",
-    path: "/variant/{id}",
+    path: "/variants/{id}",
+    middleware: [authzMiddleware(true), checkPolicyMiddleware(["write:products"])],
     request: {
       params: z.object({
         id: z.string().uuid(),

@@ -1,4 +1,5 @@
 import { createRoute, z } from "@hono/zod-openapi";
+import { authzMiddleware } from "../middleware/authz";
 import { RegisterReviewDto } from "@/application/dtos/register-review";
 import { ReviewNotFoundError } from "@/application/errors/get-review";
 import {
@@ -22,6 +23,7 @@ reviewRouter.openapi(
     tags: ["Review"],
     method: "get",
     path: "/{orderId}",
+    middleware: [authzMiddleware(true)],
     request: {
       params: z.object({
         orderId: z.string().uuid(),
@@ -90,6 +92,7 @@ reviewRouter.openapi(
     tags: ["Review"],
     method: "post",
     path: "/",
+    middleware: [authzMiddleware(true)],
     request: {
       body: {
         required: true,

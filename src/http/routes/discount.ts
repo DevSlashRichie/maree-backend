@@ -1,4 +1,5 @@
 import { createRoute, z } from "@hono/zod-openapi";
+import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 import {
   CreateDiscountDto,
   UpdateDiscountDto,
@@ -23,6 +24,10 @@ discountRouter.openapi(
     tags: ["Discount"],
     method: "post",
     path: "/",
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:discounts"]),
+    ],
     request: {
       body: {
         required: true,
@@ -71,6 +76,10 @@ discountRouter.openapi(
     tags: ["Discount"],
     method: "get",
     path: "/",
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["read:discounts"]),
+    ],
     responses: {
       200: {
         description: "List discounts",
@@ -93,6 +102,10 @@ discountRouter.openapi(
     tags: ["Discount"],
     method: "get",
     path: "/{id}",
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["read:discounts"]),
+    ],
     request: {
       params: z.object({
         id: z.string().uuid(),
@@ -146,6 +159,10 @@ discountRouter.openapi(
     tags: ["Discount"],
     method: "patch",
     path: "/{id}",
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:discounts"]),
+    ],
     request: {
       params: z.object({
         id: z.string().uuid(),
@@ -207,6 +224,10 @@ discountRouter.openapi(
     tags: ["Discount"],
     method: "delete",
     path: "/{id}",
+    middleware: [
+      authzMiddleware(true),
+      checkPolicyMiddleware(["write:discounts"]),
+    ],
     request: {
       params: z.object({
         id: z.string().uuid(),
