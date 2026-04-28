@@ -43,10 +43,10 @@ export const createStateMiddleware: (
 
 export const stateMiddleware: MiddlewareHandler<State> = async (ctx, next) => {
   const state = {
-    AUTHZ_SECRET: process.env.AUTHZ_SECRET!,
-    FROM_NUMBER: process.env.FROM_NUMBER!,
-    GOOGLE_WALLET_ISSUER_ID: process.env.GOOGLE_WALLET_ISSUER_ID!,
-    GOOGLE_WALLET_CREDENTIALS: process.env.GOOGLE_WALLET_CREDENTIALS!,
+    AUTHZ_SECRET: process.env.AUTHZ_SECRET ?? "",
+    FROM_NUMBER: process.env.FROM_NUMBER ?? "",
+    GOOGLE_WALLET_ISSUER_ID: process.env.GOOGLE_WALLET_ISSUER_ID ?? "",
+    GOOGLE_WALLET_CREDENTIALS: process.env.GOOGLE_WALLET_CREDENTIALS ?? "",
     GOOGLE_WALLET_CLASS_SUFFIX: process.env.GOOGLE_WALLET_CLASS_SUFFIX,
     APPLE_WALLET_TEAM_ID: process.env.APPLE_WALLET_TEAM_ID,
     APPLE_WALLET_PASS_TYPE_ID: process.env.APPLE_WALLET_PASS_TYPE_ID,

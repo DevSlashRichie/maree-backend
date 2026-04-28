@@ -19,9 +19,11 @@ export async function updateDiscountUseCase(
       return Err(new DiscountNotFoundError(id));
     }
 
-    const updateData: any = { ...data };
-    if (data.startDate) updateData.startDate = new Date(data.startDate);
-    if (data.endDate) updateData.endDate = new Date(data.endDate);
+    const updateData = {
+      ...data,
+      startDate: data.startDate ? new Date(data.startDate) : undefined,
+      endDate: data.endDate ? new Date(data.endDate) : undefined,
+    };
 
     const discount = await discountRepo.updateDiscount(id, updateData);
 

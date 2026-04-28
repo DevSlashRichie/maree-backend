@@ -14,7 +14,7 @@ export async function getCategoriesUseCase(): Promise<
 
       const categories = await productRepo.getAllCategories();
 
-      const buildTree = (parentId: string | null): any => {
+      const buildTree = (parentId: string | null): CategoryTree | undefined => {
         const children = categories
           .filter((cat) => cat.parentId === parentId)
           .map((cat) => ({

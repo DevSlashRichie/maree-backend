@@ -12,12 +12,6 @@ const {
   productTable,
   productVariantsTable,
   productComponentsTable,
-  ordersTable,
-  orderItemsTable,
-  orderItemsModifiersTable,
-  reviewsTable,
-  loyaltyTransactionsTable,
-  ...seedSchema
 } = schema;
 
 type CategorySeed = {
