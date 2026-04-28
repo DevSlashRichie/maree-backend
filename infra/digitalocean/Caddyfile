@@ -1,0 +1,7 @@
+cloud.maree.binarysails.com, :80 {
+    reverse_proxy backend:8080
+}
+
+maree.binarysails.com {
+    respond "Frontend coming soon" 200
+}

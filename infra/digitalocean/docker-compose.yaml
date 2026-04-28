@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:18
+    restart: always
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+  backend:
+    image: ${REGISTRY_URL}/maree-backend:latest
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8080:8080" # Allows raw IP access: http://<ip>:8080
+    env_file: .env
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - NODE_ENV=production
+      - HOST=0.0.0.0
+      - PORT=8080
+      - ADMIN_PHONE=+524427536211
+      - GOOGLE_WALLET_ISSUER_ID=3388000000023101441
+      - GOOGLE_WALLET_CLASS_SUFFIX=class_maree
+      - GOOGLE_CLIENT_ID=664563004670-vbpp81aiu5khnrq1o8p75pg2f786l512.apps.googleusercontent.com
+
+  caddy:
+    image: caddy:2-alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
+  caddy_data:
+  caddy_config:
