@@ -15,9 +15,25 @@ export class AppleWalletClient implements AppleWalletPassPort {
     private readonly keyPassphrase?: string,
   ) {}
 
+  private async fetchImage(url: string): Promise<Buffer> {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to fetch image: ${url}`);
+    return Buffer.from(await res.arrayBuffer());
+  }
+
   async generateLoyaltyPass(
     data: AppleWalletPassData,
   ): Promise<AppleWalletPassResult> {
+    const heroIndex = (data.points % 6) + 1;
+    const [logoBuffer, stripBuffer] = await Promise.all([
+      this.fetchImage(
+        "https://storage.googleapis.com/wallet-assets-maree/logo1.png",
+      ),
+      this.fetchImage(
+        `https://storage.googleapis.com/wallet-assets-maree/hero-image-visits-${heroIndex}.png`,
+      ),
+    ]);
+
     const pass = new PKPass(
       {
         "pass.json": Buffer.from(
@@ -30,6 +46,10 @@ export class AppleWalletClient implements AppleWalletPassPort {
             storeCard: {},
           }),
         ),
+        "logo.png": logoBuffer,
+        "logo@2x.png": logoBuffer,
+        "strip.png": stripBuffer,
+        "strip@2x.png": stripBuffer,
       },
       {
         wwdr: this.wwdrPem,
