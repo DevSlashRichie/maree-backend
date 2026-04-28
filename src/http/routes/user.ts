@@ -496,9 +496,8 @@ userRouter.openapi(
     },
   }),
   async (ctx) => {
-    const actor = ctx.get("actor");
     const userId = ctx.req.param("userId");
-    const result = await deleteStaffUseCase(actor, userId);
+    const result = await deleteStaffUseCase(userId);
 
     if (result.isErr()) {
       const error = result.unwrapErr();
