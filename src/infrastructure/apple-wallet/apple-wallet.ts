@@ -78,11 +78,13 @@ export class AppleWalletClient implements AppleWalletPassPort {
       value: `${data.firstName} ${data.lastName}`,
     });
 
-    pass.auxiliaryFields.push({
-      key: "phone",
-      label: "Teléfono",
-      value: data.phone,
-    });
+    if (data.phone) {
+      pass.auxiliaryFields.push({
+        key: "phone",
+        label: "Teléfono",
+        value: data.phone,
+      });
+    }
 
     pass.setBarcodes(data.userId);
 

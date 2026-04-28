@@ -2,7 +2,7 @@ export interface AppleWalletPassData {
   userId: string;
   firstName: string;
   lastName: string;
-  phone: string;
+  phone?: string | null;
   points: number;
 }
 
