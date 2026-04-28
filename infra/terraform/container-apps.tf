@@ -86,6 +86,22 @@ resource "azurerm_container_app" "main" {
     value = azurerm_storage_container.products.name
   }
 
+  secret {
+    name  = "apple-wwdr"
+    value = var.apple_creds_wwdr
+  }
+
+
+  secret {
+    name  = "apple-cert-perm"
+    value = var.apple_creds_cert_pem
+  }
+
+  secret {
+    name  = "apple-key-pem"
+    value = var.apple_creds_key_pem
+  }
+
   registry {
     server               = azurerm_container_registry.main.login_server
     username             = var.container_registry_username != "" ? var.container_registry_username : azurerm_container_registry.main.admin_username
@@ -212,6 +228,31 @@ resource "azurerm_container_app" "main" {
       env {
         name  = "GOOGLE_CLIENT_ID"
         value = "664563004670-vbpp81aiu5khnrq1o8p75pg2f786l512.apps.googleusercontent.com"
+      }
+
+      env {
+        name  = "APPLE_WALLET_TEAM_ID"
+        value = "LHNC942725"
+      }
+
+      env {
+        name  = "APPLE_WALLET_PASS_TYPE_ID"
+        value = "pass.com.mareecrepe.loyalty.dev"
+      }
+
+      env {
+        name        = "APPLE_WALLET_WWDR_PEM"
+        secret_name = "apple-wwdr"
+      }
+
+      env {
+        name        = "APPLE_WALLET_CERT_PEM"
+        secret_name = "apple-cert-perm"
+      }
+
+      env {
+        name        = "APPLE_WALLET_KEY_PEM"
+        secret_name = "apple-key-pem"
       }
     }
   }

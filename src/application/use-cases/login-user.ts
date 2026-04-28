@@ -124,7 +124,6 @@ export async function loginUserUseCase(
           email: googleData.email,
           firstName: googleData.firstName,
           lastName: googleData.lastName,
-          phone: "",
         });
       }
     } else {
@@ -139,6 +138,10 @@ export async function loginUserUseCase(
       }
 
       if (data.method.type === "phone") {
+        if (!user.phone) {
+          throw new InvalidCredentialsError();
+        }
+
         await phoneMethod(user, user.phone, fromNumber);
 
         return Ok({

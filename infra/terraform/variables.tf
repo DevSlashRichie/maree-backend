@@ -84,6 +84,27 @@ variable "google_creds" {
   sensitive   = true
 }
 
+variable "apple_creds_wwdr" {
+  description = "Apple Wallet WWDR"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "apple_creds_cert_pem" {
+  description = "Apple Wallet CERT PEM Key"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "apple_creds_key_pem" {
+  description = "Apple Wallet KEY PEM Key"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
 variable "twilio_account_sid" {
   description = "Twilio account SID"
   type        = string

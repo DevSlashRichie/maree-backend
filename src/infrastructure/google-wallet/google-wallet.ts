@@ -90,7 +90,7 @@ export class GoogleWalletClient implements WalletPassPort {
         },
       },
       barcode: { type: "QR_CODE", value: data.userId },
-      accountId: data.phone,
+      accountId: data.userId,
       accountName: `${data.firstName} ${data.lastName}`,
       loyaltyPoints: {
         label: "Visita",

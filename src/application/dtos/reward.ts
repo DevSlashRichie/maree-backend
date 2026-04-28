@@ -77,7 +77,7 @@ export const LoyaltyCardDetailsDto = z
     currentBalance: z.number(),
     firstName: z.string().min(1),
     lastName: z.string().min(1),
-    phone: z.string().min(10),
+    phone: z.string().min(10).nullish(),
     lastRedemptions: z.array(
       z.object({
         name: z.string(),

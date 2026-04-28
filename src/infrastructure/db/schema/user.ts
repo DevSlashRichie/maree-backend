@@ -6,7 +6,7 @@ export const userTable = pgTable("user", {
     .$defaultFn(() => Bun.randomUUIDv7()),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
-  phone: text().notNull().unique(),
+  phone: text().unique(),
   email: text().unique(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

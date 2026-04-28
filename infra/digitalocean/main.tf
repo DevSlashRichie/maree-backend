@@ -73,6 +73,10 @@ AZURE_STORAGE_CONNECTION_STRING=
 AZURE_STORAGE_CONTAINER_NAME=
 ENV
               EOF
+
+  lifecycle {
+    ignore_changes = ["user_data"]
+  }
 }
 
 variable "db_password" {
@@ -98,6 +102,12 @@ resource "digitalocean_firewall" "maree_firewall" {
   inbound_rule {
     protocol         = "tcp"
     port_range       = "80"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "8080"
     source_addresses = ["0.0.0.0/0", "::/0"]
   }
 

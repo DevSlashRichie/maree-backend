@@ -362,6 +362,7 @@ export class UserRepo {
         set: {
           firstName: data.firstName,
           lastName: data.lastName,
+          email: data.email,
           phone: data.phone,
         },
       })
