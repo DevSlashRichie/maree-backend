@@ -154,7 +154,7 @@ export async function createOrderUseCase(
 
         savedItems.forEach((savedItem, index) => {
           const originalItem = data.items[index];
-          if (originalItem.modifiers && originalItem.modifiers.length > 0) {
+          if (originalItem?.modifiers && originalItem.modifiers.length > 0) {
             originalItem.modifiers.forEach((mod) => {
               modifiersToSave.push({
                 orderItemId: savedItem.id,
