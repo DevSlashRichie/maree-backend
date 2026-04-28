@@ -82,6 +82,7 @@ export const DetailedOrderDto = OrderSchema.extend({
           id: z.uuid(),
           productVariantId: z.string(),
           quantityDelta: z.int(),
+          buildYourOwn: z.boolean().nullish(),
           productVariantsTable: z
             .object({
               id: z.string(),
