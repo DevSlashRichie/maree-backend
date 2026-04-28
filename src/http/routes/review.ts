@@ -1,9 +1,11 @@
-import { createRoute } from "@hono/zod-openapi";
+import { createRoute, z } from "@hono/zod-openapi";
 import { RegisterReviewDto } from "@/application/dtos/register-review";
+import { ReviewNotFoundError } from "@/application/errors/get-review";
 import {
   OrderNotFoundError,
   UserNotFoundError,
 } from "@/application/errors/register-review";
+import { getReviewUseCase } from "@/application/use-cases/get-review";
 import { registerReviewUseCase } from "@/application/use-cases/register-review";
 import { ErrorSchema } from "@/domain/entities/error";
 import {
@@ -14,6 +16,74 @@ import { logger } from "@/lib/logger";
 import { createRouter } from "../utils";
 
 export const reviewRouter = createRouter();
+
+reviewRouter.openapi(
+  createRoute({
+    tags: ["Review"],
+    method: "get",
+    path: "/{orderId}",
+    request: {
+      params: z.object({
+        orderId: z.string().uuid(),
+      }),
+    },
+    responses: {
+      200: {
+        description: "get review for order",
+        content: {
+          "application/json": {
+            schema: ReviewSchema,
+          },
+        },
+      },
+      404: {
+        description: "Review not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+      500: {
+        description: "unexpected",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+
+  async (ctx) => {
+    const { orderId } = ctx.req.valid("param");
+    const result = await getReviewUseCase(orderId);
+
+    if (result.isErr()) {
+      const err = result.unwrapErr();
+      if (err instanceof ReviewNotFoundError) {
+        return ctx.json(
+          {
+            code: err.code,
+            message: err.message,
+          },
+          404,
+        );
+      }
+
+      logger.error("Unknown error fetching review: %s", err);
+      return ctx.json(
+        {
+          code: "unexpected",
+          message: "unexpected",
+        },
+        500,
+      );
+    }
+
+    return ctx.json(result.unwrap(), 200);
+  },
+);
 
 reviewRouter.openapi(
   createRoute({

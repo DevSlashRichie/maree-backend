@@ -1,4 +1,4 @@
-import type { InferInsertModel } from "drizzle-orm";
+import { eq, type InferInsertModel } from "drizzle-orm";
 import type { Executor } from "@/infrastructure/db/postgres";
 import { reviewsTable } from "@/infrastructure/db/schema";
 
@@ -18,5 +18,14 @@ export class ReviewRepo {
 
     // biome-ignore lint/style/noNonNullAssertion: since we're creating a new user, it should always exist
     return review!;
+  }
+
+  async findReviewByOrderId(orderId: string) {
+    const [review] = await this.conn
+      .select()
+      .from(reviewsTable)
+      .where(eq(reviewsTable.orderId, orderId));
+
+    return review;
   }
 }
