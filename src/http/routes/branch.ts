@@ -110,6 +110,11 @@ branchRouter.openapi(
     tags: ["Branch"],
     method: "get",
     path: "/",
+    request: {
+      query: z.object({
+        state: z.string().optional(),
+      }),
+    },
     responses: {
       200: {
         description: "list of branches with schedules",
@@ -131,7 +136,8 @@ branchRouter.openapi(
   }),
 
   async (ctx) => {
-    const branches = await getBranchesUseCase();
+    const { state } = ctx.req.valid("query");
+    const branches = await getBranchesUseCase(state);
     return ctx.json(branches, 200);
   },
 );

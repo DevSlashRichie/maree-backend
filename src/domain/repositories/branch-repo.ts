@@ -24,8 +24,10 @@ export class BranchRepo {
     return !!branch;
   }
 
-  async findAll() {
+  async findAll(state?: string) {
+    const whereCondition = state ? { state } : undefined;
     return this.conn.query.branchsTable.findMany({
+      where: whereCondition,
       with: { schedulesTable: true },
     });
   }

@@ -15,10 +15,12 @@ export async function getBranchByIdUseCase(
   return branch || null;
 }
 
-export async function getBranchesUseCase(): Promise<BranchWithSchedules[]> {
+export async function getBranchesUseCase(
+  state?: string,
+): Promise<BranchWithSchedules[]> {
   const branches = await DB.transaction(async (txn) => {
     const branchRepo = new BranchRepo(txn);
-    return branchRepo.findAll();
+    return branchRepo.findAll(state);
   });
 
   return branches;
