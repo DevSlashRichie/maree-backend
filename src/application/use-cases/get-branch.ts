@@ -16,7 +16,7 @@ export async function getBranchByIdUseCase(
 }
 
 export async function getBranchesUseCase(
-  state?: string,
+  state?: "active" | "inactive",
 ): Promise<BranchWithSchedules[]> {
   const branches = await DB.transaction(async (txn) => {
     const branchRepo = new BranchRepo(txn);
