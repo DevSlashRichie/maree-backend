@@ -13,6 +13,7 @@ import {
 import {
   getBranchByIdUseCase,
   getBranchesUseCase,
+  getOpenBranchesUseCase,
   getRewardsByBranchUseCase,
   getStaffByBranchUseCase,
 } from "@/application/use-cases/get-branch";
@@ -110,6 +111,11 @@ branchRouter.openapi(
     tags: ["Branch"],
     method: "get",
     path: "/",
+    request: {
+      query: z.object({
+        state: z.string().optional(),
+      }),
+    },
     responses: {
       200: {
         description: "list of branches with schedules",
@@ -131,7 +137,39 @@ branchRouter.openapi(
   }),
 
   async (ctx) => {
-    const branches = await getBranchesUseCase();
+    const { state } = ctx.req.valid("query");
+    const branches = await getBranchesUseCase(state);
+    return ctx.json(branches, 200);
+  },
+);
+
+branchRouter.openapi(
+  createRoute({
+    tags: ["Branch"],
+    method: "get",
+    path: "/open",
+    responses: {
+      200: {
+        description: "list of open branches with schedules",
+        content: {
+          "application/json": {
+            schema: BranchWithSchedulesSchema.array(),
+          },
+        },
+      },
+      500: {
+        description: "unexpected",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+
+  async (ctx) => {
+    const branches = await getOpenBranchesUseCase();
     return ctx.json(branches, 200);
   },
 );
