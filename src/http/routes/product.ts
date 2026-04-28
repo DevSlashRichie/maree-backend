@@ -298,6 +298,7 @@ productRouter.openapi(
     request: {
       params: z.object({
         id: z.string().uuid(),
+        ingredientId: z.string().uuid(),
       }),
     },
     responses: {
@@ -332,6 +333,9 @@ productRouter.openapi(
       checkPolicyMiddleware(["write:products"]),
     ],
     request: {
+      params: z.object({
+        id: z.string().uuid(),
+      }),
       body: {
         required: true,
         content: {
