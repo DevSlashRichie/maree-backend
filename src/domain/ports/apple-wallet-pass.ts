@@ -11,5 +11,7 @@ export interface AppleWalletPassResult {
 }
 
 export interface AppleWalletPassPort {
-  generateLoyaltyPass(data: AppleWalletPassData): Promise<AppleWalletPassResult>;
+  generateLoyaltyPass(
+    data: AppleWalletPassData,
+  ): Promise<AppleWalletPassResult>;
 }
