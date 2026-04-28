@@ -113,7 +113,7 @@ branchRouter.openapi(
     path: "/",
     request: {
       query: z.object({
-        state: z.string().optional(),
+        state: z.enum(["active", "inactive"]).optional(),
       }),
     },
     responses: {
