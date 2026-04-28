@@ -12,8 +12,6 @@ import {
   IncompatibleIngredientFlavor,
   IngredientsOnlyForCompleteProduct,
   InvalidIngredientQuantity,
-  ProductAlreadyExists,
-  ProductVariantAlreadyExists,
 } from "@/application/errors/create-product-variant.ts";
 import { ProductRepo } from "@/domain/repositories/product-repo.ts";
 import {
@@ -37,19 +35,6 @@ export async function createProductAndVariantUseCase(
   try {
     return await DB.transaction(async (txn) => {
       const productRepo = new ProductRepo(txn);
-
-      const productVariantAlreadyExists =
-        await productRepo.existsProductVariant(data.name);
-      if (productVariantAlreadyExists) {
-        console.log("variant already exists");
-        throw new ProductVariantAlreadyExists();
-      }
-
-      const productAlreadyExists = await productRepo.existsProduct(data.name);
-      if (productAlreadyExists) {
-        console.log("product already exists");
-        throw new ProductAlreadyExists();
-      }
 
       const type = (await productRepo.isIngredientFromCategory(data.categoryId))
         ? "ingredient"
