@@ -208,6 +208,11 @@ resource "azurerm_container_app" "main" {
         name        = "AZURE_STORAGE_CONTAINER_NAME"
         secret_name = "azure-storage-container-name"
       }
+
+      env {
+        name  = "GOOGLE_CLIENT_ID"
+        value = "664563004670-vbpp81aiu5khnrq1o8p75pg2f786l512.apps.googleusercontent.com"
+      }
     }
   }
 
