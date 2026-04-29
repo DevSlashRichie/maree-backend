@@ -70,11 +70,10 @@ import {
   ProductSchema,
   ProductVariantSchema,
 } from "@/domain/entities/product";
-import { AzureBlobStorageAdapter } from "@/infrastructure/azure/blob-storage.ts";
+import { LocalFilesAdapter } from "@/infrastructure/local/file-storage";
 import { logger } from "@/lib/logger";
 import { authzMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
-import { LocalFilesAdapter } from "@/infrastructure/local/file-storage";
 
 export const productRouter = createRouter();
 productRouter.use(authzMiddleware(false));
