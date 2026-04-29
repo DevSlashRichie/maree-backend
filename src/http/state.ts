@@ -19,6 +19,8 @@ export const StateEnvSchema = z.object({
   APPLE_WALLET_WWDR_PEM_DECODED: z.string().nullish(),
   APPLE_WALLET_CERT_PEM_DECODED: z.string().nullish(),
   APPLE_WALLET_KEY_PEM_DECODED: z.string().nullish(),
+  LOCAL_STORAGE_PATH: z.string().optional(),
+  LOCAL_STORAGE_BASE_URL: z.string().optional(),
 });
 
 type Variables = {
@@ -54,6 +56,8 @@ export const stateMiddleware: MiddlewareHandler<State> = async (ctx, next) => {
     APPLE_WALLET_CERT_PEM: process.env.APPLE_WALLET_CERT_PEM,
     APPLE_WALLET_KEY_PEM: process.env.APPLE_WALLET_KEY_PEM,
     APPLE_WALLET_KEY_PASSPHRASE: process.env.APPLE_WALLET_KEY_PASSPHRASE,
+    LOCAL_STORAGE_PATH: process.env.LOCAL_STORAGE_PATH,
+    LOCAL_STORAGE_BASE_URL: process.env.LOCAL_STORAGE_BASE_URL,
   };
 
   const GOOGLE_WALLET_CREDENTIALS_DECODED = state.GOOGLE_WALLET_CREDENTIALS

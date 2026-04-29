@@ -74,6 +74,7 @@ import { AzureBlobStorageAdapter } from "@/infrastructure/azure/blob-storage.ts"
 import { logger } from "@/lib/logger";
 import { authzMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
+import { LocalFilesAdapter } from "@/infrastructure/local/file-storage";
 
 export const productRouter = createRouter();
 productRouter.use(authzMiddleware(false));
@@ -384,7 +385,7 @@ productRouter.openapi(
     const bytes = new Uint8Array(await image.arrayBuffer());
     console.log("bytes extracted");
 
-    const filesPort = new AzureBlobStorageAdapter();
+    const filesPort = new LocalFilesAdapter();
 
     const result = await uploadProductImageUseCase(filesPort, {
       image: {
