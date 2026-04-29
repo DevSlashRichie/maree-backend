@@ -122,7 +122,7 @@ export function createHttpServer(
         description: "LOCALHOST",
       },
       {
-        url: "https://cloud.maree.binarysails.com",
+        url: "https://cloud.bluekeys.mareecrepe.com",
         description: "PRODUCTION",
       },
     ],
