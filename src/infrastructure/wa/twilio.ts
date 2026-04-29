@@ -21,6 +21,26 @@ const TwilioClient = createTwilioClient();
 export class WATwilioClient implements WhatsAppPort {
   constructor(private readonly fromNumber: string) {}
 
+  async verifyToken(phone: string, code: string): Promise<void> {
+    await TwilioClient.verify.v2.services
+      .get("VAbbdd755b94b0e9ed9ef7f3c864226634")
+      .verificationChecks.create({
+        code,
+        to: phone,
+      });
+  }
+
+  async sendVerificationMessage(phone: string, code: string): Promise<string> {
+    await TwilioClient.verify.v2.services
+      .get("VAbbdd755b94b0e9ed9ef7f3c864226634")
+      .verifications.create({
+        to: phone,
+        channel: "sms",
+      });
+
+    return code;
+  }
+
   async sendTextMessage(phone: string, body: string): Promise<void> {
     TwilioClient.messages.create({
       from: `whatsapp:${this.fromNumber}`,

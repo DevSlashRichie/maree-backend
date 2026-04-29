@@ -17,7 +17,7 @@ import { DB } from "@/infrastructure/db/postgres";
 import { WATwilioClient } from "@/infrastructure/wa/twilio";
 import { logger } from "@/lib/logger";
 
-const CREATED_CODES: Record<string, number> = {};
+const CREATED_CODES: Record<string, string> = {};
 
 function randomInt(min: number, max: number): number {
   const range = max - min + 1;
@@ -34,28 +34,51 @@ function randomInt(min: number, max: number): number {
   }
 }
 
-async function phoneMethod(user: User, phone: string, fromPhone: string) {
+async function phoneMethod2(user: User, phone: string, fromPhone: string) {
+  const waClient = new WATwilioClient(fromPhone);
+
+  await waClient.sendVerificationMessage(phone, "");
+
+  CREATED_CODES[user.id] = "remote";
+}
+
+async function _phoneMethod(user: User, phone: string, fromPhone: string) {
   const waClient = new WATwilioClient(fromPhone);
 
   const code = randomInt(100000, 999999);
   logger.debug("code: %s", code);
-  await waClient.sendTextMessage(
+  await waClient.sendVerificationMessage(
     phone,
     //`Tu código de verificación es: ${code}`,
     `${code}`,
   );
 
-  CREATED_CODES[user.id] = code;
+  CREATED_CODES[user.id] = String(code);
 }
 
-async function codeMethod(user: User, code: number) {
-  if (!CREATED_CODES[user.id] || CREATED_CODES[user.id] !== code) {
+async function codeMethod(user: User, code: string, fromPhone: string) {
+  if (!CREATED_CODES[user.id]) {
+    throw new InvalidCredentialsError();
+  }
+
+  if (CREATED_CODES[user.id] === "remote") {
+    if (!user.phone) {
+      throw new InvalidCredentialsError();
+    }
+
+    const waClient = new WATwilioClient(fromPhone);
+    await waClient.verifyToken(user.phone, code);
+
+    return;
+  }
+
+  if (CREATED_CODES[user.id] !== code) {
     throw new InvalidCredentialsError();
   }
 }
 
 async function testCodeMethod(user: User) {
-  CREATED_CODES[user.id] = 123456;
+  CREATED_CODES[user.id] = String(123456);
 }
 
 async function passwordMethod(
@@ -142,7 +165,12 @@ export async function loginUserUseCase(
           throw new InvalidCredentialsError();
         }
 
-        await phoneMethod(user, user.phone, fromNumber);
+        try {
+          await phoneMethod2(user, user.phone, fromNumber);
+        } catch (err) {
+          logger.error("PhoneMethod2 Err: %s", err);
+          throw err;
+        }
 
         return Ok({
           type: "required_action",
@@ -151,7 +179,7 @@ export async function loginUserUseCase(
       } else if (data.method.type === "password") {
         await passwordMethod(user, data.method.value, userRepo);
       } else if (data.method.type === "code") {
-        await codeMethod(user, Number(data.method.value));
+        await codeMethod(user, String(data.method.value), fromNumber);
       } else if (data.method.type === "test") {
         await testCodeMethod(user);
 

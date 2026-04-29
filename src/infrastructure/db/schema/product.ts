@@ -66,7 +66,7 @@ export const productComponentsTable = pgTable("product_component", {
     .references(() => productVariantsTable.id),
   productId: uuid("product_id")
     .notNull()
-    .references(() => productTable.id),
+    .references(() => productVariantsTable.id),
   quantity: integer().notNull(),
   isRemovable: boolean("is_removable").notNull().default(false),
 });

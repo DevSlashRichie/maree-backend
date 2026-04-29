@@ -14,6 +14,14 @@ const KapsoClient = new WhatsAppClient({
 export class WAKapsoClient implements WhatsAppPort {
   constructor(private readonly fromNumber: string) {}
 
+  verifyToken(_phone: string, _code: string): Promise<string> {
+    throw new Error("Method not implemented.");
+  }
+
+  async sendVerificationMessage(_: string, __: string): Promise<string> {
+    throw new Error("Method not implemented.");
+  }
+
   async sendTextMessage(phone: string, body: string): Promise<void> {
     KapsoClient.messages.sendText({
       phoneNumberId: this.fromNumber,

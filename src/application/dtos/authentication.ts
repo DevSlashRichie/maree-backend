@@ -11,8 +11,7 @@ export const LoginSchema = z
         value: z
           .string()
           .length(6)
-          .regex(/^[0-9]+$/)
-          .transform((val) => Number(val)),
+          .regex(/^[0-9]+$/),
       }),
       z.object({ type: z.literal("password"), value: z.string().min(1) }),
       z.object({ type: z.literal("google"), value: z.string().min(1) }),
