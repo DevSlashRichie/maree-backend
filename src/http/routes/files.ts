@@ -39,6 +39,11 @@ filesRouter.openapi(
       return c.json({ message: "File not found" }, 404);
     }
 
-    return new Response(file);
+    return new Response(file, {
+      headers: {
+        "Cache-Control": "public, max-age=31536000, immutable",
+        "Content-Type": file.type,
+      },
+    });
   },
 );
