@@ -11,6 +11,7 @@ import {
 } from "@/application/dtos/assign-role";
 import {
   StaffListSchema,
+  UpdateStaffDto,
   UpdateUserDto,
   UserListSchema,
   UserWithStatsSchema,
@@ -30,6 +31,7 @@ import { getUserUseCase } from "@/application/use-cases/get-user";
 import { getUserBranchUseCase } from "@/application/use-cases/get-user-branch";
 import { getUsersUseCase } from "@/application/use-cases/get-users";
 import { removeRoleUseCase } from "@/application/use-cases/remove-role";
+import { updateStaffUseCase } from "@/application/use-cases/update-staff";
 import { updateUserUseCase } from "@/application/use-cases/update-user";
 import { ActorSchema } from "@/domain/entities/actor";
 import { ErrorSchema } from "@/domain/entities/error";
@@ -386,6 +388,65 @@ userRouter.openapi(
     }
 
     return ctx.json(staff, 200);
+  },
+);
+
+userRouter.openapi(
+  createRoute({
+    tags: ["User"],
+    method: "patch",
+    path: "/staff/{userId}",
+    security: [{ Bearer: [] }],
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:staff"])],
+    request: {
+      params: z.object({
+        userId: z.string().uuid(),
+      }),
+      body: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: UpdateStaffDto,
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "staff member updated",
+        content: {
+          "application/json": {
+            schema: ActorSchema,
+          },
+        },
+      },
+      404: {
+        description: "staff or role not found",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (ctx) => {
+    const userId = ctx.req.param("userId");
+    const body = ctx.req.valid("json");
+    const result = await updateStaffUseCase(userId, body);
+
+    if (result.isErr()) {
+      const error = result.unwrapErr();
+      if (error instanceof UserNotFoundError) {
+        return ctx.json({ code: error.code, message: error.message }, 404);
+      }
+      if (error instanceof RoleNotFoundError) {
+        return ctx.json({ code: error.code, message: error.message }, 404);
+      }
+      throw error;
+    }
+
+    return ctx.json(result.unwrap(), 200);
   },
 );
 

@@ -23,6 +23,10 @@ export const UpdateUserDto = UserSchema.pick({
   .partial()
   .openapi("UpdateUser");
 
+export const UpdateStaffDto = UpdateUserDto.extend({
+  role: z.string().optional(),
+}).openapi("UpdateStaff");
+
 export const StaffListSchema = z
   .object({
     users: z.array(ActorSchema),
