@@ -1,0 +1,52 @@
+@startuml Order My Detail Flow
+hide footbox
+
+actor User
+
+boundary "OrderDetailPageComponent" as Component
+control "http/order.ts" as Http
+control "application/get-order-detail.ts" as UseCase
+
+User ->> Component: view order details
+
+Component ->> Http: GET /v1/orders/@me/{id}
+activate Http
+
+Http ->> UseCase: getOrderDetailUseCase(orderId, userId)
+activate UseCase
+
+create entity "repo/order-repo.ts" as OrderRepo
+database "Postgres DB" as DB
+UseCase ->> OrderRepo: <<create>>
+activate OrderRepo
+
+UseCase ->> OrderRepo: findDetailById(orderId)
+
+OrderRepo ->> DB: SELECT order + items WHERE id
+activate DB
+DB -->> OrderRepo: order
+deactivate DB
+
+alt order not found
+    OrderRepo -->> UseCase: null
+    UseCase -->> Http: Err(OrderNotFound)
+    Http -->> Component: 404 {"message": "order not found"}
+else order found
+    OrderRepo -->> UseCase: order
+    alt not your order
+        UseCase -->> Http: Err(ForbiddenError)
+        Http -->> Component: 403 {"message": "forbidden"}
+    else authorized
+        UseCase -->> Http: Ok(order)
+        Http -->> Component: 200 {order}
+    end
+end
+
+deactivate OrderRepo
+deactivate UseCase
+deactivate Http
+
+Component -->> User: render order details
+
+@enduml
+

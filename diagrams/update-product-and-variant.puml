@@ -1,0 +1,87 @@
+@startuml Product And Variant Update Flow
+hide footbox
+
+actor Admin
+
+boundary "ProductVariantFormComponent" as Component
+control "http/product.ts" as Http
+control "application/update-product-and-variant.ts" as UseCase
+
+Admin ->> Component: submit product variant updates
+
+Component ->> Http: PUT /v1/products/product-variant/{id}
+activate Http
+
+Http -> Http: CreateProductAndVariantDto.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: updateProductAndVariantUseCase(id, data)
+    activate UseCase
+
+    create entity "repo/product-repo.ts" as ProductRepo
+    database "Postgres DB" as DB
+    UseCase ->> ProductRepo: <<create>>
+    activate ProductRepo
+
+    UseCase ->> ProductRepo: findProductVariantWithComponents(id)
+    ProductRepo ->> DB: SELECT variant + components WHERE id
+    activate DB
+    DB -->> ProductRepo: existing
+    deactivate DB
+
+    alt variant not found
+        UseCase -->> Http: Err(ProductVariantNotFound)
+        Http -->> Component: 404 {"message": "variant not found"}
+    else variant found
+        UseCase ->> ProductRepo: isIngredientFromCategory(categoryId)
+        ProductRepo ->> DB: SELECT category.type
+        activate DB
+        DB -->> ProductRepo: type
+        deactivate DB
+
+        UseCase ->> ProductRepo: updateProduct(productId, data)
+        ProductRepo ->> DB: UPDATE product SET ... WHERE id
+        activate DB
+        DB -->> ProductRepo: product
+        deactivate DB
+
+        UseCase ->> ProductRepo: updateProductVariant(id, data)
+        ProductRepo ->> DB: UPDATE product_variant SET ... WHERE id
+        activate DB
+        DB -->> ProductRepo: variant
+        deactivate DB
+
+        UseCase ->> ProductRepo: deleteProductComponentsByVariantId(id)
+        ProductRepo ->> DB: DELETE FROM product_component WHERE variantId
+
+        alt ingredients provided
+            loop each ingredient
+                UseCase ->> ProductRepo: findById(ingredientId)
+                ProductRepo ->> DB: SELECT product WHERE id
+                activate DB
+                DB -->> ProductRepo: ingredient
+                deactivate DB
+            end
+
+            UseCase ->> ProductRepo: saveProductComponents(components[])
+            ProductRepo ->> DB: INSERT product_component
+            activate DB
+            DB -->> ProductRepo: components
+            deactivate DB
+        end
+
+        UseCase -->> Http: Ok({product, variant})
+        Http -->> Component: 200 {product, variant}
+    end
+end
+
+deactivate ProductRepo
+deactivate UseCase
+deactivate Http
+
+Component -->> Admin: show success
+
+@enduml
+

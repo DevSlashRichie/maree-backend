@@ -1,0 +1,42 @@
+@startuml Open Branches Get Flow
+hide footbox
+
+actor User
+
+boundary "BranchesPageComponent" as Component
+control "http/branch.ts" as Http
+control "application/get-branch.ts" as UseCase
+
+User ->> Component: view open branches
+
+Component ->> Http: GET /v1/branches/open
+activate Http
+
+Http ->> UseCase: getOpenBranchesUseCase()
+activate UseCase
+
+create entity "repo/branch-repo.ts" as BranchRepo
+database "Postgres DB" as DB
+UseCase ->> BranchRepo: <<create>>
+activate BranchRepo
+
+UseCase ->> BranchRepo: findAllOpen()
+
+BranchRepo ->> DB: SELECT * FROM branch WHERE open_now
+activate DB
+DB -->> BranchRepo: branches[]
+deactivate DB
+
+BranchRepo -->> UseCase: branches[]
+deactivate BranchRepo
+
+UseCase -->> Http: branches[]
+deactivate UseCase
+
+Http -->> Component: 200 {branches[]}
+deactivate Http
+
+Component -->> User: render open branches
+
+@enduml
+

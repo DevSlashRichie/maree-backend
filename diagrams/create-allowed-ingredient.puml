@@ -1,0 +1,81 @@
+@startuml Allowed Ingredient Create Flow
+hide footbox
+
+actor Admin
+
+boundary "AllowedIngredientFormComponent" as Component
+control "http/product.ts" as Http
+control "application/create-allowed-ingredient.ts" as UseCase
+
+Admin ->> Component: submit allowed ingredient rule
+
+Component ->> Http: POST /v1/products/variants/allowed-ingredients
+activate Http
+
+Http -> Http: CreateAllowedIngredientDto.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: createAllowedIngredientUseCase(data)
+    activate UseCase
+
+    create entity "repo/product-repo.ts" as ProductRepo
+    database "Postgres DB" as DB
+    UseCase ->> ProductRepo: <<create>>
+    activate ProductRepo
+
+    UseCase ->> ProductRepo: findProductVariant(data.productVariantId)
+    ProductRepo ->> DB: SELECT variant WHERE id
+    activate DB
+    DB -->> ProductRepo: variant
+    deactivate DB
+
+    alt variant not found
+        ProductRepo -->> UseCase: null
+        UseCase -->> Http: Err("Variant not found")
+        Http -->> Component: 400 {"message": "Variant not found"}
+    else variant found
+        UseCase ->> ProductRepo: isIngredientFromType(data.allowedProductId)
+        ProductRepo ->> DB: SELECT product.type
+        activate DB
+        DB -->> ProductRepo: type
+        deactivate DB
+
+        alt allowed product not ingredient
+            UseCase -->> Http: Err("Allowed product must be an ingredient")
+            Http -->> Component: 400 {"message": "Allowed product must be an ingredient"}
+        else allowed product ok
+            UseCase ->> ProductRepo: findCategoryById(data.allowedCategoryId)
+            ProductRepo ->> DB: SELECT category WHERE id
+            activate DB
+            DB -->> ProductRepo: category
+            deactivate DB
+
+            alt category not found
+                UseCase -->> Http: Err("Category not found")
+                Http -->> Component: 400 {"message": "Category not found"}
+            else category ok
+                UseCase ->> ProductRepo: saveAllowedIngredient(data)
+                ProductRepo ->> DB: INSERT allowed_ingredient
+                activate DB
+                DB -->> ProductRepo: rule
+                deactivate DB
+
+                ProductRepo -->> UseCase: rule
+                UseCase -->> Http: Ok(rule)
+                Http -->> Component: 201 {rule}
+            end
+        end
+    end
+
+    deactivate ProductRepo
+end
+
+deactivate UseCase
+deactivate Http
+
+Component -->> Admin: show success
+
+@enduml
+

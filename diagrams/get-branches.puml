@@ -1,0 +1,42 @@
+@startuml Branches Get Flow
+hide footbox
+
+actor User
+
+boundary "BranchesPageComponent" as Component
+control "http/branch.ts" as Http
+control "application/get-branch.ts" as UseCase
+
+User ->> Component: view branches list
+
+Component ->> Http: GET /v1/branches?state=active
+activate Http
+
+Http ->> UseCase: getBranchesUseCase(state)
+activate UseCase
+
+create entity "repo/branch-repo.ts" as BranchRepo
+database "Postgres DB" as DB
+UseCase ->> BranchRepo: <<create>>
+activate BranchRepo
+
+UseCase ->> BranchRepo: findAll(state)
+
+BranchRepo ->> DB: SELECT * FROM branch WHERE state
+activate DB
+DB -->> BranchRepo: branches[]
+deactivate DB
+
+BranchRepo -->> UseCase: branches[]
+deactivate BranchRepo
+
+UseCase -->> Http: branches[]
+deactivate UseCase
+
+Http -->> Component: 200 {branches[]}
+deactivate Http
+
+Component -->> User: render branches list
+
+@enduml
+

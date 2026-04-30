@@ -1,0 +1,22 @@
+@startuml Auth Logout Flow
+hide footbox
+
+actor User
+
+boundary "UserMenuComponent" as Component
+control "http/authentication.ts" as Http
+
+User ->> Component: click logout
+
+Component ->> Http: POST /v1/auth/logout
+activate Http
+
+Http -> Http: deleteCookie("tok")
+Http -->> Component: 204
+
+deactivate Http
+
+Component -->> User: redirect to login
+
+@enduml
+

@@ -1,0 +1,33 @@
+@startuml File Get Flow
+hide footbox
+
+actor User
+
+boundary "FileViewerComponent" as Component
+control "http/files.ts" as Http
+
+database "Local Storage" as Storage
+
+User ->> Component: request file
+
+Component ->> Http: GET /v1/files/{fileId}
+activate Http
+
+Http ->> Storage: read file by fileId
+activate Storage
+
+alt file not found
+    Storage -->> Http: not found
+    Http -->> Component: 404 {"message": "File not found"}
+else file found
+    Storage -->> Http: file bytes
+    Http -->> Component: 200 {file}
+end
+
+deactivate Storage
+deactivate Http
+
+Component -->> User: render file
+
+@enduml
+
