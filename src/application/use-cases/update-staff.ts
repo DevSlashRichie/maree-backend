@@ -2,7 +2,7 @@ import { Err, Ok, type Result } from "oxide.ts";
 import type { z } from "zod";
 import type { UpdateStaffDto } from "@/application/dtos/user";
 import {
-  ForbiddenError,
+  type ForbiddenError,
   RoleNotFoundError,
   UserNotFoundError,
 } from "@/application/errors/rbac";
