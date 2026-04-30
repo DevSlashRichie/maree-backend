@@ -1,0 +1,51 @@
+@startuml Update Staff Flow
+hide footbox
+
+actor User
+boundary "StaffEditComponent" as Component
+control "updateStaffUseCase" as UseCase
+database "Postgres" as DB
+
+User ->> Component: submit updates
+activate Component
+
+Component ->> UseCase: updateStaffUseCase(userId, data)
+activate UseCase
+
+UseCase ->> DB: transaction
+activate DB
+
+UseCase ->> DB: UserRepo.findById(userId)
+alt user not found
+    DB -->> UseCase: null
+    UseCase -->> Component: Err(UserNotFoundError)
+else user found
+    DB -->> UseCase: user
+    
+    opt userData provided
+        UseCase ->> DB: UserRepo.updateUser(userId, userData)
+    end
+
+    opt roleName provided
+        UseCase ->> DB: RbacRepo.findRoleByName(roleName)
+        alt role not found
+            DB -->> UseCase: null
+            UseCase -->> Component: Err(RoleNotFoundError)
+        else role found
+            DB -->> UseCase: role
+            UseCase ->> DB: RbacRepo.deleteAllUserRoles(userId)
+            UseCase ->> DB: RbacRepo.assignRoleToUser(userId, role.id)
+        end
+    end
+
+    UseCase ->> UseCase: getActorUseCase(userId)
+    UseCase -->> Component: Ok(updatedActor)
+end
+
+deactivate DB
+deactivate UseCase
+
+Component -->> User: show success/error
+deactivate Component
+
+@enduml
