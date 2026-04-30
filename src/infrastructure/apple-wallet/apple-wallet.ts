@@ -46,6 +46,8 @@ export class AppleWalletClient implements AppleWalletPassPort {
             storeCard: {},
           }),
         ),
+        "icon.png": logoBuffer,
+        "icon@2x.png": logoBuffer,
         "logo.png": logoBuffer,
         "logo@2x.png": logoBuffer,
         "strip.png": stripBuffer,
