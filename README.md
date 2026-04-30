@@ -24,6 +24,12 @@ Avance 5:
 - [PRUEBAS BACK](https://github.com/DevSlashRichie/maree-backend/blob/main/src/application/__tests__/create-reward.test.ts)
 - [VIDEO](https://drive.google.com/file/d/1wLbWfZr6yce5j5iPaQ35dYWHqeFqo5iv/view?usp=sharing)
 
+AVANCE 6:
+- [Link a la presentación](https://canva.link/utckn29y0mmjamq)
+- [Link a expo ingenieras](https://drive.google.com/drive/folders/1TJ_K7dtanKDy5qUlSNYsE2mNcFqK6Q_s?usp=sharing)
+- [Aviso de Privacidad](https://github.com/D1egoM3ndez/Aviso-de-Privacidad-MAREE/blob/main/Aviso%20de%20Privacidad%20Integral%20BlueKeys.pdf)
+- [PRUEBA DE ACEPTACIÓN AL 100%](https://github.com/DevSlashRichie/maree-backend/blob/main/docs/ACEPTACION100.pdf)
+
 INTEGRANTES DEL EQUIPO:
 - A01710266 - Ricardo Rodriguez Medina
 - A01713173 - Diego Méndez Morales
