@@ -1,0 +1,42 @@
+@startuml Branch Staff Get Flow
+hide footbox
+
+actor User
+
+boundary "BranchStaffPageComponent" as Component
+control "http/branch.ts" as Http
+control "application/get-branch.ts" as UseCase
+
+User ->> Component: view branch staff
+
+Component ->> Http: GET /v1/branches/{id}/staff
+activate Http
+
+Http ->> UseCase: getStaffByBranchUseCase(branchId)
+activate UseCase
+
+create entity "repo/user-repo.ts" as UserRepo
+database "Postgres DB" as DB
+UseCase ->> UserRepo: <<create>>
+activate UserRepo
+
+UseCase ->> UserRepo: findStaffByBranch(branchId)
+
+UserRepo ->> DB: SELECT users WHERE branchId
+activate DB
+DB -->> UserRepo: users[]
+deactivate DB
+
+UserRepo -->> UseCase: users[]
+deactivate UserRepo
+
+UseCase -->> Http: users[]
+deactivate UseCase
+
+Http -->> Component: 200 {users[]}
+deactivate Http
+
+Component -->> User: render staff list
+
+@enduml
+

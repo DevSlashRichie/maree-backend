@@ -1,0 +1,64 @@
+@startuml User Update Flow
+hide footbox
+
+actor User
+
+boundary "ProfileFormComponent" as Component
+control "http/user.ts" as Http
+control "application/update-user.ts" as UseCase
+
+User ->> Component: submit profile updates
+
+Component ->> Http: PATCH /v1/users/@me
+activate Http
+
+Http -> Http: UpdateUserDto.safeParseAsync(body)
+
+alt validation fails
+    Http -->> Component: 400 {"message": "validation error"}
+else validation succeeds
+    Http ->> UseCase: updateUserUseCase(userId, data)
+    activate UseCase
+
+    create entity "repo/user-repo.ts" as UserRepo
+    database "Postgres DB" as DB
+    UseCase ->> UserRepo: <<create>>
+    activate UserRepo
+
+    UseCase ->> UserRepo: findById(userId)
+    UserRepo ->> DB: SELECT * FROM user WHERE id
+    activate DB
+    DB -->> UserRepo: user
+    deactivate DB
+
+    alt user not found
+        UserRepo -->> UseCase: null
+        UseCase -->> Http: Err(UserNotFoundError)
+        Http -->> Component: 404 {"message": "user not found"}
+    else user found
+        UseCase ->> UserRepo: updateUser(userId, data)
+        UserRepo ->> DB: UPDATE user SET ... WHERE id
+        activate DB
+        DB -->> UserRepo: updated
+        deactivate DB
+
+        UseCase ->> UserRepo: findByIdWithRole(userId)
+        UserRepo ->> DB: SELECT user + roles
+        activate DB
+        DB -->> UserRepo: actor
+        deactivate DB
+
+        UseCase -->> Http: Ok(actor)
+        Http -->> Component: 200 {actor}
+    end
+
+    deactivate UserRepo
+    deactivate UseCase
+end
+
+deactivate Http
+
+Component -->> User: show updated profile
+
+@enduml
+

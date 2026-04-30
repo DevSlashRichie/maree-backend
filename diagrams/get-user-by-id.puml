@@ -1,0 +1,48 @@
+@startuml User Get By Id Flow
+hide footbox
+
+actor Admin
+
+boundary "UserDetailPageComponent" as Component
+control "http/user.ts" as Http
+control "application/get-user.ts" as UseCase
+
+Admin ->> Component: view user profile
+
+Component ->> Http: GET /v1/users/{userId}
+activate Http
+
+Http ->> UseCase: getUserUseCase(userId)
+activate UseCase
+
+create entity "repo/user-repo.ts" as UserRepo
+database "Postgres DB" as DB
+UseCase ->> UserRepo: <<create>>
+activate UserRepo
+
+UseCase ->> UserRepo: findOneByIdWithStats(userId)
+UserRepo ->> DB: SELECT user + stats WHERE id
+activate DB
+DB -->> UserRepo: userWithStats
+deactivate DB
+
+alt user not found
+    UserRepo -->> UseCase: null
+    UseCase -->> Http: null
+    Http -->> Component: 404 {"message": "user not found"}
+else user found
+    UserRepo -->> UseCase: userWithStats
+    UseCase -> UseCase: normalize totals
+    UseCase -->> Http: userWithStats
+    Http -->> Component: 200 {user}
+end
+
+deactivate UserRepo
+deactivate UseCase
+deactivate Http
+
+Component -->> Admin: render user profile
+
+@enduml
+
+

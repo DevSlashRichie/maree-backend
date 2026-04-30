@@ -1,0 +1,42 @@
+@startuml Branch Rewards Get Flow
+hide footbox
+
+actor User
+
+boundary "BranchRewardsPageComponent" as Component
+control "http/branch.ts" as Http
+control "application/get-branch.ts" as UseCase
+
+User ->> Component: view branch rewards
+
+Component ->> Http: GET /v1/branches/{id}/rewards
+activate Http
+
+Http ->> UseCase: getRewardsByBranchUseCase(branchId)
+activate UseCase
+
+create entity "repo/discount-repo.ts" as DiscountRepo
+database "Postgres DB" as DB
+UseCase ->> DiscountRepo: <<create>>
+activate DiscountRepo
+
+UseCase ->> DiscountRepo: findByBranch(branchId)
+
+DiscountRepo ->> DB: SELECT discounts WHERE branchId
+activate DB
+DB -->> DiscountRepo: discounts[]
+deactivate DB
+
+DiscountRepo -->> UseCase: discounts[]
+deactivate DiscountRepo
+
+UseCase -->> Http: discounts[]
+deactivate UseCase
+
+Http -->> Component: 200 {discounts[]}
+deactivate Http
+
+Component -->> User: render rewards list
+
+@enduml
+

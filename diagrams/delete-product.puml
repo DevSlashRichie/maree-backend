@@ -1,0 +1,51 @@
+@startuml Product Delete Flow
+hide footbox
+
+actor Admin
+
+boundary "ProductDetailPageComponent" as Component
+control "http/product.ts" as Http
+control "application/delete-product.ts" as UseCase
+
+Admin ->> Component: delete product
+
+Component ->> Http: DELETE /v1/products/{id}
+activate Http
+
+Http ->> UseCase: deleteProductUseCase(id)
+activate UseCase
+
+create entity "repo/product-repo.ts" as ProductRepo
+database "Postgres DB" as DB
+UseCase ->> ProductRepo: <<create>>
+activate ProductRepo
+
+UseCase ->> ProductRepo: findById(id)
+ProductRepo ->> DB: SELECT * FROM product WHERE id
+activate DB
+DB -->> ProductRepo: product
+deactivate DB
+
+alt product not found
+    ProductRepo -->> UseCase: null
+    UseCase -->> Http: Err(ProductNotFound)
+    Http -->> Component: 404 {"message": "product not found"}
+else product found
+    UseCase ->> ProductRepo: softDelete(id)
+    ProductRepo ->> DB: UPDATE product SET deletedAt
+    activate DB
+    DB -->> ProductRepo: result
+    deactivate DB
+
+    UseCase -->> Http: Ok
+    Http -->> Component: 204
+end
+
+deactivate ProductRepo
+deactivate UseCase
+deactivate Http
+
+Component -->> Admin: show deletion confirmation
+
+@enduml
+

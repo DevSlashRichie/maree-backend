@@ -1,0 +1,42 @@
+@startuml Order My List Flow
+hide footbox
+
+actor User
+
+boundary "MyOrdersPageComponent" as Component
+control "http/order.ts" as Http
+control "application/get-user-orders.ts" as UseCase
+
+User ->> Component: view my orders
+
+Component ->> Http: GET /v1/orders/@me
+activate Http
+
+Http ->> UseCase: getUserOrdersUseCase(userId)
+activate UseCase
+
+create entity "repo/order-repo.ts" as OrderRepo
+database "Postgres DB" as DB
+UseCase ->> OrderRepo: <<create>>
+activate OrderRepo
+
+UseCase ->> OrderRepo: findAllByUserId(userId)
+
+OrderRepo ->> DB: SELECT * FROM orders WHERE userId
+activate DB
+DB -->> OrderRepo: orders[]
+deactivate DB
+
+OrderRepo -->> UseCase: orders[]
+deactivate OrderRepo
+
+UseCase -->> Http: orders[]
+deactivate UseCase
+
+Http -->> Component: 200 {orders[]}
+deactivate Http
+
+Component -->> User: render order history
+
+@enduml
+

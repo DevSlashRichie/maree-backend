@@ -1,0 +1,42 @@
+@startuml Discount List Flow
+hide footbox
+
+actor Admin
+
+boundary "DiscountsPageComponent" as Component
+control "http/discount.ts" as Http
+control "application/list-discounts.ts" as UseCase
+
+Admin ->> Component: open discounts list
+
+Component ->> Http: GET /v1/discounts
+activate Http
+
+Http ->> UseCase: listDiscountsUseCase()
+activate UseCase
+
+create entity "repo/discount-repo.ts" as DiscountRepo
+database "Postgres DB" as DB
+UseCase ->> DiscountRepo: <<create>>
+activate DiscountRepo
+
+UseCase ->> DiscountRepo: listDiscounts()
+
+DiscountRepo ->> DB: SELECT * FROM discount
+activate DB
+DB -->> DiscountRepo: discounts[]
+deactivate DB
+
+DiscountRepo -->> UseCase: discounts[]
+deactivate DiscountRepo
+
+UseCase -->> Http: Ok(discounts[])
+deactivate UseCase
+
+Http -->> Component: 200 {discounts[]}
+deactivate Http
+
+Component -->> Admin: render discounts list
+
+@enduml
+

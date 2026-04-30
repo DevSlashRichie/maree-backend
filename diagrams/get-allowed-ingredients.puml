@@ -1,0 +1,53 @@
+@startuml Allowed Ingredients Get Flow
+hide footbox
+
+actor User
+
+boundary "AllowedIngredientsComponent" as Component
+control "http/product.ts" as Http
+control "application/get-allowed-ingredients.ts" as UseCase
+
+User ->> Component: view allowed ingredients
+
+Component ->> Http: GET /v1/products/variants/allowed?variantId=...
+activate Http
+
+Http ->> UseCase: getAllowedIngredientsUseCase(variantId)
+activate UseCase
+
+create entity "repo/product-repo.ts" as ProductRepo
+database "Postgres DB" as DB
+UseCase ->> ProductRepo: <<create>>
+activate ProductRepo
+
+UseCase ->> ProductRepo: findAllowedIngredientsForVariant(variantId)
+ProductRepo ->> DB: SELECT allowed ingredients for variant
+activate DB
+DB -->> ProductRepo: allowedVariants[]
+deactivate DB
+
+alt no custom rules
+    UseCase ->> ProductRepo: findAllVariants()
+    ProductRepo ->> DB: SELECT * FROM product_variant
+    activate DB
+    DB -->> ProductRepo: variants[]
+    deactivate DB
+    UseCase -> UseCase: filter ingredient variants
+    ProductRepo -->> UseCase: variants[]
+else rules found
+    ProductRepo -->> UseCase: allowedVariants[]
+end
+
+deactivate ProductRepo
+
+UseCase -->> Http: variants[]
+deactivate UseCase
+
+Http -->> Component: 200 {variants[]}
+deactivate Http
+
+Component -->> User: render allowed ingredients
+
+@enduml
+
+

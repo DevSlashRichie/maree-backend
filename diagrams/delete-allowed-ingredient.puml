@@ -1,0 +1,42 @@
+@startuml Allowed Ingredient Delete Flow
+hide footbox
+
+actor Admin
+
+boundary "AllowedIngredientListComponent" as Component
+control "http/product.ts" as Http
+control "application/delete-allowed-ingredient.ts" as UseCase
+
+Admin ->> Component: remove allowed ingredient rule
+
+Component ->> Http: DELETE /v1/products/variants/allowed-ingredients/{id}
+activate Http
+
+Http ->> UseCase: deleteAllowedIngredientUseCase(id)
+activate UseCase
+
+create entity "repo/product-repo.ts" as ProductRepo
+database "Postgres DB" as DB
+UseCase ->> ProductRepo: <<create>>
+activate ProductRepo
+
+UseCase ->> ProductRepo: deleteAllowedIngredient(id)
+ProductRepo ->> DB: DELETE FROM allowed_ingredient WHERE id
+activate DB
+DB -->> ProductRepo: result
+deactivate DB
+
+ProductRepo -->> UseCase: Ok
+deactivate ProductRepo
+
+UseCase -->> Http: Ok
+deactivate UseCase
+
+Http -->> Component: 204
+deactivate Http
+
+Component -->> Admin: update list
+
+@enduml
+
+

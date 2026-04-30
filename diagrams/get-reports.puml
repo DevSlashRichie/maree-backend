@@ -1,0 +1,55 @@
+@startuml Reports Get Flow
+hide footbox
+
+actor Admin
+
+boundary "ReportsPageComponent" as Component
+control "http/report.ts" as Http
+control "application/get-reports.ts" as UseCase
+
+Admin ->> Component: view reports
+
+Component ->> Http: GET /v1/reports
+activate Http
+
+Http ->> UseCase: getReportsUseCase()
+activate UseCase
+
+create entity "repo/report-repo.ts" as ReportRepo
+database "Postgres DB" as DB
+UseCase ->> ReportRepo: <<create>>
+activate ReportRepo
+
+par weekly orders
+    UseCase ->> ReportRepo: getWeeklyOrders()
+    ReportRepo ->> DB: SELECT weekly orders
+    activate DB
+    DB -->> ReportRepo: weeklyOrders
+    deactivate DB
+par top products
+    UseCase ->> ReportRepo: getTopProducts(5)
+    ReportRepo ->> DB: SELECT top products
+    activate DB
+    DB -->> ReportRepo: topProducts
+    deactivate DB
+par category consumption
+    UseCase ->> ReportRepo: getCategoryConsumption()
+    ReportRepo ->> DB: SELECT category consumption
+    activate DB
+    DB -->> ReportRepo: categoryConsumption
+    deactivate DB
+end
+
+ReportRepo -->> UseCase: reports
+deactivate ReportRepo
+
+UseCase -->> Http: reports
+deactivate UseCase
+
+Http -->> Component: 200 {reports}
+deactivate Http
+
+Component -->> Admin: render reports
+
+@enduml
+

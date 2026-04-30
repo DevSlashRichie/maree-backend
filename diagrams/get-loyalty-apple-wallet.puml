@@ -1,0 +1,64 @@
+@startuml Loyalty Apple Wallet Get Flow
+hide footbox
+
+actor User
+
+boundary "LoyaltyPageComponent" as Component
+control "http/loyalty.ts" as Http
+control "application/get-loyalty-apple-wallet.ts" as UseCase
+
+User ->> Component: download apple wallet pass
+
+Component ->> Http: GET /v1/loyalty/apple-wallet
+activate Http
+
+alt apple wallet config missing
+    Http -->> Component: 500 {"message": "Apple Wallet not configured"}
+else config ok
+    Http ->> UseCase: getLoyaltyAppleWalletUseCase(userId, WalletClient)
+    activate UseCase
+
+    create entity "repo/loyalty-repo.ts" as LoyaltyRepo
+    database "Postgres DB" as DB
+
+    UseCase ->> LoyaltyRepo: findCurrentBalance(userId)
+    activate LoyaltyRepo
+
+    create entity "repo/user-repo.ts" as UserRepo
+    UseCase ->> UserRepo: findById(userId)
+    activate UserRepo
+
+    LoyaltyRepo ->> DB: SELECT SUM(amount) FROM loyalty_transaction WHERE userId
+    activate DB
+    DB -->> LoyaltyRepo: balance
+
+    UserRepo ->> DB: SELECT * FROM user WHERE id = userId
+    DB -->> UserRepo: user
+    deactivate DB
+
+    alt user not found
+        UserRepo -->> UseCase: null
+        UseCase -->> Http: Err(LoyaltyCardNotFound)
+        Http -->> Component: 404 {"message": "loyalty card not found"}
+    else user found
+        deactivate LoyaltyRepo
+        deactivate UserRepo
+
+        create control "apple-wallet/service.ts" as WalletService
+        UseCase ->> WalletService: generateLoyaltyPass({userId, firstName, lastName, phone, points})
+        activate WalletService
+        WalletService -->> UseCase: pkpassBuffer
+        deactivate WalletService
+
+        UseCase -->> Http: Ok(pkpassBuffer)
+        Http -->> Component: 200 application/vnd.apple.pkpass
+    end
+end
+
+deactivate UseCase
+deactivate Http
+
+Component -->> User: download pkpass
+
+@enduml
+

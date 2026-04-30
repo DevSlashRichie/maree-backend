@@ -1,0 +1,46 @@
+@startuml Review Get Flow
+hide footbox
+
+actor User
+
+boundary "ReviewDetailComponent" as Component
+control "http/review.ts" as Http
+control "application/get-review.ts" as UseCase
+
+User ->> Component: view review
+
+Component ->> Http: GET /v1/reviews/{orderId}
+activate Http
+
+Http ->> UseCase: getReviewUseCase(orderId)
+activate UseCase
+
+create entity "repo/review-repo.ts" as ReviewRepo
+database "Postgres DB" as DB
+UseCase ->> ReviewRepo: <<create>>
+activate ReviewRepo
+
+UseCase ->> ReviewRepo: findReviewByOrderId(orderId)
+ReviewRepo ->> DB: SELECT review WHERE orderId
+activate DB
+DB -->> ReviewRepo: review
+deactivate DB
+
+alt review not found
+    ReviewRepo -->> UseCase: null
+    UseCase -->> Http: Err(ReviewNotFoundError)
+    Http -->> Component: 404 {"message": "review not found"}
+else review found
+    ReviewRepo -->> UseCase: review
+    UseCase -->> Http: Ok(review)
+    Http -->> Component: 200 {review}
+end
+
+deactivate ReviewRepo
+deactivate UseCase
+deactivate Http
+
+Component -->> User: render review
+
+@enduml
+
