@@ -17,4 +17,12 @@ export class WAKapsoPort implements WhatsAppPort {
       body,
     });
   }
+
+  sendVerificationMessage(_phone: string, _code: string): Promise<string> {
+    throw new Error("Not implemented");
+  }
+
+  verifyToken(_phone: string, _code: string): Promise<void> {
+    throw new Error("Not implemented");
+  }
 }
