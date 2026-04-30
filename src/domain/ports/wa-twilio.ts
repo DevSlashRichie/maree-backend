@@ -6,7 +6,7 @@ export class WATwilioPort implements WhatsAppPort {
   constructor(
     private readonly client: Twilio.Twilio,
     private readonly fromNumber: string,
-  ) { }
+  ) {}
 
   verifyToken(_phone: string, _code: string): Promise<void> {
     throw new Error("Method not implemented.");
