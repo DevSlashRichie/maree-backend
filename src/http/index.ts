@@ -3,6 +3,7 @@ import { Scalar } from "@scalar/hono-api-reference";
 import { serve } from "bun";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
+import { compress } from "hono-compress";
 import { ZodError, z } from "zod";
 import { loggerMiddleware } from "./middleware/logger";
 import { authenticationRouter } from "./routes/authentication";
@@ -39,6 +40,13 @@ export function createHttpServer(
 
   app.use(
     "*",
+    compress({
+      encodings: ["zstd", "gzip", "br", "deflate"],
+    }),
+  );
+
+  app.use(
+    "*",
     cors({
       origin: (e) => e,
       allowHeaders: ["Content-Type", "Authorization"],
@@ -46,6 +54,7 @@ export function createHttpServer(
       credentials: true,
     }),
   );
+
   app.use("*", createStateMiddleware(stateConf));
 
   app.use("*", loggerMiddleware);

@@ -33,6 +33,7 @@
     "drizzle-zod": "^1.0.0-beta.16-ea816b6",
     "googleapis": "^171.4.0",
     "hono": "^4.12.3",
+    "hono-compress": "^1.0.2",
     "hono-pino": "^0.10.3",
     "jsonwebtoken": "^9.0.3",
     "orval": "^8.6.2",
