@@ -397,12 +397,7 @@ export class ProductRepo {
         productTable,
         eq(productVariantsTable.productId, productTable.id),
       )
-      .where(
-        and(
-          eq(productVariantsTable.id, variantId),
-          isNull(productVariantsTable.deletedAt),
-        ),
-      );
+      .where(and(eq(productVariantsTable.id, variantId)));
 
     if (!variantWithProduct || variantWithProduct.length === 0) {
       return null;
@@ -418,14 +413,14 @@ export class ProductRepo {
       .select({
         id: productComponentsTable.id,
         productId: productComponentsTable.productId,
-        productName: productTable.name,
+        productName: productVariantsTable.name,
         quantity: productComponentsTable.quantity,
         isRemovable: productComponentsTable.isRemovable,
       })
       .from(productComponentsTable)
       .leftJoin(
-        productTable,
-        eq(productComponentsTable.productId, productTable.id),
+        productVariantsTable,
+        eq(productComponentsTable.productId, productVariantsTable.id),
       )
       .where(eq(productComponentsTable.productVariantId, variantId));
 
