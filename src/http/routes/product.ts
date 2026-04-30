@@ -72,7 +72,7 @@ import {
 } from "@/domain/entities/product";
 import { LocalFilesAdapter } from "@/infrastructure/local/file-storage";
 import { logger } from "@/lib/logger";
-import { authzMiddleware } from "../middleware/authz";
+import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
 
 export const productRouter = createRouter();
@@ -229,6 +229,7 @@ productRouter.openapi(
     tags: ["Products"],
     method: "post",
     path: "/variants/allowed-ingredients",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:products"])],
     request: {
       body: {
         required: true,
@@ -291,6 +292,7 @@ productRouter.openapi(
     tags: ["Products"],
     method: "delete",
     path: "/variants/allowed-ingredients/{id}",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:products"])],
     request: {
       params: z.object({
         id: z.string().uuid(),
@@ -364,7 +366,7 @@ productRouter.openapi(
         },
       },
     },
-    // middleware: checkPolicyMiddleware(["products:write"]),
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:products"])],
   }),
   async (ctx) => {
     const { image } = ctx.req.valid("form");
@@ -465,7 +467,7 @@ productRouter.openapi(
         },
       },
     },
-    // middleware: checkPolicyMiddleware(["products:write"]),
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:products"])],
   }),
   async (ctx) => {
     const body = await ctx.req.json();
@@ -548,7 +550,7 @@ productRouter.openapi(
         },
       },
     },
-    // middleware: checkPolicyMiddleware(["products:write"]),
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:products"])],
   }),
   async (ctx) => {
     const body = await ctx.req.json();
@@ -693,6 +695,10 @@ productRouter.openapi(
     tags: ["Products"],
     method: "post",
     path: "/categories",
+    middleware: [
+      authzMiddleware(),
+      checkPolicyMiddleware(["write:categories"]),
+    ],
     request: {
       body: {
         required: true,
@@ -784,6 +790,10 @@ productRouter.openapi(
     tags: ["Products"],
     method: "patch",
     path: "/categories/{id}",
+    middleware: [
+      authzMiddleware(),
+      checkPolicyMiddleware(["write:categories"]),
+    ],
     request: {
       params: z.object({
         id: z.string().uuid(),
@@ -882,6 +892,7 @@ productRouter.openapi(
     tags: ["Products"],
     method: "delete",
     path: "/{id}",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:products"])],
     request: {
       params: z.object({
         id: z.string().uuid(),
@@ -1017,6 +1028,7 @@ productRouter.openapi(
     tags: ["Products"],
     method: "delete",
     path: "/variant/{id}",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:products"])],
     request: {
       params: z.object({
         id: z.string().uuid(),
@@ -1081,6 +1093,7 @@ productRouter.openapi(
     tags: ["Products"],
     method: "put",
     path: "/product-variant/{id}",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:products"])],
     request: {
       params: z.object({
         id: z.string().uuid(),

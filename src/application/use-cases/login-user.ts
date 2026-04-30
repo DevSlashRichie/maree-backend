@@ -206,6 +206,7 @@ export async function loginUserUseCase(
     const token = encrypt(encryptKey, {
       userId: user.id,
       role: actor?.roleName ?? null,
+      policies: actor?.policies ?? [],
       exp: exp.toISOString(),
     });
 
@@ -216,6 +217,7 @@ export async function loginUserUseCase(
       actor: {
         ...user,
         role: actor?.roleName ?? null,
+        policies: actor?.policies ?? [],
       },
     });
   } catch (error) {

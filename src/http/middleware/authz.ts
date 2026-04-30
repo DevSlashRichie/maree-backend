@@ -3,6 +3,7 @@ import { getCookie } from "hono/cookie";
 import { decrypt } from "paseto-ts/v4";
 import type { TokenPayloadType } from "@/application/dtos/authentication";
 import { checkPolicies } from "@/application/use-cases/check-policies";
+import { getActorUseCase } from "@/application/use-cases/get-actor";
 import { logger } from "@/lib/logger";
 import type { State } from "../state";
 
@@ -25,7 +26,13 @@ export function authzMiddleware(strict: boolean = true) {
         token,
       );
 
-      ctx.set("actor", payload);
+      const actor = await getActorUseCase(payload.userId);
+
+      ctx.set("actor", {
+        ...payload,
+        role: actor.role,
+        policies: actor.policies,
+      });
     } catch (err) {
       if (!strict) {
         await next();
@@ -52,12 +59,17 @@ export function checkPolicyMiddleware(requiredPolicies: string[]) {
       return ctx.json({ message: "forbidden!" }, 403);
     }
 
+    console.log(actor);
     if (!actor || !actor.role) {
       logger.warn("Request without role");
       return ctx.json({ message: "forbidden!" }, 403);
     }
 
-    const arePoliciesValid = checkPolicies(actor.role, requiredPolicies);
+    const arePoliciesValid = checkPolicies(
+      actor.role,
+      actor.policies,
+      requiredPolicies,
+    );
     if (!arePoliciesValid) {
       logger.warn("Request via incorrect role requested.");
       return ctx.json({ message: "forbidden!" }, 403);

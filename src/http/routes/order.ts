@@ -37,7 +37,7 @@ import {
   OrderWithUserSchema,
 } from "@/domain/entities/order";
 import { logger } from "@/lib/logger.ts";
-import { authzMiddleware } from "../middleware/authz";
+import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
 
 export const orderRouter = createRouter();
@@ -134,6 +134,7 @@ orderRouter.openapi(
     tags: ["Order"],
     method: "get",
     path: "/history",
+    middleware: [authzMiddleware(true)],
     responses: {
       200: {
         description: "order history",
@@ -274,7 +275,7 @@ orderRouter.openapi(
     method: "get",
     path: "/{id}",
     security: [{ Bearer: [] }],
-    middleware: [authzMiddleware(true)],
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["read:orders"])],
     request: {
       params: z.object({
         id: z.string().uuid(),
@@ -329,6 +330,7 @@ orderRouter.openapi(
     tags: ["Order"],
     method: "patch",
     path: "/{id}/close",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:orders"])],
     request: {
       params: z.object({
         id: z.string(),
@@ -402,6 +404,7 @@ orderRouter.openapi(
     tags: ["Order"],
     method: "patch",
     path: "/{id}/ready",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:orders"])],
     request: {
       params: z.object({
         id: z.string(),
@@ -475,6 +478,7 @@ orderRouter.openapi(
     tags: ["Order"],
     method: "get",
     path: "/incoming",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["read:orders"])],
     responses: {
       200: {
         description: "incoming orders",
@@ -520,6 +524,7 @@ orderRouter.openapi(
     tags: ["Order"],
     method: "get",
     path: "/",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["read:orders"])],
     responses: {
       200: {
         description: "orders with user",
@@ -595,6 +600,7 @@ orderRouter.openapi(
     tags: ["Order"],
     method: "patch",
     path: "/{id}/status",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:orders"])],
     request: {
       params: z.object({ id: z.string() }),
       body: {

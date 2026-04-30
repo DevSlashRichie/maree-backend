@@ -8,6 +8,8 @@ import type { Executor } from "@/infrastructure/db/postgres";
 import {
   loyaltyTransactionsTable,
   ordersTable,
+  policyTable,
+  rolePoliciesTable,
   rolesTable,
   staffTable,
   userPasswordTable,
@@ -131,7 +133,7 @@ export class UserRepo {
     const limit = pagination?.limit ?? 20;
     const offset = (page - 1) * limit;
 
-    const users = await this.conn
+    const usersWithRoles = await this.conn
       .select({
         id: userTable.id,
         firstName: userTable.firstName,
@@ -140,10 +142,13 @@ export class UserRepo {
         email: userTable.email,
         createdAt: userTable.createdAt,
         role: rolesTable.name,
+        policyName: policyTable.name,
       })
       .from(userTable)
       .innerJoin(userRoleTable, eq(userRoleTable.userId, userTable.id))
       .innerJoin(rolesTable, eq(rolesTable.id, userRoleTable.roleId))
+      .leftJoin(rolePoliciesTable, eq(rolePoliciesTable.roleId, rolesTable.id))
+      .leftJoin(policyTable, eq(policyTable.id, rolePoliciesTable.policyId))
       .limit(limit)
       .offset(offset);
 
@@ -153,7 +158,29 @@ export class UserRepo {
       .innerJoin(userRoleTable, eq(userRoleTable.userId, userTable.id));
 
     const total = Number(countResult[0]?.count ?? 0);
-    return { users, total, page, limit };
+
+    const groupedUsers = usersWithRoles.reduce(
+      (acc, curr) => {
+        const existingUser = acc.find((u) => u.id === curr.id);
+        if (existingUser) {
+          if (curr.policyName) {
+            existingUser.policies.push(curr.policyName);
+          }
+        } else {
+          acc.push({
+            ...curr,
+            role: curr.role ?? null,
+            policies: curr.policyName ? [curr.policyName] : [],
+          });
+        }
+        return acc;
+      },
+      [] as (Omit<(typeof usersWithRoles)[0], "policyName"> & {
+        policies: string[];
+      })[],
+    );
+
+    return { users: groupedUsers, total, page, limit };
   }
 
   async findStaffByBranch(branchId: string) {
@@ -256,14 +283,30 @@ export class UserRepo {
         createdAt: userTable.createdAt,
         roleId: userRoleTable.roleId,
         roleName: rolesTable.name,
+        policyName: policyTable.name,
       })
       .from(userTable)
       .leftJoin(userRoleTable, eq(userRoleTable.userId, userTable.id))
       .leftJoin(rolesTable, eq(rolesTable.id, userRoleTable.roleId))
-      .where(eq(userTable.id, id))
-      .limit(1);
+      .leftJoin(rolePoliciesTable, eq(rolePoliciesTable.roleId, rolesTable.id))
+      .leftJoin(policyTable, eq(policyTable.id, rolePoliciesTable.policyId))
+      .where(eq(userTable.id, id));
 
-    return userAndRole[0] || null;
+    if (userAndRole.length === 0) {
+      return null;
+    }
+
+    const first = userAndRole[0];
+    if (!first) return null;
+
+    const policies = userAndRole
+      .map((r) => r.policyName)
+      .filter((p): p is string => p !== null);
+
+    return {
+      ...first,
+      policies,
+    };
   }
 
   async findStaffById(id: string) {

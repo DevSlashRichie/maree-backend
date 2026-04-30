@@ -436,6 +436,11 @@ export const envDatabaseSchema = z.object({
   DB_USERNAME: z.string().min(1),
   DB_DATABASE: z.string().min(1),
   ADMIN_PHONE: z.string().min(1).default("+525512345678"),
+  DB_RESET_RBAC: z
+    .string()
+    .optional()
+    .default("false")
+    .transform((v) => v === "true"),
 });
 
 export const DB = drizzle({
@@ -558,6 +563,16 @@ export async function seedIfRequired() {
             "write:discounts",
             "read:notifications",
             "write:notifications",
+            "read:rewards",
+            "write:rewards",
+            "read:reviews",
+            "write:reviews",
+            "read:reports",
+            "write:reports",
+            "read:files",
+            "write:files",
+            "read:loyalty_cards",
+            "write:loyalty_cards",
           ],
         }),
       },
@@ -719,6 +734,16 @@ const POLICIES_TO_CREATE = [
   "write:discounts",
   "read:notifications",
   "write:notifications",
+  "read:rewards",
+  "write:rewards",
+  "read:reviews",
+  "write:reviews",
+  "read:reports",
+  "write:reports",
+  "read:files",
+  "write:files",
+  "read:loyalty_cards",
+  "write:loyalty_cards",
   "manage:all",
 ] as const;
 
@@ -729,12 +754,45 @@ const ROLE_POLICY_MAPPING: Record<string, string[]> = {
     "write:orders",
     "read:products",
     "write:products",
-    "read:users",
+    "read:branches",
+    "write:branches",
     "read:staff",
+    "write:staff",
+    "read:schedules",
+    "write:schedules",
+    "read:roles",
+    "read:users",
+    "read:categories",
+    "write:categories",
+    "read:discounts",
+    "write:discounts",
+    "read:notifications",
+    "read:rewards",
+    "write:rewards",
+    "read:reviews",
+    "read:reports",
+    "read:files",
+    "write:files",
+    "read:loyalty_cards",
+    "write:loyalty_cards",
   ],
-  waiter: ["read:orders", "write:orders", "read:products"],
-  cashier: ["read:orders", "write:orders"],
-  client: ["read:products", "read:categories"],
+  waiter: [
+    "read:orders",
+    "write:orders",
+    "read:products",
+    "read:categories",
+    "read:branches",
+  ],
+  cashier: [
+    "read:orders",
+    "write:orders",
+    "read:products",
+    "read:categories",
+    "read:discounts",
+    "read:loyalty_cards",
+    "write:loyalty_cards",
+  ],
+  client: ["read:products", "read:categories", "read:branches", "read:rewards"],
 };
 
 export async function ensureSystemSetup() {
@@ -746,9 +804,17 @@ export async function ensureSystemSetup() {
     userRoleTable,
   } = schema;
 
-  const { ADMIN_PHONE } = envDatabaseSchema.parse(process.env);
+  const { ADMIN_PHONE, DB_RESET_RBAC } = envDatabaseSchema.parse(process.env);
 
   await DB.transaction(async (txn) => {
+    if (DB_RESET_RBAC) {
+      logger.warn("Resetting RBAC tables as requested by DB_RESET_RBAC");
+      await txn.delete(rolePoliciesTable);
+      await txn.delete(userRoleTable);
+      await txn.delete(policyTable);
+      await txn.delete(rolesTable);
+    }
+
     const existingRoles = await txn.select().from(rolesTable);
     const existingRoleNames = new Set(existingRoles.map((r) => r.name));
 

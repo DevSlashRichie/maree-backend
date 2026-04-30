@@ -31,7 +31,7 @@ import {
   RewardSchema,
   UpdateRewardParamsSchema,
 } from "@/domain/entities/reward";
-import { authzMiddleware } from "../middleware/authz";
+import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
 
 export const rewardRouter = createRouter();
@@ -41,6 +41,7 @@ rewardRouter.openapi(
     tags: ["Reward"],
     method: "post",
     path: "/",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:rewards"])],
     request: {
       body: {
         content: {
@@ -146,7 +147,7 @@ rewardRouter.openapi(
     security: [{ Bearer: [] }],
     middleware: [
       authzMiddleware(true),
-      //checkPolicyMiddleware(["rewards:read"]),
+      checkPolicyMiddleware(["read:rewards"]),
     ],
     request: {
       params: z.object({
@@ -185,6 +186,7 @@ rewardRouter.openapi(
     tags: ["Reward"],
     method: "post",
     path: "/redeem",
+    middleware: [authzMiddleware(true)],
     request: {
       body: {
         content: {
@@ -251,6 +253,7 @@ rewardRouter.openapi(
     method: "delete",
     path: "/{rewardId}",
     security: [{ Bearer: [] }],
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:rewards"])],
     request: {
       params: DeleteRewardParamsSchema,
     },
@@ -299,6 +302,7 @@ rewardRouter.openapi(
     method: "patch",
     path: "/{rewardId}",
     security: [{ Bearer: [] }],
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:rewards"])],
     request: {
       params: UpdateRewardParamsSchema,
       body: {
@@ -359,6 +363,7 @@ rewardRouter.openapi(
     tags: ["Reward"],
     method: "post",
     path: "/visit",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:rewards"])],
     request: {
       body: {
         content: {

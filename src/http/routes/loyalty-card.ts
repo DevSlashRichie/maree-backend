@@ -12,7 +12,7 @@ import { authzMiddleware } from "../middleware/authz";
 import type { State } from "../state";
 
 export const loyaltyRouter = new OpenAPIHono<State>();
-loyaltyRouter.use(authzMiddleware(false));
+loyaltyRouter.use(authzMiddleware(true));
 /**
  * GET /
  * Returns basic loyalty card details

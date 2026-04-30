@@ -14,6 +14,7 @@ import { updateDiscountUseCase } from "@/application/use-cases/update-discount";
 import { DiscountSchema } from "@/domain/entities/discount";
 import { ErrorSchema } from "@/domain/entities/error";
 import { logger } from "@/lib/logger";
+import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
 
 export const discountRouter = createRouter();
@@ -23,6 +24,7 @@ discountRouter.openapi(
     tags: ["Discount"],
     method: "post",
     path: "/",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:discounts"])],
     request: {
       body: {
         required: true,
@@ -71,6 +73,7 @@ discountRouter.openapi(
     tags: ["Discount"],
     method: "get",
     path: "/",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["read:discounts"])],
     responses: {
       200: {
         description: "List discounts",
@@ -93,6 +96,7 @@ discountRouter.openapi(
     tags: ["Discount"],
     method: "get",
     path: "/{id}",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["read:discounts"])],
     request: {
       params: z.object({
         id: z.string().uuid(),
@@ -146,6 +150,7 @@ discountRouter.openapi(
     tags: ["Discount"],
     method: "patch",
     path: "/{id}",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:discounts"])],
     request: {
       params: z.object({
         id: z.string().uuid(),
@@ -207,6 +212,7 @@ discountRouter.openapi(
     tags: ["Discount"],
     method: "delete",
     path: "/{id}",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:discounts"])],
     request: {
       params: z.object({
         id: z.string().uuid(),

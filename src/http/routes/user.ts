@@ -33,7 +33,7 @@ import { removeRoleUseCase } from "@/application/use-cases/remove-role";
 import { updateUserUseCase } from "@/application/use-cases/update-user";
 import { ActorSchema } from "@/domain/entities/actor";
 import { ErrorSchema } from "@/domain/entities/error";
-import { authzMiddleware } from "../middleware/authz";
+import { authzMiddleware, checkPolicyMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
 
 export const userRouter = createRouter();
@@ -44,6 +44,7 @@ userRouter.openapi(
     tags: ["User"],
     method: "get",
     path: "/",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["read:users"])],
     request: {
       query: UserFiltersSchema.merge(PaginationSchema),
     },
@@ -106,6 +107,7 @@ userRouter.openapi(
     tags: ["User"],
     method: "get",
     path: "/staff",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["read:staff"])],
     request: {
       query: StaffFiltersSchema.merge(PaginationSchema),
     },
@@ -302,6 +304,7 @@ userRouter.openapi(
     tags: ["User"],
     method: "get",
     path: "/{userId}",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["read:users"])],
     request: {
       params: z.object({
         userId: z.string().uuid().or(z.string()),
@@ -346,6 +349,7 @@ userRouter.openapi(
     tags: ["User"],
     method: "get",
     path: "/staff/{userId}",
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["read:staff"])],
     request: {
       params: z.object({
         userId: z.string().uuid(),
@@ -391,7 +395,7 @@ userRouter.openapi(
     method: "post",
     path: "/{userId}/roles",
     security: [{ Bearer: [] }],
-    middleware: [authzMiddleware(true)],
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:roles"])],
     request: {
       params: z.object({
         userId: z.string().uuid(),
@@ -462,7 +466,7 @@ userRouter.openapi(
     method: "delete",
     path: "/staff/{userId}",
     security: [{ Bearer: [] }],
-    middleware: [authzMiddleware(true)],
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:staff"])],
     request: {
       params: z.object({
         userId: z.string().uuid(),
@@ -520,7 +524,7 @@ userRouter.openapi(
     method: "delete",
     path: "/{userId}/roles/{roleName}",
     security: [{ Bearer: [] }],
-    middleware: [authzMiddleware(true)],
+    middleware: [authzMiddleware(), checkPolicyMiddleware(["write:roles"])],
     request: {
       params: z.object({
         userId: z.string().uuid(),

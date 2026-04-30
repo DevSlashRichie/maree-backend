@@ -38,4 +38,5 @@ export const LoginResultSchema = z
 export interface TokenPayloadType {
   userId: string;
   role: string | null;
+  policies: string[];
 }

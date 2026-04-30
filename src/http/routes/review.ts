@@ -13,6 +13,7 @@ import {
   ReviewSchema,
 } from "@/domain/entities/review";
 import { logger } from "@/lib/logger";
+import { authzMiddleware } from "../middleware/authz";
 import { createRouter } from "../utils";
 
 export const reviewRouter = createRouter();
@@ -90,6 +91,7 @@ reviewRouter.openapi(
     tags: ["Review"],
     method: "post",
     path: "/",
+    middleware: [authzMiddleware(true)],
     request: {
       body: {
         required: true,
